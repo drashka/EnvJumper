@@ -146,5 +146,15 @@
   "wpNetworkThemesLink": { "message": "Network Themes" },
   "wpNetworkSitesLink": { "message": "Network Sites" },
   "wpNetworkUsersLink": { "message": "Network Users" },
-  "wpNetworkSettingsLink": { "message": "Network Settings" }
+  "wpNetworkSettingsLink": { "message": "Network Settings" },
+
+  "basicAuth": { "message": "Basic Auth" },
+  "basicAuthUsername": { "message": "Username" },
+  "basicAuthPassword": { "message": "Password" },
+  "basicAuthShow": { "message": "Show" },
+  "basicAuthHide": { "message": "Hide" },
+  "basicAuthSyncNotice": { "message": "Credentials are synced across your devices." },
+  "basicAuthRemove": { "message": "Remove credentials" },
+  "exportIncludeBasicAuth": { "message": "Include Basic Auth credentials" },
+  "exportBasicAuthWarning": { "message": "Warning: credentials will be visible in plain text in the exported file." }
 }

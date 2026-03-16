@@ -692,6 +692,124 @@ function buildEnvItem(groupId, env) {
 
   colorRow.appendChild(colorPicker);
   item.appendChild(colorRow);
+
+  // Basic Auth section
+  const baSection = document.createElement('div');
+  baSection.className = 'basic-auth-section';
+
+  // Toggle row
+  const baToggleRow = document.createElement('div');
+  baToggleRow.className = 'toggle-row basic-auth-toggle-row';
+
+  const baToggleLabel = document.createElement('span');
+  baToggleLabel.className = 'toggle-label';
+  baToggleLabel.textContent = t('basicAuth');
+
+  const baToggleWrapper = document.createElement('label');
+  baToggleWrapper.className = 'toggle';
+  const baToggleInput = document.createElement('input');
+  baToggleInput.type = 'checkbox';
+  baToggleInput.checked = !!(env.basicAuth && env.basicAuth.enabled);
+  const baToggleTrack = document.createElement('span');
+  baToggleTrack.className = 'toggle-track';
+  baToggleWrapper.appendChild(baToggleInput);
+  baToggleWrapper.appendChild(baToggleTrack);
+
+  baToggleRow.appendChild(baToggleLabel);
+  baToggleRow.appendChild(baToggleWrapper);
+  baSection.appendChild(baToggleRow);
+
+  // Fields (username + password)
+  const baFields = document.createElement('div');
+  baFields.className = 'basic-auth-fields';
+  baFields.style.display = baToggleInput.checked ? 'block' : 'none';
+
+  // Username
+  const baUserRow = document.createElement('div');
+  baUserRow.className = 'field-row';
+  const baUserLabel = document.createElement('label');
+  baUserLabel.className = 'field-label';
+  baUserLabel.textContent = t('basicAuthUsername');
+  const baUserInput = document.createElement('input');
+  baUserInput.type = 'text';
+  baUserInput.className = 'input-sm';
+  baUserInput.placeholder = t('basicAuthUsername');
+  baUserInput.value = (env.basicAuth && env.basicAuth.username) || '';
+  baUserInput.autocomplete = 'off';
+  baUserRow.appendChild(baUserLabel);
+  baUserRow.appendChild(baUserInput);
+  baFields.appendChild(baUserRow);
+
+  // Password
+  const baPassRow = document.createElement('div');
+  baPassRow.className = 'field-row';
+  const baPassLabel = document.createElement('label');
+  baPassLabel.className = 'field-label';
+  baPassLabel.textContent = t('basicAuthPassword');
+  const baPassWrapper = document.createElement('div');
+  baPassWrapper.className = 'basic-auth-pass-wrapper';
+  const baPassInput = document.createElement('input');
+  baPassInput.type = 'password';
+  baPassInput.className = 'input-sm';
+  baPassInput.placeholder = t('basicAuthPassword');
+  baPassInput.value = (env.basicAuth && env.basicAuth.password) || '';
+  baPassInput.autocomplete = 'new-password';
+  const baEyeBtn = document.createElement('button');
+  baEyeBtn.type = 'button';
+  baEyeBtn.className = 'btn-eye';
+  baEyeBtn.title = t('basicAuthShow');
+  baEyeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  baEyeBtn.addEventListener('click', () => {
+    const isHidden = baPassInput.type === 'password';
+    baPassInput.type = isHidden ? 'text' : 'password';
+    baEyeBtn.title = isHidden ? t('basicAuthHide') : t('basicAuthShow');
+  });
+  baPassWrapper.appendChild(baPassInput);
+  baPassWrapper.appendChild(baEyeBtn);
+  baPassRow.appendChild(baPassLabel);
+  baPassRow.appendChild(baPassWrapper);
+  baFields.appendChild(baPassRow);
+
+  // Sync notice
+  const baSyncNotice = document.createElement('p');
+  baSyncNotice.className = 'basic-auth-notice';
+  baSyncNotice.textContent = t('basicAuthSyncNotice');
+  baFields.appendChild(baSyncNotice);
+
+  // Remove credentials button
+  const baRemoveBtn = document.createElement('button');
+  baRemoveBtn.type = 'button';
+  baRemoveBtn.className = 'btn btn-sm btn-danger-outline';
+  baRemoveBtn.textContent = t('basicAuthRemove');
+  baRemoveBtn.addEventListener('click', async () => {
+    baUserInput.value = '';
+    baPassInput.value = '';
+    await saveEnvField(groupId, env.id, 'basicAuth', null);
+    baToggleInput.checked = false;
+    baFields.style.display = 'none';
+  });
+  baFields.appendChild(baRemoveBtn);
+
+  baSection.appendChild(baFields);
+
+  // Save helpers
+  async function saveBasicAuth() {
+    await saveEnvField(groupId, env.id, 'basicAuth', {
+      enabled: baToggleInput.checked,
+      username: baUserInput.value.trim(),
+      password: baPassInput.value,
+    });
+  }
+
+  baToggleInput.addEventListener('change', async () => {
+    baFields.style.display = baToggleInput.checked ? 'block' : 'none';
+    await saveBasicAuth();
+  });
+  baUserInput.addEventListener('change', saveBasicAuth);
+  baPassInput.addEventListener('change', saveBasicAuth);
+
+  item.appendChild(baSection);
+
   return item;
 }
 

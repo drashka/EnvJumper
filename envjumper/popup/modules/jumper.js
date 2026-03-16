@@ -4,7 +4,7 @@
 
 import { getGroups } from './storage.js';
 import { t } from './i18n.js';
-import { el, show, hide, buildTargetUrl } from './ui-helpers.js';
+import { el, show, hide, buildTargetUrl, injectBasicAuth } from './ui-helpers.js';
 import { getWpLoginStatus, buildMultisiteUrl } from './wordpress.js';
 import { ICONS } from './icons.js';
 
@@ -150,6 +150,15 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
   header.appendChild(dot);
   header.appendChild(nameSpan);
 
+  // Lock icon if basicAuth is enabled
+  if (env.basicAuth && env.basicAuth.enabled) {
+    const lockIcon = document.createElement('span');
+    lockIcon.className = 'env-basicauth-icon';
+    lockIcon.title = 'Basic Auth';
+    lockIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+    header.appendChild(lockIcon);
+  }
+
   if (isCurrent) {
     // "Current" badge to the right of the name
     const badge = document.createElement('span');
@@ -170,7 +179,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     btnSameTab.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M5 10h10M11 6l4 4-4 4"/></svg>`;
     btnSameTab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
+      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https', env.basicAuth);
       if (url) chrome.tabs.update(undefined, { url });
       window.close();
     });
@@ -181,7 +190,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     btnNewTab.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
     btnNewTab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
+      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https', env.basicAuth);
       if (url) chrome.tabs.create({ url });
     });
 
@@ -316,7 +325,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
               }
               siteBtn.addEventListener('click', (ev) => {
                 ev.stopPropagation();
-                const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
+                const url = injectBasicAuth(buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path), env.basicAuth);
                 chrome.tabs.create({ url });
                 popover.remove();
               });
@@ -332,7 +341,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
             allBtn.addEventListener('click', (ev) => {
               ev.stopPropagation();
               group.wpSites.forEach((site) => {
-                const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
+                const url = injectBasicAuth(buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path), env.basicAuth);
                 chrome.tabs.create({ url });
               });
               popover.remove();
@@ -347,7 +356,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
             noBtn.addEventListener('click', (ev) => {
               ev.stopPropagation();
               const proto = env.protocol || 'https';
-              chrome.tabs.create({ url: `${proto}://${env.domain}${link.path}` });
+              chrome.tabs.create({ url: injectBasicAuth(`${proto}://${env.domain}${link.path}`, env.basicAuth) });
               popover.remove();
             });
             popover.appendChild(noBtn);
@@ -367,7 +376,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
           // Standard click: open in new tab
           row.addEventListener('click', () => {
             const proto = env.protocol || 'https';
-            const url = `${proto}://${env.domain}${link.path}`;
+            const url = injectBasicAuth(`${proto}://${env.domain}${link.path}`, env.basicAuth);
             chrome.tabs.create({ url });
           });
         }

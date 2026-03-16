@@ -117,13 +117,18 @@ function convertOldFormat(data) {
     newGroup.wpSites = newGroup.wpSites || [];
     newGroup.links = newGroup.links || [];
 
-    // Clean up envs: keep only id, name, domain, color
-    newGroup.environments = (newGroup.environments || []).map((env) => ({
-      id: env.id || generateId(),
-      name: env.name || '',
-      domain: env.domain || '',
-      color: env.color || '#6B7280',
-    }));
+    // Clean up envs: keep only core fields + basicAuth if present
+    newGroup.environments = (newGroup.environments || []).map((env) => {
+      const e = {
+        id: env.id || generateId(),
+        name: env.name || '',
+        domain: env.domain || '',
+        color: env.color || '#6B7280',
+        protocol: env.protocol || 'https',
+      };
+      if (env.basicAuth) e.basicAuth = env.basicAuth;
+      return e;
+    });
 
     return newGroup;
   });
@@ -153,10 +158,54 @@ function validateImportData(data) {
  * Must be called once during DOMContentLoaded.
  */
 export function initExportImport() {
+  // Inject Basic Auth checkbox into the export section
+  const exportRow = el('export-all-btn').closest('.export-row');
+  if (exportRow && !el('export-basicauth-check')) {
+    const baRow = document.createElement('div');
+    baRow.className = 'export-basicauth-row';
+    const baCheck = document.createElement('input');
+    baCheck.type = 'checkbox';
+    baCheck.id = 'export-basicauth-check';
+    baCheck.checked = false;
+    const baLabel = document.createElement('label');
+    baLabel.htmlFor = 'export-basicauth-check';
+    baLabel.className = 'export-basicauth-label';
+    baLabel.textContent = t('exportIncludeBasicAuth');
+    baRow.appendChild(baCheck);
+    baRow.appendChild(baLabel);
+    exportRow.parentNode.insertBefore(baRow, exportRow);
+
+    // Warning shown when checked
+    const baWarning = document.createElement('p');
+    baWarning.className = 'export-basicauth-warning hidden';
+    baWarning.textContent = t('exportBasicAuthWarning');
+    exportRow.parentNode.insertBefore(baWarning, exportRow);
+
+    baCheck.addEventListener('change', () => {
+      baWarning.classList.toggle('hidden', !baCheck.checked);
+    });
+  }
+
+  function includeBasicAuth() {
+    const cb = el('export-basicauth-check');
+    return cb ? cb.checked : false;
+  }
+
+  function stripBasicAuth(groups) {
+    return groups.map((g) => ({
+      ...g,
+      environments: g.environments.map((env) => {
+        const { basicAuth, ...rest } = env;
+        return rest;
+      }),
+    }));
+  }
+
   // Export all (includes global settings)
   el('export-all-btn').addEventListener('click', async () => {
     const [groups, settings] = await Promise.all([getGroups(), getSettings()]);
-    downloadJson({ groups, settings }, 'envjump-export.json');
+    const exportGroups = includeBasicAuth() ? groups : stripBasicAuth(groups);
+    downloadJson({ groups: exportGroups, settings }, 'envjumper-export.json');
   });
 
   // Export a single group
@@ -166,8 +215,9 @@ export function initExportImport() {
     const groups = await getGroups();
     const group = groups.find((g) => g.id === groupId);
     if (!group) return;
-    const filename = `envjump-${group.name.replace(/\s+/g, '-').toLowerCase()}.json`;
-    downloadJson({ groups: [group] }, filename);
+    const exportGroup = includeBasicAuth() ? group : stripBasicAuth([group])[0];
+    const filename = `envjumper-${group.name.replace(/\s+/g, '-').toLowerCase()}.json`;
+    downloadJson({ groups: [exportGroup] }, filename);
   });
 
   // Import from file
@@ -207,14 +257,12 @@ export function initExportImport() {
     }
 
     if (importedGroups.length === 1) {
-      // Single group: add directly
       const groups = await getGroups();
       groups.push({ ...importedGroups[0], id: generateId() });
       await saveGroups(groups);
       await renderSettingsPanel();
       showImportSuccess(t('importSuccessGroup', importedGroups[0].name));
     } else {
-      // Multiple groups: ask the user whether to merge or replace
       const choice = await showImportModal();
 
       if (choice === 'merge') {
@@ -224,7 +272,6 @@ export function initExportImport() {
         await renderSettingsPanel();
         showImportSuccess(t('importSuccessMerge', String(importedGroups.length)));
       } else {
-        // replace
         const newGroups = importedGroups.map((g) => ({ ...g, id: generateId() }));
         await saveGroups(newGroups);
         await renderSettingsPanel();

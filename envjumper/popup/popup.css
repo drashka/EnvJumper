@@ -1505,3 +1505,99 @@ html, body {
 .link-quick-row {
   position: relative;
 }
+
+/* ── Basic Auth section in env settings */
+.basic-auth-section {
+  margin-top: 8px;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: 8px;
+}
+
+.basic-auth-toggle-row {
+  margin-bottom: 0;
+}
+
+.basic-auth-fields {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.basic-auth-pass-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.basic-auth-pass-wrapper .input-sm {
+  flex: 1;
+}
+
+.btn-eye {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 4px);
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.btn-eye:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.basic-auth-notice {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin: 2px 0 4px;
+}
+
+.btn-danger-outline {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  background: none;
+  border-radius: var(--radius-sm, 4px);
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-danger-outline:hover {
+  background: var(--color-error-bg);
+}
+
+/* Lock icon on jumper card */
+.env-basicauth-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+/* Export Basic Auth checkbox row */
+.export-basicauth-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.export-basicauth-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.export-basicauth-warning {
+  font-size: 11px;
+  color: var(--color-danger);
+  margin-bottom: 6px;
+}

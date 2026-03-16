@@ -146,5 +146,15 @@
   "wpNetworkThemesLink": { "message": "Thèmes réseau" },
   "wpNetworkSitesLink": { "message": "Sites du réseau" },
   "wpNetworkUsersLink": { "message": "Utilisateurs réseau" },
-  "wpNetworkSettingsLink": { "message": "Réglages réseau" }
+  "wpNetworkSettingsLink": { "message": "Réglages réseau" },
+
+  "basicAuth": { "message": "Basic Auth" },
+  "basicAuthUsername": { "message": "Identifiant" },
+  "basicAuthPassword": { "message": "Mot de passe" },
+  "basicAuthShow": { "message": "Afficher" },
+  "basicAuthHide": { "message": "Masquer" },
+  "basicAuthSyncNotice": { "message": "Les identifiants sont synchronisés entre vos appareils." },
+  "basicAuthRemove": { "message": "Supprimer les identifiants" },
+  "exportIncludeBasicAuth": { "message": "Inclure les identifiants Basic Auth" },
+  "exportBasicAuthWarning": { "message": "Attention : les identifiants seront visibles en clair dans le fichier exporté." }
 }
