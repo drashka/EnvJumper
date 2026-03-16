@@ -14,9 +14,19 @@ Crée une extension Chrome (Manifest V3) appelée **EnvJump**. Elle est destiné
 envjump/
 ├── manifest.json
 ├── popup/
-│   ├── popup.html
+│   ├── popup.html           (script tag uses type="module")
 │   ├── popup.css
-│   └── popup.js
+│   ├── popup.js             (lightweight orchestrator ~50 lines)
+│   └── modules/
+│       ├── i18n.js          (t(), applyI18n())
+│       ├── storage.js       (getGroups, saveGroups, getSettings, saveSettings, generateId, COLOR_PALETTE, migrateData)
+│       ├── ui-helpers.js    (el, show, hide, confirm, buildTargetUrl, showImportError, showImportSuccess, showImportModal)
+│       ├── tabs.js          (initTabs, switchTab, setSettingsRenderer)
+│       ├── jumper.js        (renderJumperPanel, findMatch, buildJumperCard)
+│       ├── wordpress.js     (WP_ICONS, getDefaultWpLinks, getWpLoginStatus)
+│       ├── links.js         (buildLinksSection, buildLinkSettingsRow, reorderLinks, saveLinkField)
+│       ├── settings.js      (renderSettingsPanel, updateExportGroupSelect)
+│       └── import-export.js (initExportImport, downloadJson, convertOldFormat, validateImportData)
 ├── content/
 │   └── content.js        # Injecte la bordure colorée, détecte le statut WP
 ├── background/
@@ -28,6 +38,13 @@ envjump/
 └── shared/
     └── storage.js         # Helpers d'accès à chrome.storage.sync
 ```
+
+### Conventions de code
+
+- **ES Modules natifs** (`import`/`export`) — pas de bundler.
+- **Commentaires en anglais** dans tous les fichiers JS du popup.
+- **Pas de variables globales** — toutes les dépendances passent par imports/exports.
+- **Dépendance circulaire tabs ↔ settings** résolue via `setSettingsRenderer(fn)` dans `tabs.js`.
 
 ---
 
