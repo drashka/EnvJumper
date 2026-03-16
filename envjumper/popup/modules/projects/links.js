@@ -95,18 +95,6 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   });
   row.appendChild(pathInput);
 
-  // Badge text input (custom links only)
-  if (link.type === 'custom') {
-    const badgeInput = document.createElement('input');
-    badgeInput.type = 'text';
-    badgeInput.className = 'input-sm link-badge-input';
-    badgeInput.maxLength = 15;
-    badgeInput.placeholder = t('linkBadgePlaceholder');
-    badgeInput.value = link.badge || '';
-    badgeInput.title = t('linkBadgeLabel');
-    badgeInput.addEventListener('change', () => saveLinkField(groupId, link.id, 'badge', badgeInput.value));
-    row.appendChild(badgeInput);
-  }
 
   // multisitePrefix checkbox — only for WP Multisite subdirectory + non-network links
   const isSubdir = group.isWordPressMultisite && group.wpMultisiteType === 'subdirectory';
@@ -128,27 +116,12 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
     row.appendChild(prefixLabel);
   }
 
-  // Type badge
-  const isNetworkLink = link.type === 'network';
-  const isCmsLink = link.type === 'cms' || link.type === 'wordpress';
-  const typeBadge = document.createElement('span');
-  if (isNetworkLink) {
-    typeBadge.className = 'link-type-badge network';
-    typeBadge.textContent = t('networkBadge');
-  } else if (isCmsLink) {
-    typeBadge.className = 'link-type-badge wp';
-    typeBadge.textContent = 'CMS';
-  } else {
-    typeBadge.className = 'link-type-badge custom';
-    typeBadge.textContent = 'custom';
-  }
-  row.appendChild(typeBadge);
 
   // Remove button
   const btnRemove = document.createElement('button');
-  btnRemove.className = 'btn-remove-link';
+  btnRemove.className = 'btn-remove-link btn-icon-trash';
   btnRemove.title = 'Remove this link';
-  btnRemove.textContent = '×';
+  btnRemove.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>`;
   btnRemove.addEventListener('click', async () => {
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
@@ -245,7 +218,7 @@ export function buildLinksSection(groupId, group) {
 
   // "Add custom link" button
   const btnAdd = document.createElement('button');
-  btnAdd.className = 'btn btn-sm btn-outline btn-add-link';
+  btnAdd.className = 'btn btn-sm btn-outline btn-full btn-add-link';
   btnAdd.textContent = t('addLink');
   btnAdd.addEventListener('click', async () => {
     const groups = await getGroups();

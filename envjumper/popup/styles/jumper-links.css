@@ -1,0 +1,148 @@
+/* EnvJumper — Jumper : liens rapides et badges */
+
+/* ─── Links dans le Jumper ─────────────────────────────────── */
+
+.link-quick-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .15s, color .15s, box-shadow .15s;
+  text-decoration: none;
+  color: var(--color-text);
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+.link-quick-row:hover {
+  background: var(--accent-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(66, 153, 225, .35);
+}
+
+.link-quick-row:hover .link-icon,
+.link-quick-row:hover .link-newtab-icon,
+.link-quick-row:hover .link-globe-icon {
+  color: rgba(255, 255, 255, .8);
+}
+
+.link-quick-row:hover .link-badge {
+  color: #ffffff;
+  background: rgba(255, 255, 255, .2);
+  border-color: transparent;
+}
+
+.link-quick-row.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: default;
+}
+
+.link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.link-icon svg { width: 16px; height: 16px; }
+
+.link-label { flex: 1; color: var(--color-text); }
+
+.link-newtab-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.link-newtab-icon svg { width: 13px; height: 13px; }
+
+.link-allsites-btn {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color .15s;
+}
+
+.link-allsites-btn:hover { color: var(--accent-blue); }
+.link-quick-row:hover .link-allsites-btn { color: rgba(255, 255, 255, .8); }
+.link-allsites-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* ─── Badges de lien ───────────────────────────────────────── */
+
+.link-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.link-badge-network {
+  background: var(--accent-blue);
+  color: #ffffff;
+}
+
+.link-badge-custom {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-light);
+}
+
+/* Globe icon indicator on link rows */
+.link-globe-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.link-quick-row.has-prefix .link-globe-icon {
+  color: var(--accent-blue);
+  opacity: 1;
+}
+
+.link-quick-row.has-prefix:hover .link-globe-icon { color: #ffffff; }
+
+/* Multisite prefix checkbox in settings link row */
+.link-prefix-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.link-prefix-checkbox-label input[type="checkbox"]:checked + span {
+  color: var(--accent-blue);
+}
+
+/* Badge text input in settings */
+.link-badge-input {
+  width: 80px !important;
+  flex: none !important;
+  font-size: 11px;
+}

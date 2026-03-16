@@ -6,7 +6,7 @@ import { getGroups, saveGroups } from '../helpers/storage.js';
 import { t } from '../i18n.js';
 import { el } from '../helpers/ui-helpers.js';
 import { buildLinksSection } from './links.js';
-import { buildEnvsSubtab } from './editing-envs.js';
+import { buildEnvsSubtab, buildProjectSettingsSubtab } from './editing-envs.js';
 import { buildCmsSubtab } from './editing-cms.js';
 import { updateExportGroupSelect } from '../settings/settings.js';
 
@@ -110,6 +110,14 @@ function _switchProjectSubtab(subtab) {
     buildCmsSubtab(content, _editingGroup);
   } else if (subtab === 'links') {
     content.appendChild(buildLinksSection(_editingGroup.id, _editingGroup));
+  } else if (subtab === 'settings') {
+    buildProjectSettingsSubtab(content, _editingGroup, {
+      onClose: closeProjectEdit,
+      onRefresh: async () => {
+        const { renderEnvironmentsPanel } = await import('./projects.js');
+        await renderEnvironmentsPanel();
+      },
+    });
   }
 }
 

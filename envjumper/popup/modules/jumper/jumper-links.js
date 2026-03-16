@@ -55,19 +55,6 @@ export function buildJumperCardBody(env, group, wpIsLoggedIn) {
       labelSpan.className = 'link-label';
       labelSpan.textContent = link.label || link.path;
 
-      if (link.badge && link.type === 'custom') {
-        const badgeSpan = document.createElement('span');
-        badgeSpan.className = 'link-badge link-badge-custom';
-        badgeSpan.textContent = link.badge;
-        labelSpan.appendChild(badgeSpan);
-      }
-
-      if (isNetworkLink) {
-        const netBadge = document.createElement('span');
-        netBadge.className = 'link-badge link-badge-network';
-        netBadge.textContent = t('networkBadge');
-        labelSpan.appendChild(netBadge);
-      }
 
       row.appendChild(iconDiv);
       row.appendChild(labelSpan);
