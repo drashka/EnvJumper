@@ -3,116 +3,134 @@
 </p>
 
 <p align="center">
-  <strong>Sautez entre vos environnements web en un clic.</strong>
+  <strong>Jump between your web environments in one click.</strong>
+</p>
+
+<p align="center">
+  🇫🇷 <a href="README.fr.md">Version française</a>
 </p>
 
 ---
 
-EnvJumper est une extension Chrome qui permet de naviguer instantanément entre les différents environnements d'un projet web (production, staging, dev…) tout en conservant la page en cours. Une bordure colorée vous indique en permanence sur quel environnement vous vous trouvez.
+EnvJumper is a Chrome extension that lets you instantly switch between environments of a web project (production, staging, dev…) while keeping the current page path. A colored border permanently shows you which environment you're on.
 
 ---
 
-## Fonctionnalités
+## Features
 
-- **Switch en un clic** — Passez de `prod.exemple.com/ma-page` à `staging.exemple.com/ma-page` sans retaper l'URL
-- **Bordure colorée** — Identifiez visuellement l'environnement actif grâce à une bordure autour de la page (12 couleurs au choix)
-- **Multi-projets** — Gérez plusieurs projets, chacun avec ses propres environnements
-- **WordPress Multisite** — Ouvrez un permalien sur tous les sites du réseau en un clic, accédez au Network Admin et aux extensions
-- **Export / Import** — Partagez votre configuration entre collègues via un fichier JSON
-- **Synchronisé** — La configuration se synchronise entre vos appareils Chrome
+- **One-click switch** — Go from `prod.example.com/my-page` to `staging.example.com/my-page` without retyping the URL
+- **Colored border** — Visually identify the active environment with a border around the page (12 colors available)
+- **Multi-project** — Manage multiple projects, each with its own environments
+- **Multi-CMS** — Built-in quick links for WordPress, Joomla, Drupal, PrestaShop, Magento and Shopify
+- **WordPress Multisite** — Open a permalink on all network sites at once, access Network Admin and plugins (subdomain and subdirectory modes)
+- **Basic Auth** — Store HTTP Basic Auth credentials per environment, synced across your devices
+- **Right-click menu** — Jump to any environment directly from the browser context menu
+- **Stealth mode** — Hide the colored border and badge when needed
+- **Export / Import** — Share your configuration with teammates via a JSON file
+- **Light / Dark theme** — Automatic detection via system preference
+- **Synced** — Configuration syncs across your Chrome devices via `chrome.storage.sync`
 
-## Pour qui ?
+## Who is it for?
 
-EnvJump est conçu pour toute personne travaillant sur des projets web multi-environnements : développeurs, designers, chefs de projet, QA, intégrateurs…
+EnvJumper is designed for anyone working on multi-environment web projects: developers, designers, project managers, QA engineers, integrators…
 
 ---
 
 ## Installation
 
-### Depuis les sources (mode développeur)
+### From source (developer mode)
 
-1. Clonez ce dépôt :
+1. Clone this repository:
    ```bash
-   git clone https://github.com/<votre-repo>/envjump.git
+   git clone https://github.com/drashka/EnvJumper.git
    ```
-2. Ouvrez Chrome et allez sur `chrome://extensions/`
-3. Activez le **Mode développeur** (en haut à droite)
-4. Cliquez sur **Charger l'extension non empaquetée**
-5. Sélectionnez le dossier `envjump/`
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable **Developer mode** (top right)
+4. Click **Load unpacked**
+5. Select the `envjumper/` folder
 
-L'icône EnvJump apparaît dans votre barre d'extensions.
+The EnvJumper icon will appear in your extensions bar.
 
 ---
 
-## Utilisation
+## Usage
 
-### Ajouter un projet et ses environnements
+### Add a project and its environments
 
-1. Cliquez sur l'icône EnvJump
-2. Allez dans l'onglet **Gestion**
-3. Cliquez sur **Ajouter un groupe**
-4. Donnez un nom au projet (ex: "Mon site client")
-5. Ajoutez vos environnements avec leur domaine et une couleur :
-   - Production → `exemple.com` → 🔴 Rouge
-   - Staging → `staging.exemple.com` → 🟠 Orange
-   - Dev → `dev.exemple.com` → 🟢 Vert
+1. Click the EnvJumper icon
+2. Go to the **Projects** tab
+3. Click **+ Add a project** — EnvJumper auto-detects the current tab's URL and pre-fills the project name and first environment
+4. Adjust the name, domain and color, then add more environments as needed:
+   - Production → `example.com` → 🔴 Red
+   - Staging → `staging.example.com` → 🟠 Orange
+   - Dev → `dev.example.com` → 🟢 Green
 
-### Naviguer entre environnements
+### Navigate between environments
 
-1. Rendez-vous sur une page d'un environnement configuré (ex: `staging.exemple.com/mon-article`)
-2. Cliquez sur l'icône EnvJump
-3. L'onglet **Environnement actuel** affiche votre environnement et les alternatives
-4. Cliquez sur un environnement pour y accéder :
-   - 🔄 Bouton **onglet courant** — remplace l'URL dans l'onglet actif
-   - ➕ Bouton **nouvel onglet** — ouvre dans un nouvel onglet
+1. Go to a page on a configured environment (e.g. `staging.example.com/my-article`)
+2. Click the EnvJumper icon
+3. The **Jumper** tab shows your current environment and the alternatives
+4. Click an environment to switch:
+   - **Same tab** button — replaces the URL in the current tab
+   - **New tab** button — opens in a new tab
 
-La bordure colorée autour de la page vous confirme l'environnement actif.
+The colored border around the page confirms the active environment.
+
+### CMS quick links
+
+Enable a CMS on a project to get predefined quick links (login, dashboard, media, settings…):
+- **WordPress** — including Multisite support (subdomain & subdirectory)
+- **Joomla, Drupal, PrestaShop, Magento, Shopify**
+
+### Basic Auth
+
+In the environment settings, enable Basic Auth and enter your credentials. EnvJumper will automatically handle HTTP authentication challenges for that domain.
 
 ### WordPress Multisite
 
-1. Dans la gestion d'un groupe, activez **WordPress Multisite**
-2. Renseignez le domaine du network et les sites (FR, EN, DE…)
-3. Les actions rapides apparaissent dans la popup :
-   - Ouvrir le permalien sur tous les sites
-   - Accéder au Network Admin
-   - Accéder aux extensions du site ou du network
+1. Enable **WordPress** then **WordPress Multisite** in a project's CMS tab
+2. Choose the multisite type (subdomains or subdirectories) and add your sites (FR, EN, DE…)
+3. Quick actions appear in the popup:
+   - Open the current permalink on all sites
+   - Access Network Admin, Network Plugins, Themes, Sites, Users and Settings
 
-### Partager sa configuration
+### Share your configuration
 
-- **Exporter** : onglet Gestion → Export (tout ou un seul groupe) → fichier JSON téléchargé
-- **Importer** : onglet Gestion → Import → sélectionnez un fichier JSON → choisissez de remplacer ou fusionner
+- **Export**: Projects tab → export all or a single group → downloads a JSON file
+- **Import**: Projects tab → import → select a JSON file → choose to merge or replace
 
 ---
 
-## Stack technique
+## Tech stack
 
 - **Manifest V3**
-- **Vanilla JS** — pas de framework, extension légère
-- **CSS custom** — design sobre et professionnel
-- **chrome.storage.sync** — configuration synchronisée entre appareils
+- **Vanilla JS** — no framework, ES Modules natively
+- **Custom CSS** — clean and professional design, no framework
+- **Lucide Icons** — lightweight SVG icon set
+- **chrome.storage.sync** — configuration synced across devices
 
 ---
 
-## Contribuer
+## Contributing
 
-Les contributions sont les bienvenues ! Pour contribuer :
+Contributions are welcome! To contribute:
 
-1. Forkez le dépôt
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/ma-fonctionnalite`)
-3. Committez vos changements (`git commit -m "Ajout de ma fonctionnalité"`)
-4. Poussez la branche (`git push origin feature/ma-fonctionnalite`)
-5. Ouvrez une Pull Request
-
----
-
-## Licence
-
-Ce projet est distribué sous licence **GNU General Public License v3 (GPL-3.0)**.
-
-Vous êtes libre d'utiliser, modifier et redistribuer ce logiciel, à condition que toute version dérivée soit également distribuée sous GPL v3. Voir le fichier [LICENSE](LICENSE) pour le texte complet.
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -m "Add my feature"`)
+4. Push the branch (`git push origin feature/my-feature`)
+5. Open a Pull Request
 
 ---
 
-## Auteur
+## License
 
-Créé avec ❤️ pour simplifier le quotidien des équipes web.
+This project is distributed under the **GNU General Public License v3 (GPL-3.0)**.
+
+You are free to use, modify and redistribute this software, provided that any derivative version is also distributed under GPL v3. See the [LICENSE](LICENSE) file for the full text.
+
+---
+
+## Author
+
+Created with ❤️ by [Drashka](https://github.com/drashka) to simplify the daily life of web teams.

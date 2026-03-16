@@ -1,0 +1,238 @@
+/* EnvJumper — Projets : formulaires d'environnements, CMS, multisite, couleurs */
+
+/* ─── Section CMS dans l'édition ──────────────────────────── */
+
+.wp-env-section { margin-top: 8px; }
+
+.wp-env-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wp-multisite-section { margin-top: 8px; }
+
+.wp-config {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.wp-config-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 8px;
+}
+
+/* ─── Sites WP Multisite ───────────────────────────────────── */
+
+.wp-sites-list { margin-top: 6px; }
+
+.wp-site-row {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 4px;
+  align-items: center;
+}
+
+.wp-site-row .input-sm { flex: 1; }
+
+.wp-site-label-input {
+  width: 60px !important;
+  flex: 0 0 60px !important;
+}
+
+.btn-remove-site {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .12s;
+}
+
+.btn-remove-site:hover { color: var(--color-danger); }
+
+/* ─── Cards d'environnement repliables ─────────────────────── */
+
+.env-manage-list { margin-bottom: 8px; }
+
+.env-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.env-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+
+.env-card-header:hover { background: var(--color-surface) !important; }
+
+.env-card-header-info { flex: 1; min-width: 0; }
+
+.env-card-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.env-card-domain {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.env-card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-icon-trash {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.btn-icon-trash:hover { color: var(--color-danger); }
+
+.env-chevron {
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.env-card--open .env-chevron { transform: rotate(180deg); }
+
+.env-card-body {
+  padding: 16px;
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 2-column grid for Basic Auth credentials */
+.env-auth-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.env-manage-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.env-manage-row .input-sm { flex: 1; }
+
+/* Sélecteur de protocole (HTTPS/HTTP) */
+.env-domain-row .env-protocol-select {
+  flex: 0 0 auto;
+  width: 68px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 4px;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Sélecteur de couleur ─────────────────────────────────── */
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .12s, transform .12s;
+  flex-shrink: 0;
+}
+
+.color-swatch:hover { transform: scale(1.15); }
+
+.color-swatch.selected {
+  border-color: var(--color-text);
+  transform: scale(1.1);
+}
+
+.color-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.color-dot.lg { width: 12px; height: 12px; }
+
+.btn-delete-env {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: background .12s, color .12s;
+}
+
+.btn-delete-env:hover {
+  background: var(--color-error-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}

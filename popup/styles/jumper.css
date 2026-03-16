@@ -1,0 +1,211 @@
+/* EnvJumper — Jumper : cards, état vide, section WP multisite */
+
+/* ─── Label de groupe ──────────────────────────────────────── */
+
+.jumper-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+
+/* ─── Cards d'environnements ───────────────────────────────── */
+
+.jumper-card {
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--env-color, #6B7280);
+  border-radius: var(--radius-lg);
+  margin-bottom: 6px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.jumper-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .12s;
+}
+
+.jumper-card-header:hover { background: var(--color-surface); }
+
+.jumper-card.is-current .jumper-card-header { background: var(--color-surface); }
+
+.jumper-card.open .jumper-card-header {
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.jumper-card-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.jumper-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.jumper-card-chevron {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  transition: transform .2s;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.jumper-card.open .jumper-card-chevron { transform: rotate(90deg); }
+
+.jumper-card-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.jumper-card.open .jumper-card-body { grid-template-rows: 1fr; }
+
+.jumper-card-body-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 6px;
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 12px;
+  transition: padding 0.25s ease;
+}
+
+.jumper-card.open .jumper-card-body-inner { padding: 8px 12px 10px; }
+
+/* Badge "Actuel" */
+.badge-current {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--env-color, #6B7280);
+  color: white;
+  flex-shrink: 0;
+}
+
+/* Notice "Non connecté" */
+.wp-status-notice,
+.jumper-wp-multisite-section {
+  grid-column: 1 / -1;
+}
+
+.wp-status-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  color: var(--color-error-text);
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* ─── Section WP Multisite dans le Jumper ─────────────────── */
+
+.jumper-wp-multisite-section {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.jumper-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+/* ─── État vide ────────────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  gap: 10px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.empty-hostname {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-family: monospace;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+/* ─── Section WP Multisite (boutons d'actions) ─────────────── */
+
+.wp-section {
+  margin-top: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+}
+
+.wp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.btn-wp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background .12s;
+  width: 100%;
+}
+
+.btn-wp:hover { background: var(--color-surface); }
+
+/* Lock icon on jumper card */
+.env-basicauth-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  margin-left: 4px;
+  flex-shrink: 0;
+}
