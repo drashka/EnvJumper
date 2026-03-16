@@ -11,40 +11,61 @@ Crée une extension Chrome (Manifest V3) appelée **EnvJumper**. Elle est destin
 ## Architecture générale
 
 ```
-envjump/
-├── manifest.json
+envjumper/
+├── manifest.json              (type: module pour le service worker)
 ├── popup/
-│   ├── popup.html           (script tag uses type="module")
+│   ├── popup.html
 │   ├── popup.css
-│   ├── popup.js             (lightweight orchestrator ~50 lines)
+│   ├── popup.js               (orchestrateur léger ~80 lignes)
 │   └── modules/
-│       ├── i18n.js          (t(), applyI18n())
-│       ├── storage.js       (getGroups, saveGroups, getSettings, saveSettings, generateId, COLOR_PALETTE, migrateData)
-│       ├── ui-helpers.js    (el, show, hide, confirm, buildTargetUrl, showImportError, showImportSuccess, showImportModal)
-│       ├── tabs.js          (initTabs, switchTab, setSettingsRenderer)
-│       ├── jumper.js        (renderJumperPanel, findMatch, buildJumperCard)
-│       ├── wordpress.js     (WP_ICONS, getDefaultWpLinks, getWpLoginStatus)
-│       ├── links.js         (buildLinksSection, buildLinkSettingsRow, reorderLinks, saveLinkField)
-│       ├── settings.js      (renderSettingsPanel, updateExportGroupSelect)
-│       └── import-export.js (initExportImport, downloadJson, convertOldFormat, validateImportData)
+│       ├── i18n.js            (t(), applyI18n())
+│       ├── storage.js         (getGroups, saveGroups, getSettings, saveSettings, generateId, COLOR_PALETTE, migrateData)
+│       ├── ui-helpers.js      (el, show, hide, confirm, buildTargetUrl, modales, toasts)
+│       ├── tabs.js            (initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer)
+│       ├── icons.js           (ICONS, buildIconPicker)
+│       ├── links.js           (buildLinksSection — sous-onglet Liens rapides, drag & drop)
+│       ├── import-export.js   (initExportImport, downloadJson, convertOldFormat, validateImportData)
+│       │
+│       ├── helpers/
+│       │   └── ui-helpers.js      (el, show, hide, confirm, buildTargetUrl, modales, toasts)
+│       │
+│       ├── jumper/
+│       │   ├── jumper.js          (renderJumperPanel, findMatch, initJumper, buildJumperCard)
+│       │   ├── jumper-links.js    (buildJumperCardBody — rendu des liens dans les cards)
+│       │   └── jumper-multisite.js (showSiteSelector, hideSiteSelector — drill-down sites)
+│       │
+│       ├── projects/
+│       │   ├── projects.js        (renderEnvironmentsPanel, buildProjectListItem — liste des projets)
+│       │   ├── editing.js         (openProjectEdit, initEnvironmentsPanel, closeProjectEdit — état + navigation)
+│       │   ├── editing-envs.js    (buildEnvsSubtab, buildEnvItem, saveEnvField — CRUD envs + basic auth)
+│       │   ├── editing-cms.js     (buildCmsSubtab, buildCmsGroupConfig, buildWpMultisiteFields — CMS + WP multisite)
+│       │   ├── wordpress.js       (buildMultisiteUrl, getWpLoginStatus)
+│       │   └── cms.js             (CMS_IDS, getDefaultCmsLinks, getDefaultNetworkLinks)
+│       │
+│       └── settings/
+│           └── settings.js        (renderSettingsPanel, updateExportGroupSelect, badge position)
+│
 ├── content/
-│   └── content.js        # Injecte la bordure colorée, détecte le statut WP
+│   └── content.js             (bordure colorée, détection statut WP)
 ├── background/
-│   └── service-worker.js  # Gère les événements de navigation et le badge
+│   ├── service-worker.js      (badge, basic auth cache, event listeners)
+│   ├── context-menus.js       (rebuildContextMenus, initContextMenuListener)
+│   └── utils.js               (findMatch — partagé entre service-worker et context-menus)
 ├── icons/
 │   ├── icon-16.png
 │   ├── icon-48.png
 │   └── icon-128.png
 └── shared/
-    └── storage.js         # Helpers d'accès à chrome.storage.sync
+    └── storage.js             (helpers chrome.storage partagés avec le service worker)
 ```
 
 ### Conventions de code
 
-- **ES Modules natifs** (`import`/`export`) — pas de bundler.
+- **ES Modules natifs** (`import`/`export`) — pas de bundler. Le service worker utilise `"type": "module"` dans le manifest.
+- **Règle stricte : aucun fichier JS ne dépasse 300 lignes.**
 - **Commentaires en anglais** dans tous les fichiers JS du popup.
 - **Pas de variables globales** — toutes les dépendances passent par imports/exports.
-- **Dépendance circulaire tabs ↔ settings** résolue via `setSettingsRenderer(fn)` dans `tabs.js`.
+- **Dépendances circulaires évitées** : `tabs ↔ settings` via `setSettingsRenderer(fn)` ; `editing ↔ projects` via import dynamique et callback `onBack` passé à `initEnvironmentsPanel`.
 
 ---
 

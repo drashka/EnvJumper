@@ -2,9 +2,9 @@
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
-import { getGroups, saveGroups, generateId } from './storage.js';
-import { t } from './i18n.js';
-import { ICONS, buildIconPicker } from './icons.js';
+import { getGroups, saveGroups, generateId } from '../helpers/storage.js';
+import { t } from '../i18n.js';
+import { ICONS, buildIconPicker } from '../icons.js';
 
 /**
  * Saves the value of a single field on a link belonging to a group.

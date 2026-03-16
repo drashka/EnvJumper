@@ -2,8 +2,8 @@
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
-import { t } from './i18n.js';
-import { generateId } from './storage.js';
+import { t } from '../i18n.js';
+import { generateId } from '../helpers/storage.js';
 
 /** Identifiants CMS disponibles */
 export const CMS_IDS = ['none', 'wordpress', 'joomla', 'drupal', 'prestashop', 'magento', 'shopify'];

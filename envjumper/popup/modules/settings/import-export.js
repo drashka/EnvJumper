@@ -2,10 +2,10 @@
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
-import { getGroups, saveGroups, getSettings, saveSettings, generateId } from './storage.js';
-import { t } from './i18n.js';
-import { el, hide, showImportError, showImportSuccess, showImportModal } from './ui-helpers.js';
-import { renderEnvironmentsPanel } from './settings.js';
+import { getGroups, saveGroups, getSettings, saveSettings, generateId } from '../helpers/storage.js';
+import { t } from '../i18n.js';
+import { el, hide, showImportError, showImportSuccess, showImportModal } from '../helpers/ui-helpers.js';
+import { renderEnvironmentsPanel } from '../projects/projects.js';
 
 /**
  * Triggers a JSON file download in the browser.

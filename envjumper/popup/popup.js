@@ -3,12 +3,14 @@
 // Licence : GPL v3 — voir le fichier LICENSE
 
 import { applyI18n, t } from './modules/i18n.js';
-import { migrateData, generateId, getGroups, saveGroups } from './modules/storage.js';
+import { migrateData, generateId, getGroups, saveGroups } from './modules/helpers/storage.js';
 import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } from './modules/tabs.js';
-import { renderJumperPanel, initJumper } from './modules/jumper.js';
-import { initExportImport } from './modules/import-export.js';
-import { el } from './modules/ui-helpers.js';
-import { renderEnvironmentsPanel, renderSettingsPanel, updateExportGroupSelect, initEnvironmentsPanel, openProjectEdit } from './modules/settings.js';
+import { renderJumperPanel, initJumper } from './modules/jumper/jumper.js';
+import { initExportImport } from './modules/settings/import-export.js';
+import { el } from './modules/helpers/ui-helpers.js';
+import { renderEnvironmentsPanel } from './modules/projects/projects.js';
+import { openProjectEdit, initEnvironmentsPanel } from './modules/projects/editing.js';
+import { renderSettingsPanel } from './modules/settings/settings.js';
 
 // Wire up tab renderer callbacks to avoid circular dependencies
 setEnvironmentsRenderer(renderEnvironmentsPanel);
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyI18n();
   initTabs();
   initJumper();
-  initEnvironmentsPanel();
+  initEnvironmentsPanel({ onBack: renderEnvironmentsPanel });
   initExportImport();
   await initStealthButton();
 

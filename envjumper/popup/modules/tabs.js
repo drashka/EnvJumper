@@ -2,7 +2,7 @@
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
-import { el } from './ui-helpers.js';
+import { el } from './helpers/ui-helpers.js';
 
 /**
  * Callback invoked when the environments tab is activated.
