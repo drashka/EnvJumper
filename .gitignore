@@ -23,5 +23,4 @@
 *.log
 npm-debug.log*
 
-# ─── Dépendances (si un outil de build est ajouté un jour) ────
-node_modules/
+/CLAUDE.md
