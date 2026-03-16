@@ -137,6 +137,7 @@
   "envProtocolLabel": { "message": "Protocol (HTTPS or HTTP)" },
   "colorLabel": { "message": "Color" },
 
+  "back": { "message": "Back" },
   "multisitePrefixCheckbox": { "message": "Include multisite prefix" },
   "chooseSite": { "message": "Choose site" },
   "allSites": { "message": "All sites" },

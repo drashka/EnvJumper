@@ -28,34 +28,15 @@ export function hide(id) {
 }
 
 /**
- * Injects Basic Auth credentials into a URL string if enabled.
- * @param {string} url
- * @param {object|null} basicAuth - { enabled, username, password }
- * @returns {string}
- */
-export function injectBasicAuth(url, basicAuth) {
-  if (!basicAuth || !basicAuth.enabled || !basicAuth.username) return url;
-  try {
-    const u = new URL(url);
-    u.username = encodeURIComponent(basicAuth.username);
-    u.password = encodeURIComponent(basicAuth.password || '');
-    return u.toString();
-  } catch {
-    return url;
-  }
-}
-
-/**
  * Builds a URL by replacing the domain (and optionally protocol) of the current URL.
  * Preserves path, query string and hash.
  * If targetDomain contains a port (e.g. "localhost:3000"), it sets url.host.
  * @param {string} currentUrl
  * @param {string} targetDomain - Domain, optionally including port (e.g. "localhost:3000")
  * @param {string} [targetProtocol] - 'https' or 'http' (default: 'https')
- * @param {object|null} [basicAuth] - { enabled, username, password }
  * @returns {string|null}
  */
-export function buildTargetUrl(currentUrl, targetDomain, targetProtocol = 'https', basicAuth = null) {
+export function buildTargetUrl(currentUrl, targetDomain, targetProtocol = 'https') {
   try {
     const url = new URL(currentUrl);
     const proto = targetProtocol || 'https';
@@ -68,7 +49,7 @@ export function buildTargetUrl(currentUrl, targetDomain, targetProtocol = 'https
       // Clear any existing port when switching to a domain without explicit port
       url.port = '';
     }
-    return injectBasicAuth(url.toString(), basicAuth);
+    return url.toString();
   } catch {
     return null;
   }

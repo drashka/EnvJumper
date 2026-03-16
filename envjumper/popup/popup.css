@@ -1436,74 +1436,143 @@ html, body {
   font-size: 11px;
 }
 
-/* Popover for multisite site selection */
-.link-popover {
-  position: fixed;
-  z-index: 9999;
-  background: var(--bg-primary);
+/* ─── Drill-down navigation (site selector) ────────────────── */
+
+/* Container : clips the off-screen views */
+.jumper-views-row {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Main view : slides out to the left (-110% to stay invisible) */
+.jumper-view--main {
+  transition: transform 0.25s ease-in-out;
+}
+
+.jumper-view--main.sliding-out {
+  transform: translateX(-110%);
+}
+
+/* Site selector view : starts 110% to the right (invisible), slides in */
+.jumper-view--sites {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translateX(110%);
+  transition: transform 0.25s ease-in-out;
+  box-sizing: border-box;
+}
+
+.jumper-view--sites.slide-in {
+  transform: translateX(0);
+}
+
+.jumper-site-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 12px;
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: 8px;
+}
+
+.jumper-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  background: none;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  padding: 8px;
-  min-width: 160px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.jumper-back-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.jumper-site-header-titles {
   display: flex;
   flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.jumper-site-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.jumper-site-subtitle {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#jumper-sites-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 4px;
 }
 
-.link-popover-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0 4px 4px;
-  border-bottom: 1px solid var(--color-border-light);
-  margin-bottom: 2px;
+/* Separator and outline buttons span both columns */
+.jumper-site-sep,
+.jumper-site-btn--outline {
+  grid-column: 1 / -1;
 }
 
-.link-popover-sites {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.link-popover-btn {
+.jumper-site-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
   width: 100%;
-  padding: 5px 8px;
-  background: none;
-  border: none;
-  border-radius: 5px;
-  font-size: 12px;
+  padding: 9px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  font-size: 13px;
   color: var(--color-text);
   cursor: pointer;
   text-align: left;
+  transition: background 0.12s, border-color 0.12s;
 }
 
-.link-popover-btn:hover {
-  background: var(--bg-card);
+.jumper-site-btn:hover {
+  background: var(--color-border-light);
+  border-color: var(--color-border);
 }
 
-.link-popover-prefix {
+.jumper-site-btn--outline {
+  background: none;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.jumper-site-btn--outline:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.jumper-site-prefix {
   color: var(--color-text-muted);
   font-size: 11px;
 }
 
-.link-popover-btn-all,
-.link-popover-btn-noprefix {
-  color: var(--color-text-secondary);
-  font-size: 11px;
-  border-top: 1px solid var(--color-border-light);
-  margin-top: 2px;
-  padding-top: 6px;
-}
-
-/* Make link-quick-row position:relative for popover anchoring */
-.link-quick-row {
-  position: relative;
+.jumper-site-sep {
+  height: 1px;
+  background: var(--color-border-light);
+  margin: 4px 0;
 }
 
 /* ── Basic Auth section in env settings */

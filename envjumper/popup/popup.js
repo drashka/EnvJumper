@@ -5,7 +5,7 @@
 import { applyI18n, t } from './modules/i18n.js';
 import { migrateData, generateId, getGroups, saveGroups } from './modules/storage.js';
 import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } from './modules/tabs.js';
-import { renderJumperPanel } from './modules/jumper.js';
+import { renderJumperPanel, initJumper } from './modules/jumper.js';
 import { initExportImport } from './modules/import-export.js';
 import { el } from './modules/ui-helpers.js';
 import { renderEnvironmentsPanel, renderSettingsPanel } from './modules/settings.js';
@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await migrateData();
   applyI18n();
   initTabs();
+  initJumper();
   initExportImport();
   await initStealthButton();
 

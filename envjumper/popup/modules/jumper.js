@@ -4,9 +4,104 @@
 
 import { getGroups } from './storage.js';
 import { t } from './i18n.js';
-import { el, show, hide, buildTargetUrl, injectBasicAuth } from './ui-helpers.js';
+import { el, show, hide, buildTargetUrl } from './ui-helpers.js';
 import { getWpLoginStatus, buildMultisiteUrl } from './wordpress.js';
 import { ICONS } from './icons.js';
+
+// ── Drill-down navigation (site selector) ───────────────────────────────────
+
+/**
+ * Slides to the site selector view.
+ */
+function showSiteSelector(env, link, group) {
+  const subtitle = el('jumper-site-subtitle');
+  if (subtitle) subtitle.textContent = link.label || link.path;
+
+  const sitesList = el('jumper-sites-list');
+  if (!sitesList) return;
+  sitesList.innerHTML = '';
+
+  // One button per configured site
+  (group.wpSites || []).forEach((site) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'jumper-site-btn';
+
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = site.label || site.prefix || '—';
+    btn.appendChild(labelSpan);
+
+    if (site.prefix) {
+      const prefixSpan = document.createElement('span');
+      prefixSpan.className = 'jumper-site-prefix';
+      prefixSpan.textContent = `(${site.prefix})`;
+      btn.appendChild(prefixSpan);
+    }
+
+    btn.addEventListener('click', () => {
+      const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
+      chrome.tabs.create({ url });
+      hideSiteSelector();
+    });
+    sitesList.appendChild(btn);
+  });
+
+  // Separator
+  const sep = document.createElement('div');
+  sep.className = 'jumper-site-sep';
+  sitesList.appendChild(sep);
+
+  // "All sites" button
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = 'jumper-site-btn jumper-site-btn--outline';
+  allBtn.textContent = t('allSites');
+  allBtn.addEventListener('click', () => {
+    (group.wpSites || []).forEach((site) => {
+      const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
+      chrome.tabs.create({ url });
+    });
+    hideSiteSelector();
+  });
+  sitesList.appendChild(allBtn);
+
+  // "Without prefix" button
+  const noBtn = document.createElement('button');
+  noBtn.type = 'button';
+  noBtn.className = 'jumper-site-btn jumper-site-btn--outline';
+  noBtn.textContent = t('withoutPrefix');
+  noBtn.addEventListener('click', () => {
+    const proto = env.protocol || 'https';
+    chrome.tabs.create({ url: `${proto}://${env.domain}${link.path}` });
+    hideSiteSelector();
+  });
+  sitesList.appendChild(noBtn);
+
+  // Slide to sites view
+  const mainView = document.querySelector('.jumper-view--main');
+  const sitesView = document.querySelector('.jumper-view--sites');
+  if (mainView) mainView.classList.add('sliding-out');
+  if (sitesView) { sitesView.classList.add('slide-in'); sitesView.removeAttribute('aria-hidden'); }
+}
+
+/**
+ * Slides back to the main view.
+ */
+function hideSiteSelector() {
+  const mainView = document.querySelector('.jumper-view--main');
+  const sitesView = document.querySelector('.jumper-view--sites');
+  if (mainView) mainView.classList.remove('sliding-out');
+  if (sitesView) { sitesView.classList.remove('slide-in'); sitesView.setAttribute('aria-hidden', 'true'); }
+}
+
+/**
+ * Initializes the Jumper panel's drill-down back button.
+ * Must be called once at popup startup.
+ */
+export function initJumper() {
+  const backBtn = el('jumper-back-btn');
+  if (backBtn) backBtn.addEventListener('click', hideSiteSelector);
+}
 
 /**
  * Finds the group and environment matching the given hostname.
@@ -179,7 +274,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     btnSameTab.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M5 10h10M11 6l4 4-4 4"/></svg>`;
     btnSameTab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https', env.basicAuth);
+      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
       if (url) chrome.tabs.update(undefined, { url });
       window.close();
     });
@@ -190,7 +285,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     btnNewTab.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
     btnNewTab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https', env.basicAuth);
+      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
       if (url) chrome.tabs.create({ url });
     });
 
@@ -288,96 +383,16 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
 
       if (!isDisabled) {
         if (hasPrefix && group.wpSites && group.wpSites.length > 0) {
-          // Popover for site selection
+          // Drill-down navigation: slide to the site selector view
           row.addEventListener('click', (e) => {
             e.stopPropagation();
-            // Close any existing popovers
-            document.querySelectorAll('.link-popover').forEach((p) => p.remove());
-
-            const popover = document.createElement('div');
-            popover.className = 'link-popover';
-
-            // Position fixed relative to the row, anchored below it
-            const rect = row.getBoundingClientRect();
-            popover.style.top = `${rect.bottom + 4}px`;
-            popover.style.left = `${rect.left}px`;
-            popover.style.minWidth = `${rect.width}px`;
-
-            const title = document.createElement('div');
-            title.className = 'link-popover-title';
-            title.textContent = t('chooseSite');
-            popover.appendChild(title);
-
-            const sitesBtns = document.createElement('div');
-            sitesBtns.className = 'link-popover-sites';
-
-            // One button per configured site
-            group.wpSites.forEach((site) => {
-              const siteBtn = document.createElement('button');
-              siteBtn.type = 'button';
-              siteBtn.className = 'link-popover-btn';
-              siteBtn.textContent = site.label || site.prefix || '—';
-              if (site.prefix) {
-                const prefixSpan = document.createElement('span');
-                prefixSpan.className = 'link-popover-prefix';
-                prefixSpan.textContent = `(${site.prefix})`;
-                siteBtn.appendChild(prefixSpan);
-              }
-              siteBtn.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                const url = injectBasicAuth(buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path), env.basicAuth);
-                chrome.tabs.create({ url });
-                popover.remove();
-              });
-              sitesBtns.appendChild(siteBtn);
-            });
-            popover.appendChild(sitesBtns);
-
-            // "All sites" button
-            const allBtn = document.createElement('button');
-            allBtn.type = 'button';
-            allBtn.className = 'link-popover-btn link-popover-btn-all';
-            allBtn.textContent = t('allSites');
-            allBtn.addEventListener('click', (ev) => {
-              ev.stopPropagation();
-              group.wpSites.forEach((site) => {
-                const url = injectBasicAuth(buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path), env.basicAuth);
-                chrome.tabs.create({ url });
-              });
-              popover.remove();
-            });
-            popover.appendChild(allBtn);
-
-            // "Without prefix" button
-            const noBtn = document.createElement('button');
-            noBtn.type = 'button';
-            noBtn.className = 'link-popover-btn link-popover-btn-noprefix';
-            noBtn.textContent = t('withoutPrefix');
-            noBtn.addEventListener('click', (ev) => {
-              ev.stopPropagation();
-              const proto = env.protocol || 'https';
-              chrome.tabs.create({ url: injectBasicAuth(`${proto}://${env.domain}${link.path}`, env.basicAuth) });
-              popover.remove();
-            });
-            popover.appendChild(noBtn);
-
-            document.body.appendChild(popover);
-
-            // Close on outside click
-            const closePopover = (ev) => {
-              if (!popover.contains(ev.target) && ev.target !== row) {
-                popover.remove();
-                document.removeEventListener('click', closePopover, true);
-              }
-            };
-            setTimeout(() => document.addEventListener('click', closePopover, true), 0);
+            showSiteSelector(env, link, group);
           });
         } else {
           // Standard click: open in new tab
           row.addEventListener('click', () => {
             const proto = env.protocol || 'https';
-            const url = injectBasicAuth(`${proto}://${env.domain}${link.path}`, env.basicAuth);
-            chrome.tabs.create({ url });
+            chrome.tabs.create({ url: `${proto}://${env.domain}${link.path}` });
           });
         }
       }

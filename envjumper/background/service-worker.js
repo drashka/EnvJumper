@@ -215,6 +215,60 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   });
 });
 
+// ── Basic Auth via onAuthRequired ───────────────────────────────────────────
+
+/**
+ * In-memory cache of basic auth credentials.
+ * Structure: Map<domain, { username, password }>
+ * Allows synchronous ("blocking") response to auth challenges — avoids the
+ * ~10-15s timeout that Chrome enforces before falling back to its own popup.
+ */
+let authCache = new Map();
+
+/**
+ * Loads (or reloads) the auth cache from chrome.storage.sync.
+ * Called at service worker startup and whenever the groups config changes.
+ */
+async function loadAuthCache() {
+  const { groups = [] } = await chrome.storage.sync.get('groups');
+  authCache.clear();
+  for (const group of groups) {
+    for (const env of group.environments || []) {
+      if (env.basicAuth?.enabled && env.basicAuth.username) {
+        authCache.set(env.domain, {
+          username: env.basicAuth.username,
+          password: env.basicAuth.password || '',
+        });
+      }
+    }
+  }
+}
+
+// Load cache immediately when the service worker starts
+loadAuthCache();
+
+/**
+ * Intercepts browser auth challenges and supplies credentials synchronously
+ * from the in-memory cache. Uses "blocking" (not "asyncBlocking") so Chrome
+ * receives the credentials instantly without waiting for async storage I/O.
+ */
+chrome.webRequest.onAuthRequired.addListener(
+  (details) => {
+    try {
+      const url = new URL(details.url);
+      // Check hostname (without port) first, then host (with port, e.g. localhost:3000)
+      const credentials = authCache.get(url.hostname) || authCache.get(url.host);
+      if (credentials) {
+        return { authCredentials: { username: credentials.username, password: credentials.password } };
+      }
+    } catch {}
+    // No match — let Chrome show the default login popup
+    return {};
+  },
+  { urls: ['<all_urls>'] },
+  ['blocking']
+);
+
 // ── Event listeners ─────────────────────────────────────────────────────────
 
 // Rebuild context menus on first install / update
@@ -251,8 +305,11 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 // Mise à jour quand la config change (l'utilisateur modifie un environnement)
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area === 'sync') {
-    // Rebuild context menus if groups changed
-    if (changes.groups) rebuildContextMenus();
+    // Rebuild context menus and auth cache if groups changed
+    if (changes.groups) {
+      rebuildContextMenus();
+      loadAuthCache();
+    }
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab) updateBadge(tab.id, tab.url);
