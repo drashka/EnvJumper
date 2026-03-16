@@ -90,7 +90,6 @@ export async function migrateData() {
     if (group.isWordPress === undefined) { group.isWordPress = false; dirty = true; }
     if (!group.wpLoginPath) { group.wpLoginPath = '/wp-login.php'; dirty = true; }
     if (group.isWordPressMultisite === undefined) { group.isWordPressMultisite = false; dirty = true; }
-    if (!group.wpNetworkDomain) { group.wpNetworkDomain = ''; }
     if (!group.wpSites) { group.wpSites = []; dirty = true; }
     if (!group.links) {
       // Pull links from the first env that has some
@@ -108,6 +107,49 @@ export async function migrateData() {
         group.wpNetworkDomain = envWithWp.wpNetworkDomain || '';
         group.wpSites = envWithWp.wpSites || [];
         dirty = true;
+      }
+    }
+
+    // Migrate old WP Multisite format: wpNetworkDomain + wpSites[{label, domain}]
+    // → new format: wpSites[{label, prefix}] + wpMultisiteType
+    if (group.isWordPressMultisite) {
+      if (group.wpNetworkDomain && group.wpSites && group.wpSites.length > 0
+          && group.wpSites[0].domain !== undefined && group.wpSites[0].prefix === undefined) {
+        // Convert domain-based sites to prefix-based
+        const networkDomain = group.wpNetworkDomain;
+        group.wpSites = group.wpSites.map((site) => {
+          let prefix;
+          if (site.domain === networkDomain) {
+            prefix = '';
+          } else {
+            prefix = site.domain.replace(`.${networkDomain}`, '');
+          }
+          return { label: site.label, prefix };
+        });
+        if (!group.wpMultisiteType) group.wpMultisiteType = 'subdomain';
+        delete group.wpNetworkDomain;
+        dirty = true;
+      } else if (group.wpSites && group.wpSites.length > 0
+                 && group.wpSites[0].domain !== undefined && group.wpSites[0].prefix === undefined) {
+        // wpSites with domain but no prefix and no wpNetworkDomain — set prefix to ""
+        group.wpSites = group.wpSites.map((site) => ({ label: site.label, prefix: '' }));
+        dirty = true;
+      }
+      // Ensure wpMultisiteType is defined
+      if (!group.wpMultisiteType) { group.wpMultisiteType = 'subdomain'; dirty = true; }
+    }
+
+    // Migrate link labels stored as raw i18n keys (e.g. "wpLinkPermalinks" → translated string)
+    if (group.links && group.links.length > 0) {
+      const I18N_LINK_KEYS = [
+        'wpLinkLogin', 'wpLinkDashboard', 'wpLinkPosts', 'wpLinkPages',
+        'wpLinkMedia', 'wpLinkPlugins', 'wpLinkAppearance', 'wpLinkSettings', 'wpLinkPermalinks',
+      ];
+      for (const link of group.links) {
+        if (I18N_LINK_KEYS.includes(link.label)) {
+          const translated = chrome.i18n.getMessage(link.label);
+          if (translated) { link.label = translated; dirty = true; }
+        }
       }
     }
 

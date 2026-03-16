@@ -112,21 +112,26 @@
             break outer;
           }
         }
-        // Format actuel : wpSites au niveau du groupe
+        // Current format: wpSites with prefix at group level
         if (group.isWordPressMultisite && group.wpSites) {
-          for (const site of group.wpSites) {
-            if (site.domain === hostname) {
-              // Utiliser la couleur du premier environnement du groupe
-              const firstEnv = group.environments[0];
-              if (firstEnv) {
-                matchColor = firstEnv.color;
-                matchLabel = firstEnv.name;
+          const type = group.wpMultisiteType || 'subdomain';
+          for (const env of group.environments) {
+            for (const site of group.wpSites) {
+              let siteHost;
+              if (type === 'subdirectory') {
+                siteHost = env.domain; // subdirectory: hostname is env.domain (already matched above)
+              } else {
+                siteHost = site.prefix ? `${site.prefix}.${env.domain}` : env.domain;
+              }
+              if (siteHost === hostname) {
+                matchColor = env.color;
+                matchLabel = env.name;
                 break outer;
               }
             }
           }
         }
-        // Rétrocompatibilité : wpSites au niveau de l'env (ancien format)
+        // Legacy: wpSites with domain field at env level (old format)
         for (const env of group.environments) {
           if (env.isWordPressMultisite && env.wpSites) {
             for (const site of env.wpSites) {

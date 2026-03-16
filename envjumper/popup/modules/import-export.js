@@ -55,11 +55,38 @@ function convertOldFormat(data) {
       newGroup.isWordPress = true;
     }
 
+    // Migration: old WP Multisite format wpNetworkDomain + wpSites[{label, domain}]
+    // → new format: wpSites[{label, prefix}] + wpMultisiteType
+    if (newGroup.isWordPressMultisite && newGroup.wpNetworkDomain
+        && Array.isArray(newGroup.wpSites) && newGroup.wpSites.length > 0
+        && newGroup.wpSites[0].domain !== undefined && newGroup.wpSites[0].prefix === undefined) {
+      const networkDomain = newGroup.wpNetworkDomain;
+      newGroup.wpSites = newGroup.wpSites.map((site) => {
+        let prefix;
+        if (site.domain === networkDomain) {
+          prefix = '';
+        } else {
+          prefix = site.domain.replace(`.${networkDomain}`, '');
+        }
+        return { label: site.label, prefix };
+      });
+      if (!newGroup.wpMultisiteType) newGroup.wpMultisiteType = 'subdomain';
+      delete newGroup.wpNetworkDomain;
+    } else if (newGroup.isWordPressMultisite && Array.isArray(newGroup.wpSites)
+               && newGroup.wpSites.length > 0 && newGroup.wpSites[0].domain !== undefined
+               && newGroup.wpSites[0].prefix === undefined) {
+      // wpSites with domain but no prefix — set prefix to ""
+      newGroup.wpSites = newGroup.wpSites.map((site) => ({ label: site.label, prefix: '' }));
+    }
+    // Ensure wpMultisiteType is set when multisite is enabled
+    if (newGroup.isWordPressMultisite && !newGroup.wpMultisiteType) {
+      newGroup.wpMultisiteType = 'subdomain';
+    }
+
     // Group defaults
     newGroup.isWordPress = newGroup.isWordPress || false;
     newGroup.wpLoginPath = newGroup.wpLoginPath || '/wp-login.php';
     newGroup.isWordPressMultisite = newGroup.isWordPressMultisite || false;
-    newGroup.wpNetworkDomain = newGroup.wpNetworkDomain || '';
     newGroup.wpSites = newGroup.wpSites || [];
     newGroup.links = newGroup.links || [];
 

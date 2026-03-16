@@ -5,25 +5,36 @@
 import { getGroups } from './storage.js';
 import { t } from './i18n.js';
 import { el, show, hide, buildTargetUrl } from './ui-helpers.js';
-import { WP_ICONS, getWpLoginStatus } from './wordpress.js';
+import { WP_ICONS, getWpLoginStatus, buildMultisiteUrl } from './wordpress.js';
 
 /**
  * Finds the group and environment matching the given hostname.
- * Checks environment domains AND wpSites at the group level.
+ * Checks environment domains, WP Multisite prefix-based subdomains, and legacy domain-based sites.
  * @param {Array} groups
  * @param {string} hostname
  * @returns {{ group: object, env: object }|null}
  */
 export function findMatch(groups, hostname) {
   for (const group of groups) {
+    // Direct env domain match
     for (const env of group.environments) {
       if (env.domain === hostname) return { group, env };
     }
-    // WP Multisite at group level: also check wpSites domains
+    // WP Multisite subdomain: check prefix.envDomain for each site and env
+    if (group.isWordPressMultisite && group.wpMultisiteType === 'subdomain' && group.wpSites) {
+      for (const env of group.environments) {
+        for (const site of group.wpSites) {
+          if (!site.prefix) continue; // empty prefix = main site = env.domain (already matched above)
+          const multisiteHost = `${site.prefix}.${env.domain}`;
+          if (multisiteHost === hostname) return { group, env };
+        }
+      }
+    }
+    // Subdirectory: hostname is env.domain (already matched above)
+    // Legacy: wpSites with domain field
     if (group.isWordPressMultisite && group.wpSites) {
       for (const site of group.wpSites) {
-        if (site.domain === hostname) {
-          // Return the first env of the group as the current env
+        if (site.domain && site.domain === hostname) {
           return { group, env: group.environments[0] || null };
         }
       }
@@ -187,6 +198,9 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
   const body = document.createElement('div');
   body.className = 'jumper-card-body';
 
+  const inner = document.createElement('div');
+  inner.className = 'jumper-card-body-inner';
+
   // Links come from the group, sorted by order
   const links = (group.links || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -197,7 +211,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
       const notice = document.createElement('div');
       notice.className = 'wp-status-notice';
       notice.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><circle cx="10" cy="10" r="8"/><path d="M10 6v4M10 14h.01"/></svg> ${t('wpNotLoggedIn')}`;
-      body.appendChild(notice);
+      inner.appendChild(notice);
     }
 
     links.forEach((link) => {
@@ -229,6 +243,30 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
       row.appendChild(labelSpan);
       row.appendChild(newtabDiv);
 
+      // "Open on all sites" button — only for WP Multisite groups with sites configured
+      if (group.isWordPressMultisite && group.wpSites && group.wpSites.length > 0) {
+        const btnAllSites = document.createElement('button');
+        btnAllSites.type = 'button';
+        btnAllSites.className = 'link-allsites-btn';
+        btnAllSites.title = t('openOnAllSites');
+        btnAllSites.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+          <rect x="2" y="2" width="6" height="6" rx="1"/><rect x="12" y="2" width="6" height="6" rx="1"/>
+          <rect x="2" y="12" width="6" height="6" rx="1"/><rect x="12" y="12" width="6" height="6" rx="1"/>
+        </svg>`;
+        if (!isDisabled) {
+          btnAllSites.addEventListener('click', (e) => {
+            e.stopPropagation();
+            group.wpSites.forEach((site) => {
+              const url = buildMultisiteUrl(env.domain, site.prefix || '', group.wpMultisiteType || 'subdomain', link.path);
+              chrome.tabs.create({ url });
+            });
+          });
+        } else {
+          btnAllSites.disabled = true;
+        }
+        row.appendChild(btnAllSites);
+      }
+
       if (!isDisabled) {
         row.addEventListener('click', () => {
           // URL is built using the domain of this card's env
@@ -237,67 +275,16 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
         });
       }
 
-      body.appendChild(row);
+      inner.appendChild(row);
     });
   } else {
     const noLinks = document.createElement('p');
     noLinks.style.cssText = 'font-size:12px;color:var(--color-text-muted);padding:4px 0;';
     noLinks.textContent = t('noLinksConfigured');
-    body.appendChild(noLinks);
+    inner.appendChild(noLinks);
   }
 
-  // WP Multisite section (if applicable, at group level)
-  if (group.isWordPressMultisite && group.wpNetworkDomain) {
-    let currentPath = '/';
-    try {
-      const url = new URL(currentUrl);
-      currentPath = url.pathname + url.search + url.hash;
-    } catch {}
-
-    const wpSection = document.createElement('div');
-    wpSection.className = 'jumper-wp-multisite-section';
-
-    const wpLabel = document.createElement('div');
-    wpLabel.className = 'jumper-section-label';
-    wpLabel.textContent = t('jumperWpMultisiteSection');
-    wpSection.appendChild(wpLabel);
-
-    // Button: open this permalink on all sites
-    if (group.wpSites && group.wpSites.length > 0) {
-      const btnAll = document.createElement('button');
-      btnAll.className = 'link-quick-row';
-      btnAll.type = 'button';
-      btnAll.innerHTML = `<span class="link-icon">${WP_ICONS.plugins}</span><span class="link-label">${t('wpOpenAllSites')}</span>`;
-      btnAll.addEventListener('click', () => {
-        group.wpSites.forEach((site) => {
-          chrome.tabs.create({ url: `https://${site.domain}${currentPath}` });
-        });
-      });
-      wpSection.appendChild(btnAll);
-    }
-
-    // Button: Network Admin
-    const btnNet = document.createElement('button');
-    btnNet.className = 'link-quick-row';
-    btnNet.type = 'button';
-    btnNet.innerHTML = `<span class="link-icon">${WP_ICONS.dashboard}</span><span class="link-label">${t('wpNetworkAdmin')}</span><span class="link-newtab-icon">${WP_ICONS.newtab}</span>`;
-    btnNet.addEventListener('click', () => {
-      chrome.tabs.create({ url: `https://${group.wpNetworkDomain}/wp-admin/network/` });
-    });
-    wpSection.appendChild(btnNet);
-
-    // Button: Network plugins
-    const btnNetPlugins = document.createElement('button');
-    btnNetPlugins.className = 'link-quick-row';
-    btnNetPlugins.type = 'button';
-    btnNetPlugins.innerHTML = `<span class="link-icon">${WP_ICONS.plugins}</span><span class="link-label">${t('wpNetworkPlugins')}</span><span class="link-newtab-icon">${WP_ICONS.newtab}</span>`;
-    btnNetPlugins.addEventListener('click', () => {
-      chrome.tabs.create({ url: `https://${group.wpNetworkDomain}/wp-admin/network/plugins.php` });
-    });
-    wpSection.appendChild(btnNetPlugins);
-
-    body.appendChild(wpSection);
-  }
+  body.appendChild(inner);
 
   // Click on header to open/close (accordion)
   header.addEventListener('click', (e) => {

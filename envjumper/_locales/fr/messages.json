@@ -81,5 +81,12 @@
   "jumperWpMultisiteSection": { "message": "WordPress Multisite" },
   "wpOpenAllSites": { "message": "Ouvrir ce permalien sur tous les sites" },
   "wpNetworkAdmin": { "message": "Network Admin" },
-  "wpNetworkPlugins": { "message": "Extensions du network" }
+  "wpNetworkPlugins": { "message": "Extensions du network" },
+
+  "wpMultisiteType": { "message": "Type de multisite" },
+  "wpMultisiteSubdomain": { "message": "Sous-domaines" },
+  "wpMultisiteSubdirectory": { "message": "Sous-dossiers" },
+  "wpMultisitePrefix": { "message": "Préfixe" },
+  "wpMultisitePrefixPlaceholder": { "message": "ex : fr" },
+  "openOnAllSites": { "message": "Ouvrir sur tous les sites" }
 }

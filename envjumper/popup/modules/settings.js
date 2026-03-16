@@ -5,7 +5,7 @@
 import { getGroups, saveGroups, getSettings, saveSettings, generateId, COLOR_PALETTE } from './storage.js';
 import { t } from './i18n.js';
 import { el, confirm } from './ui-helpers.js';
-import { WP_ICONS, getDefaultWpLinks } from './wordpress.js';
+import { WP_ICONS, getDefaultWpLinks, buildMultisiteUrl } from './wordpress.js';
 import { buildLinksSection } from './links.js';
 
 /**
@@ -360,6 +360,8 @@ function buildWpGroupConfig(groupId, group, container) {
 
 /**
  * Builds the WordPress Multisite configuration fields inside a group.
+ * Uses the new model: wpMultisiteType ("subdomain"|"subdirectory") + wpSites[{label, prefix}].
+ * wpNetworkDomain is no longer used.
  * @param {string} groupId
  * @param {object} group
  * @param {HTMLElement} container
@@ -367,35 +369,55 @@ function buildWpGroupConfig(groupId, group, container) {
 function buildWpMultisiteFields(groupId, group, container) {
   container.innerHTML = '';
 
+  // Title
   const msTitle = document.createElement('div');
   msTitle.className = 'wp-config-title';
   msTitle.textContent = t('wpMultisiteConfigTitle');
   container.appendChild(msTitle);
 
-  // Network domain field
-  const networkRow = document.createElement('div');
-  networkRow.className = 'field-row';
-  const networkLabel = document.createElement('label');
-  networkLabel.className = 'field-label';
-  networkLabel.textContent = t('wpNetworkDomainLabel');
-  const networkInput = document.createElement('input');
-  networkInput.type = 'text';
-  networkInput.className = 'input-sm';
-  networkInput.placeholder = t('wpNetworkDomainPlaceholder');
-  networkInput.value = group.wpNetworkDomain || '';
-  networkInput.addEventListener('change', async () => {
+  // Helper: compute the preview text for a site row
+  const getPreviewDomain = () => group.environments[0]?.domain || 'exemple.com';
+  const getType = () => typeSelect.value;
+
+  // Multisite type selector
+  const typeRow = document.createElement('div');
+  typeRow.className = 'field-row';
+  const typeLabel = document.createElement('label');
+  typeLabel.className = 'field-label';
+  typeLabel.textContent = t('wpMultisiteType');
+  const typeSelect = document.createElement('select');
+  typeSelect.className = 'input-sm select-sm';
+  const optSubdomain = document.createElement('option');
+  optSubdomain.value = 'subdomain';
+  optSubdomain.textContent = t('wpMultisiteSubdomain');
+  const optSubdir = document.createElement('option');
+  optSubdir.value = 'subdirectory';
+  optSubdir.textContent = t('wpMultisiteSubdirectory');
+  typeSelect.appendChild(optSubdomain);
+  typeSelect.appendChild(optSubdir);
+  typeSelect.value = group.wpMultisiteType || 'subdomain';
+  typeSelect.addEventListener('change', async () => {
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
     if (g) {
-      g.wpNetworkDomain = networkInput.value.trim();
+      g.wpMultisiteType = typeSelect.value;
       await saveGroups(groups);
+      // Update all preview spans
+      container.querySelectorAll('.wp-site-preview').forEach((span, idx) => {
+        const sites = g.wpSites || [];
+        const site = sites[idx];
+        if (site !== undefined) {
+          const url = buildMultisiteUrl(getPreviewDomain(), site.prefix || '', typeSelect.value, '/');
+          span.textContent = `→ ${url.replace('https://', '').replace(/\/$/, '')}`;
+        }
+      });
     }
   });
-  networkRow.appendChild(networkLabel);
-  networkRow.appendChild(networkInput);
-  container.appendChild(networkRow);
+  typeRow.appendChild(typeLabel);
+  typeRow.appendChild(typeSelect);
+  container.appendChild(typeRow);
 
-  // Sites list
+  // Sites list label
   const sitesLabel = document.createElement('div');
   sitesLabel.className = 'field-label';
   sitesLabel.style.marginTop = '8px';
@@ -407,7 +429,7 @@ function buildWpMultisiteFields(groupId, group, container) {
 
   const sites = group.wpSites || [];
   sites.forEach((site, idx) => {
-    sitesList.appendChild(buildWpSiteRow(groupId, site, idx, sitesList));
+    sitesList.appendChild(buildWpSiteRow(groupId, group, site, idx, sitesList, typeSelect, getPreviewDomain));
   });
   container.appendChild(sitesList);
 
@@ -416,7 +438,7 @@ function buildWpMultisiteFields(groupId, group, container) {
   btnAddSite.style.marginTop = '5px';
   btnAddSite.textContent = t('addWpSite');
   btnAddSite.addEventListener('click', async () => {
-    const newSite = { label: '', domain: '' };
+    const newSite = { label: '', prefix: '' };
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
     if (g) {
@@ -424,7 +446,7 @@ function buildWpMultisiteFields(groupId, group, container) {
       g.wpSites.push(newSite);
       await saveGroups(groups);
       const idx = g.wpSites.length - 1;
-      sitesList.appendChild(buildWpSiteRow(groupId, newSite, idx, sitesList));
+      sitesList.appendChild(buildWpSiteRow(groupId, group, newSite, idx, sitesList, typeSelect, getPreviewDomain));
     }
   });
   container.appendChild(btnAddSite);
@@ -432,13 +454,18 @@ function buildWpMultisiteFields(groupId, group, container) {
 
 /**
  * Builds a single WordPress Multisite site row at group level.
+ * Uses the new model: {label, prefix} instead of {label, domain}.
+ * Shows a live preview of the computed hostname/URL.
  * @param {string} groupId
+ * @param {object} group
  * @param {object} site
  * @param {number} idx
  * @param {HTMLElement} sitesList
+ * @param {HTMLSelectElement} typeSelect - The multisite type select element
+ * @param {Function} getPreviewDomain - Returns the first env domain for preview
  * @returns {HTMLElement}
  */
-function buildWpSiteRow(groupId, site, idx, sitesList) {
+function buildWpSiteRow(groupId, group, site, idx, sitesList, typeSelect, getPreviewDomain) {
   const row = document.createElement('div');
   row.className = 'wp-site-row';
   row.dataset.siteIdx = idx;
@@ -449,23 +476,39 @@ function buildWpSiteRow(groupId, site, idx, sitesList) {
   labelInput.placeholder = t('wpSiteLabelPlaceholder');
   labelInput.value = site.label || '';
 
-  const domainInput = document.createElement('input');
-  domainInput.type = 'text';
-  domainInput.className = 'input-sm';
-  domainInput.placeholder = t('wpSiteDomainPlaceholder');
-  domainInput.value = site.domain || '';
+  const prefixInput = document.createElement('input');
+  prefixInput.type = 'text';
+  prefixInput.className = 'input-sm';
+  prefixInput.placeholder = t('wpMultisitePrefixPlaceholder');
+  prefixInput.value = site.prefix || '';
+
+  // Dynamic preview span
+  const previewSpan = document.createElement('span');
+  previewSpan.className = 'wp-site-preview';
+  previewSpan.style.cssText = 'font-size:11px;color:var(--color-text-muted);white-space:nowrap;flex-shrink:0;';
+  function updatePreview() {
+    const url = buildMultisiteUrl(
+      getPreviewDomain(),
+      prefixInput.value.trim(),
+      typeSelect ? typeSelect.value : (group.wpMultisiteType || 'subdomain'),
+      '/'
+    );
+    previewSpan.textContent = `→ ${url.replace('https://', '').replace(/\/$/, '')}`;
+  }
+  updatePreview();
+  prefixInput.addEventListener('input', updatePreview);
 
   async function saveSite() {
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
     if (g && g.wpSites && g.wpSites[idx] !== undefined) {
-      g.wpSites[idx] = { label: labelInput.value.trim(), domain: domainInput.value.trim() };
+      g.wpSites[idx] = { label: labelInput.value.trim(), prefix: prefixInput.value.trim() };
       await saveGroups(groups);
     }
   }
 
   labelInput.addEventListener('change', saveSite);
-  domainInput.addEventListener('change', saveSite);
+  prefixInput.addEventListener('change', saveSite);
 
   const btnRemove = document.createElement('button');
   btnRemove.className = 'btn-remove-site';
@@ -482,7 +525,8 @@ function buildWpSiteRow(groupId, site, idx, sitesList) {
   });
 
   row.appendChild(labelInput);
-  row.appendChild(domainInput);
+  row.appendChild(prefixInput);
+  row.appendChild(previewSpan);
   row.appendChild(btnRemove);
   return row;
 }

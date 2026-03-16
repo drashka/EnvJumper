@@ -92,18 +92,18 @@ Tout est stocké dans `chrome.storage.sync`. **WordPress, les liens et le Multis
       "isWordPress": true,
       "wpLoginPath": "/wp-login.php",
       "isWordPressMultisite": true,
-      "wpNetworkDomain": "monsite.com",
+      "wpMultisiteType": "subdomain",
       "wpSites": [
-        { "label": "FR", "domain": "fr.monsite.com" },
-        { "label": "EN", "domain": "en.monsite.com" },
-        { "label": "DE", "domain": "de.monsite.com" }
+        { "label": "Français", "prefix": "fr" },
+        { "label": "English",  "prefix": "en" },
+        { "label": "Principal", "prefix": "" }
       ],
       "links": [
         { "id": "wp-login-xxx", "label": "Connexion",       "path": "/wp-login.php", "type": "wordpress", "iconKey": "login",     "order": 0 },
         { "id": "wp-dash-xxx",  "label": "Tableau de bord", "path": "/wp-admin/",    "type": "wordpress", "iconKey": "dashboard", "order": 1 }
       ],
       "environments": [
-        { "id": "env-uuid-4", "name": "Production", "domain": "fr.monsite.com",      "color": "#EF4444" },
+        { "id": "env-uuid-4", "name": "Production", "domain": "monsite.com",         "color": "#EF4444" },
         { "id": "env-uuid-5", "name": "Staging",    "domain": "staging.monsite.com", "color": "#F59E0B" }
       ]
     }
@@ -111,7 +111,9 @@ Tout est stocké dans `chrome.storage.sync`. **WordPress, les liens et le Multis
 }
 ```
 
-Un environnement ne contient que : `id`, `name`, `domain`, `color`. Tous les champs WordPress (`isWordPress`, `wpLoginPath`, `isWordPressMultisite`, `wpNetworkDomain`, `wpSites`) et les `links` sont portés par le **groupe**.
+Un environnement ne contient que : `id`, `name`, `domain`, `color`. Tous les champs WordPress (`isWordPress`, `wpLoginPath`, `isWordPressMultisite`, `wpMultisiteType`, `wpSites`) et les `links` sont portés par le **groupe**.
+
+`wpNetworkDomain` est supprimé. `wpSites` contient désormais `{ label, prefix }` au lieu de `{ label, domain }`. `wpMultisiteType` vaut `"subdomain"` ou `"subdirectory"`. Les URLs multisite sont construites via `buildMultisiteUrl(envDomain, prefix, type, path)` dans `wordpress.js`.
 
 ---
 
@@ -176,7 +178,7 @@ Les couleurs proposées pour les environnements (l'utilisateur en choisit une pa
   - Liste de ses environnements avec : nom, domaine, couleur (sélecteur visuel avec les 12 pastilles). Les environnements ne portent plus aucun champ WordPress ni liens.
   - **Toggle WordPress** au niveau du groupe :
     - Si ON : ajoute automatiquement 8 liens WP prédéfinis (connexion + 7 liens admin) dans `group.links`, affiche champ `wpLoginPath`.
-    - Si ON : affiche toggle **WordPress Multisite** → champ `wpNetworkDomain` + liste `wpSites` (label + domaine).
+    - Si ON : affiche toggle **WordPress Multisite** → sélecteur `wpMultisiteType` (`subdomain`/`subdirectory`) + liste `wpSites` (label + préfixe) avec aperçu dynamique de l'URL construite.
     - Si OFF : demande confirmation si des liens WP existent, puis les supprime de `group.links`.
   - **Section Liens** : liste des liens du groupe (`group.links`), avec drag & drop natif HTML5 pour réordonner.
     - Chaque ligne : handle drag (⠿) + input label + input path + badge type (WP/custom) + bouton supprimer.
@@ -249,7 +251,7 @@ Pour savoir si l'URL active correspond à un environnement :
    - URL `https://staging.exemple.com/page` → matche `staging.exemple.com`
    - URL `https://exemple.com/page` → matche `exemple.com`
    - URL `https://other.exemple.com/page` → ne matche pas `exemple.com`
-4. Pour WordPress Multisite (au niveau groupe), vérifier aussi les domaines dans `group.wpSites`.
+4. Pour WordPress Multisite (au niveau groupe) en mode `subdomain`, reconstruire les hostnames via `${prefix}.${env.domain}` pour chaque site et chaque env. En mode `subdirectory`, le hostname est `env.domain` (déjà couvert par la règle directe).
 
 ---
 

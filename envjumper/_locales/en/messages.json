@@ -81,5 +81,12 @@
   "jumperWpMultisiteSection": { "message": "WordPress Multisite" },
   "wpOpenAllSites": { "message": "Open this permalink on all sites" },
   "wpNetworkAdmin": { "message": "Network Admin" },
-  "wpNetworkPlugins": { "message": "Network plugins" }
+  "wpNetworkPlugins": { "message": "Network plugins" },
+
+  "wpMultisiteType": { "message": "Multisite type" },
+  "wpMultisiteSubdomain": { "message": "Subdomains" },
+  "wpMultisiteSubdirectory": { "message": "Subdirectories" },
+  "wpMultisitePrefix": { "message": "Prefix" },
+  "wpMultisitePrefixPlaceholder": { "message": "e.g. fr" },
+  "openOnAllSites": { "message": "Open on all sites" }
 }

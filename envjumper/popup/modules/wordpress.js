@@ -6,6 +6,24 @@ import { t } from './i18n.js';
 import { generateId } from './storage.js';
 
 /**
+ * Builds a multisite URL from an env domain, a site prefix, the multisite type, and a path.
+ * @param {string} envDomain - e.g. "monsite.com"
+ * @param {string} prefix - e.g. "fr" or "" for the main site
+ * @param {string} type - "subdomain" or "subdirectory"
+ * @param {string} path - e.g. "/wp-admin/"
+ * @returns {string}
+ */
+export function buildMultisiteUrl(envDomain, prefix, type, path) {
+  if (type === 'subdirectory') {
+    const base = prefix ? `${envDomain}/${prefix}` : envDomain;
+    return `https://${base}${path}`;
+  }
+  // default: subdomain
+  const host = prefix ? `${prefix}.${envDomain}` : envDomain;
+  return `https://${host}${path}`;
+}
+
+/**
  * SVG icon set used throughout the popup for WordPress-related links
  * and UI elements.
  */
