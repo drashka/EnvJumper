@@ -31,6 +31,8 @@
       <nav class="tabs" role="tablist">
         <button class="tab active" id="tab-jumper" role="tab" aria-selected="true" aria-controls="panel-jumper" data-i18n="tabJumper">
         </button>
+        <button class="tab" id="tab-environments" role="tab" aria-selected="false" aria-controls="panel-environments" data-i18n="tabEnvironments">
+        </button>
         <button class="tab" id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" data-i18n="tabSettings">
         </button>
       </nav>
@@ -62,8 +64,8 @@
       </div>
     </main>
 
-    <!-- Panneau : Paramètres -->
-    <main class="panel hidden" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings">
+    <!-- Panneau : Environnements -->
+    <main class="panel hidden" id="panel-environments" role="tabpanel" aria-labelledby="tab-environments">
 
       <!-- Liste des groupes -->
       <div id="groups-list">
@@ -76,12 +78,17 @@
         </button>
       </div>
 
-      <!-- Réglages généraux -->
+    </main>
+
+    <!-- Panneau : Paramètres -->
+    <main class="panel hidden" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings">
+
+      <!-- Réglages d'affichage (badge position) -->
       <div id="general-settings-container"></div>
 
-      <!-- Section Export / Import -->
+      <!-- Section Données : Export / Import -->
       <div class="export-import-section">
-        <div class="section-title" data-i18n="exportImportTitle"></div>
+        <div class="section-title" data-i18n="dataSection"></div>
 
         <div class="export-row">
           <button class="btn btn-sm btn-outline" id="export-all-btn" data-i18n="exportAll"></button>

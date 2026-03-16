@@ -4,6 +4,9 @@
 
   "tabJumper": { "message": "Jumper" },
   "tabSettings": { "message": "Settings" },
+  "tabEnvironments": { "message": "Environments" },
+  "displaySection": { "message": "Display" },
+  "dataSection": { "message": "Data" },
 
   "noMatchText": { "message": "No matching environment for this URL." },
   "noMatchBtn": { "message": "Add an environment →" },

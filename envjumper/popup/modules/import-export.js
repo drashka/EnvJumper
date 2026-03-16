@@ -5,7 +5,7 @@
 import { getGroups, saveGroups, getSettings, saveSettings, generateId } from './storage.js';
 import { t } from './i18n.js';
 import { el, hide, showImportError, showImportSuccess, showImportModal } from './ui-helpers.js';
-import { renderSettingsPanel } from './settings.js';
+import { renderEnvironmentsPanel } from './settings.js';
 
 /**
  * Triggers a JSON file download in the browser.
@@ -260,7 +260,7 @@ export function initExportImport() {
       const groups = await getGroups();
       groups.push({ ...importedGroups[0], id: generateId() });
       await saveGroups(groups);
-      await renderSettingsPanel();
+      await renderEnvironmentsPanel();
       showImportSuccess(t('importSuccessGroup', importedGroups[0].name));
     } else {
       const choice = await showImportModal();
@@ -269,12 +269,12 @@ export function initExportImport() {
         const groups = await getGroups();
         const merged = [...groups, ...importedGroups.map((g) => ({ ...g, id: generateId() }))];
         await saveGroups(merged);
-        await renderSettingsPanel();
+        await renderEnvironmentsPanel();
         showImportSuccess(t('importSuccessMerge', String(importedGroups.length)));
       } else {
         const newGroups = importedGroups.map((g) => ({ ...g, id: generateId() }));
         await saveGroups(newGroups);
-        await renderSettingsPanel();
+        await renderEnvironmentsPanel();
         showImportSuccess(t('importSuccessReplace', String(newGroups.length)));
       }
     }

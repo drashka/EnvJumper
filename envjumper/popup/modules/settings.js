@@ -10,10 +10,10 @@ import { buildLinksSection } from './links.js';
 import { CMS_IDS, CMS_DEFAULT_LOGIN_PATH, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
 
 /**
- * Renders the Settings panel: group cards, general settings, export select.
+ * Renders the Environments panel: group cards list.
  */
-export async function renderSettingsPanel() {
-  const [groups, settings] = await Promise.all([getGroups(), getSettings()]);
+export async function renderEnvironmentsPanel() {
+  const groups = await getGroups();
   const container = el('groups-list');
   container.innerHTML = '';
 
@@ -21,12 +21,17 @@ export async function renderSettingsPanel() {
     container.appendChild(buildGroupCard(group));
   });
 
-  // "General settings" section just above export/import
+  updateExportGroupSelect(groups);
+}
+
+/**
+ * Renders the Settings panel: general settings (badge position).
+ */
+export async function renderSettingsPanel() {
+  const settings = await getSettings();
   const generalContainer = el('general-settings-container');
   generalContainer.innerHTML = '';
   generalContainer.appendChild(buildGeneralSettings(settings));
-
-  updateExportGroupSelect(groups);
 }
 
 /**
@@ -40,7 +45,7 @@ function buildGeneralSettings(settings) {
 
   const title = document.createElement('div');
   title.className = 'section-title';
-  title.textContent = t('generalSettings');
+  title.textContent = t('displaySection');
   section.appendChild(title);
 
   // Badge position selector label
@@ -131,7 +136,7 @@ function buildGroupCard(group) {
     if (ok) {
       const groups = await getGroups();
       await saveGroups(groups.filter((g) => g.id !== group.id));
-      await renderSettingsPanel();
+      await renderEnvironmentsPanel();
     }
   });
 

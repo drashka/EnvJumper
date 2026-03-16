@@ -4,6 +4,9 @@
 
   "tabJumper": { "message": "Jumper" },
   "tabSettings": { "message": "Paramètres" },
+  "tabEnvironments": { "message": "Environnements" },
+  "displaySection": { "message": "Affichage" },
+  "dataSection": { "message": "Données" },
 
   "noMatchText": { "message": "Aucun environnement reconnu pour cette URL." },
   "noMatchBtn": { "message": "Ajouter un environnement →" },

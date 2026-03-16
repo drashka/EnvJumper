@@ -104,11 +104,19 @@ async function updateBadge(tabId, url) {
 
 // ── Context menus ───────────────────────────────────────────────────────────
 
+let rebuildMenusTimer = null;
+
 /**
  * Rebuilds all context menu items based on the current groups configuration.
+ * Debounced to avoid duplicate-id errors when storage fires multiple rapid changes.
  * Shows "EnvJumper → [Group] → [Env]" when right-clicking a link on a known env page.
  */
-async function rebuildContextMenus() {
+function rebuildContextMenus() {
+  clearTimeout(rebuildMenusTimer);
+  rebuildMenusTimer = setTimeout(_doRebuildContextMenus, 100);
+}
+
+async function _doRebuildContextMenus() {
   return new Promise((resolve) => {
     chrome.contextMenus.removeAll(() => {
       chrome.storage.sync.get(['groups'], ({ groups = [] }) => {

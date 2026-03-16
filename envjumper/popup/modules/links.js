@@ -87,7 +87,12 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   pathInput.style.flex = '1.5';
   pathInput.placeholder = t('linkPathPlaceholder');
   pathInput.value = link.path || '/';
-  pathInput.addEventListener('change', () => saveLinkField(groupId, link.id, 'path', pathInput.value));
+  pathInput.addEventListener('change', () => {
+    let path = pathInput.value.trim();
+    if (path && !path.startsWith('/')) path = '/' + path;
+    pathInput.value = path;
+    saveLinkField(groupId, link.id, 'path', path);
+  });
   row.appendChild(pathInput);
 
   // Badge text input (custom links only)
