@@ -115,11 +115,8 @@ html, body {
 .panel {
   padding: 14px;
   overflow-y: auto;
-  scrollbar-gutter: stable;
   max-height: 480px;
 }
-
-.panel.hidden { display: none; }
 
 /* ─── États ────────────────────────────────────────────────── */
 

@@ -1,5 +1,12 @@
 /* EnvJumper — Paramètres : badge position, export/import */
 
+/* ─── Panel Paramètres ──────────────────────────────────────── */
+
+#panel-settings {
+  height: 480px;
+  box-sizing: border-box;
+}
+
 /* ─── Réglages généraux ────────────────────────────────────── */
 
 .general-settings-section { padding: 10px 0 4px; }

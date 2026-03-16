@@ -204,7 +204,7 @@ Les couleurs proposées pour les environnements (l'utilisateur en choisit une pa
   - **Section Liens** : liste des liens du groupe (`group.links`), avec drag & drop natif HTML5 pour réordonner.
     - Chaque ligne : handle drag (⠿) + input label + input path + badge type (WP/custom) + bouton supprimer.
   - Boutons : "Ajouter un environnement", "Supprimer l'environnement" (avec confirmation).
-- **Bouton "Ajouter un groupe"** en bas.
+- **Bouton "Ajouter un projet"** en bas — création intelligente depuis l'onglet actif (voir §10).
 - **Supprimer un groupe** (avec confirmation).
 
 ### 5. Liens par groupe
@@ -322,6 +322,32 @@ Pour savoir si l'URL active correspond à un environnement :
   // Copyright (C) 2026 <Votre Nom>
   // Licence : GPL v3 — voir le fichier LICENSE
   ```
+
+---
+
+## 10. Création intelligente de projet
+
+Au clic sur "+ Ajouter un projet" (liste des projets ou état "aucune correspondance" du Jumper), la fonction `addProjectFromActiveTab()` dans `popup.js` :
+
+1. **Récupère l'URL de l'onglet actif** via `chrome.tabs.query({ active: true, currentWindow: true })`.
+2. **Génère le nom du projet** depuis le hostname :
+   - Supprime le TLD (dernière partie après le dernier `.`)
+   - Filtre les sous-domaines courants (`www`, `staging`, `dev`, `preprod`, `test`, `local`, `admin`, `develop`, `qa`, `recette`)
+   - Remplace `-` et `_` par des espaces, applique le Title Case
+   - Ex : `staging.mon-super_site.com` → `"Mon Super Site"`, `www.cegid.com` → `"Cegid"`
+3. **Déduit le nom de l'environnement** depuis le premier sous-domaine :
+
+   | Sous-domaine | Nom env |
+   |---|---|
+   | `www` ou aucun | Production |
+   | `staging`, `preprod`, `recette` | Staging |
+   | `dev`, `develop` | Dev |
+   | `test`, `qa` | Test |
+   | `local` | Local |
+   | Autre | Sous-domaine capitalisé |
+
+4. **Crée le groupe** avec un premier environnement pré-rempli : nom déduit, domaine = hostname complet, protocole détecté, couleur = première palette (`COLOR_PALETTE[0].hex`).
+5. **Ouvre directement la vue d'édition** du projet via `openProjectEdit(newGroup)`.
 
 ---
 

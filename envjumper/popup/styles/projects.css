@@ -25,6 +25,14 @@
   padding: 14px;
 }
 
+/* Vue édition : pas de padding/scroll global — gérés par les enfants */
+.projects-view--edit {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ─── Liste des projets ────────────────────────────────────── */
 
 .project-list-item {
@@ -100,9 +108,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-bottom: 12px;
+  padding: 14px 14px 12px;
   border-bottom: 1px solid var(--color-border-light);
-  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .project-back-btn {
@@ -168,8 +176,13 @@
 .project-subtabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid var(--color-border-light);
-  margin-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-primary);
+  flex-shrink: 0;
+  padding: 0 2px;
 }
 
 .project-subtab {
@@ -190,4 +203,16 @@
 .project-subtab.active {
   color: var(--accent-blue);
   border-bottom-color: var(--accent-blue);
+}
+
+/* ─── Zone scrollable du contenu d'édition ─────────────────── */
+
+.editing-content {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.editing-content-inner {
+  padding: 14px;
 }

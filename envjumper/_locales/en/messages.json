@@ -12,15 +12,15 @@
   "displaySection": { "message": "Display" },
   "dataSection": { "message": "Data" },
 
-  "noMatchText": { "message": "No matching environment for this URL." },
-  "noMatchBtn": { "message": "Add an environment →" },
+  "noMatchText": { "message": "No matching project for this URL." },
+  "noMatchBtn": { "message": "Add a project →" },
 
   "badgeCurrent": { "message": "Current" },
   "noLinksConfigured": { "message": "No quick links configured." },
   "unnamed": { "message": "(unnamed)" },
   "wpNotLoggedIn": { "message": "Not logged in — admin links are disabled" },
 
-  "addGroup": { "message": "+ Add a group" },
+  "addGroup": { "message": "+ Add a project" },
   "newGroupName": { "message": "New group" },
   "envNamePlaceholder": { "message": "Name (e.g. Production)" },
   "envDomainPlaceholder": { "message": "Domain (e.g. staging.example.com)" },

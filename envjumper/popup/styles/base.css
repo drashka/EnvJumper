@@ -76,4 +76,13 @@
     --wp-border: #2C5282;
     --wp-title:  #90CDF4;
   }
+
+  /* Scrollbar discrète en dark mode */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #4A5568;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #718096; }
 }

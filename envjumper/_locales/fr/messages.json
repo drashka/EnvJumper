@@ -12,15 +12,15 @@
   "displaySection": { "message": "Affichage" },
   "dataSection": { "message": "Données" },
 
-  "noMatchText": { "message": "Aucun environnement reconnu pour cette URL." },
-  "noMatchBtn": { "message": "Ajouter un environnement →" },
+  "noMatchText": { "message": "Aucun projet reconnu pour cette URL." },
+  "noMatchBtn": { "message": "Ajouter un projet →" },
 
   "badgeCurrent": { "message": "Actuel" },
   "noLinksConfigured": { "message": "Aucun lien rapide configuré." },
   "unnamed": { "message": "(sans nom)" },
   "wpNotLoggedIn": { "message": "Non connecté — les liens admin sont désactivés" },
 
-  "addGroup": { "message": "+ Ajouter un groupe" },
+  "addGroup": { "message": "+ Ajouter un projet" },
   "newGroupName": { "message": "Nouveau groupe" },
   "envNamePlaceholder": { "message": "Nom (ex : Production)" },
   "envDomainPlaceholder": { "message": "Domaine (ex : staging.exemple.com)" },

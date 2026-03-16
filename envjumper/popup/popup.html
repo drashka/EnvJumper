@@ -124,7 +124,7 @@
             </div>
           </div>
 
-          <!-- Sous-onglets -->
+          <!-- Sous-onglets (sticky) -->
           <nav class="project-subtabs" role="tablist">
             <button class="project-subtab active" data-subtab="envs" role="tab" data-i18n="subtabEnvironments"></button>
             <button class="project-subtab" data-subtab="cms" role="tab">CMS</button>
@@ -132,8 +132,10 @@
             <button class="project-subtab" data-subtab="settings" role="tab" data-i18n="projectSettings"></button>
           </nav>
 
-          <!-- Contenu du sous-onglet actif -->
-          <div id="project-subtab-content"></div>
+          <!-- Zone scrollable -->
+          <div class="editing-content">
+            <div id="project-subtab-content" class="editing-content-inner"></div>
+          </div>
         </div>
 
       </div>
