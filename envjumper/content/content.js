@@ -1,0 +1,175 @@
+// EnvJump - https://github.com/<votre-repo>/envjump
+// Copyright (C) 2026 <Votre Nom>
+// Licence : GPL v3 — voir le fichier LICENSE
+
+/**
+ * Content script EnvJump.
+ * Injecte une bordure colorée + badge de nom d'environnement autour de la page.
+ * La position du badge est paramétrable via chrome.storage.sync (settings.badgePosition).
+ * Répond aux messages GET_WP_STATUS pour détecter la connexion WordPress.
+ */
+
+(function () {
+  'use strict';
+
+  const OVERLAY_ID = 'envjump-overlay';
+
+  /**
+   * Calcule la couleur de texte (noir ou blanc) offrant le meilleur contraste.
+   * @param {string} hex - Couleur hex (#RRGGBB)
+   * @returns {string} '#000000' ou '#ffffff'
+   */
+  function contrastColor(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  /**
+   * Retourne les styles CSS de position et border-radius du badge
+   * selon la position choisie.
+   * @param {string} position - 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+   * @returns {string[]} Tableau de propriétés CSS
+   */
+  function getBadgePositionStyles(position) {
+    const map = {
+      'top-left':     ['top: 0', 'left: 0',  'border-radius: 0 0 6px 0'],
+      'top-right':    ['top: 0', 'right: 0',  'border-radius: 0 0 0 6px'],
+      'bottom-left':  ['bottom: 0', 'left: 0',  'border-radius: 0 6px 0 0'],
+      'bottom-right': ['bottom: 0', 'right: 0',  'border-radius: 6px 0 0 0'],
+    };
+    return map[position] || map['top-left'];
+  }
+
+  /**
+   * Applique ou retire la bordure colorée et le badge d'environnement.
+   * @param {string|null} color - Couleur hex, ou null pour retirer.
+   * @param {string|null} label - Nom de l'environnement, ou null.
+   * @param {string} position - Position du badge.
+   */
+  function applyBorder(color, label, position = 'top-left') {
+    const existing = document.getElementById(OVERLAY_ID);
+    if (existing) existing.remove();
+    if (!color) return;
+
+    const textColor = contrastColor(color);
+
+    const overlay = document.createElement('div');
+    overlay.id = OVERLAY_ID;
+    overlay.style.cssText = [
+      'position: fixed',
+      'inset: 0',
+      `border: 4px solid ${color}`,
+      'pointer-events: none',
+      'z-index: 2147483647',
+      'box-sizing: border-box',
+    ].join(';');
+
+    // Badge avec position paramétrable
+    if (label) {
+      const tag = document.createElement('span');
+      tag.textContent = label;
+      const posStyles = getBadgePositionStyles(position);
+      tag.style.cssText = [
+        'position: absolute',
+        ...posStyles,
+        `background: ${color}`,
+        `color: ${textColor}`,
+        'font: 600 11px/1 system-ui, sans-serif',
+        'padding: 3px 10px 4px 8px',
+        'letter-spacing: 0.3px',
+        'pointer-events: none',
+        'user-select: none',
+        'box-shadow: 0 2px 6px rgba(0,0,0,.2)',
+      ].join(';');
+      overlay.appendChild(tag);
+    }
+
+    const target = document.body || document.documentElement;
+    target.appendChild(overlay);
+  }
+
+  /**
+   * Vérifie le hostname actuel dans le stockage et applique la bordure.
+   * Lit aussi settings.badgePosition pour positionner le badge.
+   */
+  function checkAndApplyBorder() {
+    const hostname = window.location.hostname;
+
+    chrome.storage.sync.get(['groups', 'settings'], (result) => {
+      const groups = result.groups || [];
+      const position = (result.settings && result.settings.badgePosition) || 'top-left';
+      let matchColor = null;
+      let matchLabel = null;
+
+      outer: for (const group of groups) {
+        for (const env of group.environments) {
+          if (env.domain === hostname) {
+            matchColor = env.color;
+            matchLabel = env.name;
+            break outer;
+          }
+        }
+        // Format actuel : wpSites au niveau du groupe
+        if (group.isWordPressMultisite && group.wpSites) {
+          for (const site of group.wpSites) {
+            if (site.domain === hostname) {
+              // Utiliser la couleur du premier environnement du groupe
+              const firstEnv = group.environments[0];
+              if (firstEnv) {
+                matchColor = firstEnv.color;
+                matchLabel = firstEnv.name;
+                break outer;
+              }
+            }
+          }
+        }
+        // Rétrocompatibilité : wpSites au niveau de l'env (ancien format)
+        for (const env of group.environments) {
+          if (env.isWordPressMultisite && env.wpSites) {
+            for (const site of env.wpSites) {
+              if (site.domain === hostname) {
+                matchColor = env.color;
+                matchLabel = env.name;
+                break outer;
+              }
+            }
+          }
+        }
+      }
+
+      applyBorder(matchColor, matchLabel, position);
+    });
+  }
+
+  /**
+   * Détecte si l'utilisateur est connecté à WordPress.
+   * @returns {boolean}
+   */
+  function detectWpLoginStatus() {
+    return (
+      document.body.classList.contains('logged-in') ||
+      !!document.getElementById('wpadminbar')
+    );
+  }
+
+  // Appliquer au chargement initial
+  checkAndApplyBorder();
+
+  // Écouter les mises à jour de stockage (config ou réglages modifiés)
+  chrome.storage.onChanged.addListener(() => {
+    checkAndApplyBorder();
+  });
+
+  // Écouter les messages du service worker ou de la popup
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message.type === 'URL_CHANGED') {
+      checkAndApplyBorder();
+    } else if (message.type === 'GET_WP_STATUS') {
+      sendResponse({ isLoggedIn: detectWpLoginStatus() });
+    }
+    return true;
+  });
+})();

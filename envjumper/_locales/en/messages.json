@@ -1,0 +1,84 @@
+{
+  "extensionName": { "message": "EnvJump" },
+  "extensionDescription": { "message": "Jump between your web environments in one click. Colored border, project management, WordPress Multisite support." },
+
+  "tabJumper": { "message": "Jumper" },
+  "tabSettings": { "message": "Settings" },
+
+  "noMatchText": { "message": "No matching environment for this URL." },
+  "noMatchBtn": { "message": "Add an environment →" },
+
+  "badgeCurrent": { "message": "Current" },
+  "noLinksConfigured": { "message": "No quick links configured." },
+  "unnamed": { "message": "(unnamed)" },
+  "wpNotLoggedIn": { "message": "Not logged in — admin links are disabled" },
+
+  "addGroup": { "message": "+ Add a group" },
+  "newGroupName": { "message": "New group" },
+  "envNamePlaceholder": { "message": "Name (e.g. Production)" },
+  "envDomainPlaceholder": { "message": "Domain (e.g. staging.example.com)" },
+  "addEnv": { "message": "+ Add an environment" },
+
+  "confirmDeleteGroup": { "message": "Delete group \"$NAME$\" and all its environments?", "placeholders": { "name": { "content": "$1" } } },
+  "confirmDeleteEnv": { "message": "Delete environment \"$NAME$\"?", "placeholders": { "name": { "content": "$1" } } },
+  "confirmDisableWp": { "message": "Disabling WordPress will delete $COUNT$ predefined WP link(s). Continue?", "placeholders": { "count": { "content": "$1" } } },
+
+  "wordpress": { "message": "WordPress" },
+  "wpConfigTitle": { "message": "WordPress Configuration" },
+  "wpLoginPathLabel": { "message": "Login URL (wpLoginPath)" },
+  "wpMultisite": { "message": "WordPress Multisite" },
+  "wpMultisiteConfigTitle": { "message": "Multisite Configuration" },
+  "wpNetworkDomainLabel": { "message": "Network domain (wpNetworkDomain)" },
+  "wpNetworkDomainPlaceholder": { "message": "e.g. mysite.com" },
+  "wpSitesLabel": { "message": "Network sites" },
+  "addWpSite": { "message": "+ Add a site" },
+  "wpSiteLabelPlaceholder": { "message": "EN" },
+  "wpSiteDomainPlaceholder": { "message": "en.mysite.com" },
+
+  "linksSection": { "message": "Quick links" },
+  "addLink": { "message": "+ Add a link" },
+  "linkLabelPlaceholder": { "message": "Label" },
+  "linkPathPlaceholder": { "message": "/path" },
+
+  "exportImportTitle": { "message": "Export / Import" },
+  "exportAll": { "message": "Export all" },
+  "chooseGroup": { "message": "Choose a group…" },
+  "exportGroup": { "message": "Export" },
+  "importFile": { "message": "Import a JSON file" },
+  "importMergePrompt": { "message": "This file contains multiple groups. What would you like to do?" },
+  "importMerge": { "message": "Merge" },
+  "importReplace": { "message": "Replace all" },
+  "importErrorInvalidJson": { "message": "Invalid JSON file." },
+  "importErrorInvalidStructure": { "message": "Invalid JSON structure. Expected: { groups: [...] }" },
+  "importSuccessGroup": { "message": "Group \"$NAME$\" imported successfully.", "placeholders": { "name": { "content": "$1" } } },
+  "importSuccessMerge": { "message": "$COUNT$ group(s) merged successfully.", "placeholders": { "count": { "content": "$1" } } },
+  "importSuccessReplace": { "message": "Configuration replaced: $COUNT$ group(s) imported.", "placeholders": { "count": { "content": "$1" } } },
+
+  "generalSettings": { "message": "General settings" },
+  "badgePositionLabel": { "message": "Environment badge position on the page" },
+  "posTopLeft": { "message": "Top left" },
+  "posTopRight": { "message": "Top right" },
+  "posBottomLeft": { "message": "Bottom left" },
+  "posBottomRight": { "message": "Bottom right" },
+
+  "detectedHostname": { "message": "Detected hostname: $HOST$", "placeholders": { "host": { "content": "$1" } } },
+
+  "cancel": { "message": "Cancel" },
+  "delete": { "message": "Delete" },
+  "navigateSameTab": { "message": "Navigate in this tab" },
+  "openNewTab": { "message": "Open in a new tab" },
+
+  "wpLinkLogin": { "message": "Login" },
+  "wpLinkDashboard": { "message": "Dashboard" },
+  "wpLinkPosts": { "message": "Posts" },
+  "wpLinkPages": { "message": "Pages" },
+  "wpLinkMedia": { "message": "Media" },
+  "wpLinkPlugins": { "message": "Plugins" },
+  "wpLinkAppearance": { "message": "Appearance" },
+  "wpLinkSettings": { "message": "Settings" },
+
+  "jumperWpMultisiteSection": { "message": "WordPress Multisite" },
+  "wpOpenAllSites": { "message": "Open this permalink on all sites" },
+  "wpNetworkAdmin": { "message": "Network Admin" },
+  "wpNetworkPlugins": { "message": "Network plugins" }
+}

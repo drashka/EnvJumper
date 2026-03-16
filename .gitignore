@@ -1,0 +1,27 @@
+# ─── macOS ────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ─── Éditeurs ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# ─── Extensions Chrome (artefacts de build/packaging) ─────────
+*.crx
+*.pem
+*.zip
+
+# ─── Logs ─────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ─── Dépendances (si un outil de build est ajouté un jour) ────
+node_modules/
