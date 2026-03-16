@@ -76,6 +76,7 @@
   "wpLinkPlugins": { "message": "Plugins" },
   "wpLinkAppearance": { "message": "Appearance" },
   "wpLinkSettings": { "message": "Settings" },
+  "wpLinkPermalinks": { "message": "Permalinks" },
 
   "jumperWpMultisiteSection": { "message": "WordPress Multisite" },
   "wpOpenAllSites": { "message": "Open this permalink on all sites" },

@@ -34,6 +34,9 @@ export const WP_ICONS = {
   settings: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="10" cy="10" r="3"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.05 3.05l1.41 1.41M15.54 15.54l1.41 1.41M3.05 16.95l1.41-1.41M15.54 4.46l1.41-1.41"/>
   </svg>`,
+  permalinks: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 11a4 4 0 005.66 0l2-2a4 4 0 00-5.66-5.66l-1 1M12 9a4 4 0 00-5.66 0l-2 2a4 4 0 005.66 5.66l1-1"/>
+  </svg>`,
   custom: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
     <path d="M10 13a3 3 0 100-6 3 3 0 000 6z"/><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0z"/>
   </svg>`,
@@ -63,7 +66,8 @@ export function getDefaultWpLinks(loginPath = '/wp-login.php') {
     { id: `wp-media-${generateId()}`,    label: t('wpLinkMedia'),      path: '/wp-admin/upload.php',              type: 'wordpress', iconKey: 'media',      order: 4 },
     { id: `wp-plugins-${generateId()}`,  label: t('wpLinkPlugins'),    path: '/wp-admin/plugins.php',             type: 'wordpress', iconKey: 'plugins',    order: 5 },
     { id: `wp-themes-${generateId()}`,   label: t('wpLinkAppearance'), path: '/wp-admin/themes.php',              type: 'wordpress', iconKey: 'appearance', order: 6 },
-    { id: `wp-settings-${generateId()}`, label: t('wpLinkSettings'),   path: '/wp-admin/options-general.php',     type: 'wordpress', iconKey: 'settings',   order: 7 },
+    { id: `wp-settings-${generateId()}`,   label: t('wpLinkSettings'),   path: '/wp-admin/options-general.php',      type: 'wordpress', iconKey: 'settings',   order: 7 },
+    { id: `wp-permalinks-${generateId()}`, label: t('wpLinkPermalinks'), path: '/wp-admin/options-permalink.php',    type: 'wordpress', iconKey: 'permalinks', order: 8 },
   ];
 }
 

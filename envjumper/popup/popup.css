@@ -322,7 +322,7 @@ html, body {
   padding: 6px 8px;
   border-radius: var(--radius);
   cursor: pointer;
-  transition: background .1s;
+  transition: background .15s, color .15s, box-shadow .15s;
   text-decoration: none;
   color: var(--color-text);
   border: none;
@@ -334,7 +334,14 @@ html, body {
 }
 
 .link-quick-row:hover {
-  background: var(--color-surface);
+  background: var(--accent-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(66, 153, 225, .35);
+}
+
+.link-quick-row:hover .link-icon,
+.link-quick-row:hover .link-newtab-icon {
+  color: rgba(255, 255, 255, .8);
 }
 
 .link-quick-row.disabled {
