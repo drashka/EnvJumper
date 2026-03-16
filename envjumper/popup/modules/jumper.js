@@ -218,12 +218,19 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
 
     links.forEach((link) => {
       const isCmsLink = link.type === 'cms' || link.type === 'wordpress';
+      const isNetworkLink = link.type === 'network';
       const isLoginLink = (link.icon === 'log-in') || (link.iconKey === 'login');
-      const isAdminLink = isCmsLink && !isLoginLink;
+      const isAdminLink = (isCmsLink || isNetworkLink) && !isLoginLink;
       const isDisabled = showWpNotice && isAdminLink;
 
+      // Determine if this link should show a site-selector popover
+      // (only for subdirectory multisite + non-network links with multisitePrefix)
+      const isSubdir = group.isWordPressMultisite && group.wpMultisiteType === 'subdirectory';
+      const defaultPrefix = isCmsLink; // cms links default to true, custom to false
+      const hasPrefix = !isNetworkLink && isSubdir && (link.multisitePrefix !== undefined ? link.multisitePrefix : defaultPrefix);
+
       const row = document.createElement('button');
-      row.className = 'link-quick-row' + (isDisabled ? ' disabled' : '');
+      row.className = 'link-quick-row' + (isDisabled ? ' disabled' : '') + (hasPrefix ? ' has-prefix' : '');
       row.type = 'button';
 
       // Icon
@@ -237,46 +244,133 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
       labelSpan.className = 'link-label';
       labelSpan.textContent = link.label || link.path;
 
-      // "New tab" icon
-      const newtabDiv = document.createElement('span');
-      newtabDiv.className = 'link-newtab-icon';
-      newtabDiv.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
+      // Custom badge (custom links)
+      if (link.badge && link.type === 'custom') {
+        const badgeSpan = document.createElement('span');
+        badgeSpan.className = 'link-badge link-badge-custom';
+        badgeSpan.textContent = link.badge;
+        labelSpan.appendChild(badgeSpan);
+      }
+
+      // Network badge
+      if (isNetworkLink) {
+        const netBadge = document.createElement('span');
+        netBadge.className = 'link-badge link-badge-network';
+        netBadge.textContent = t('networkBadge');
+        labelSpan.appendChild(netBadge);
+      }
 
       row.appendChild(iconDiv);
       row.appendChild(labelSpan);
-      row.appendChild(newtabDiv);
 
-      // "Open on all sites" button — only for WP Multisite groups with sites configured
-      if (group.cms === 'wordpress' && group.isWordPressMultisite && group.wpSites && group.wpSites.length > 0) {
-        const btnAllSites = document.createElement('button');
-        btnAllSites.type = 'button';
-        btnAllSites.className = 'link-allsites-btn';
-        btnAllSites.title = t('openOnAllSites');
-        btnAllSites.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-          <rect x="2" y="2" width="6" height="6" rx="1"/><rect x="12" y="2" width="6" height="6" rx="1"/>
-          <rect x="2" y="12" width="6" height="6" rx="1"/><rect x="12" y="12" width="6" height="6" rx="1"/>
-        </svg>`;
-        if (!isDisabled) {
-          btnAllSites.addEventListener('click', (e) => {
-            e.stopPropagation();
-            group.wpSites.forEach((site) => {
-              const url = buildMultisiteUrl(env.domain, site.prefix || '', group.wpMultisiteType || 'subdomain', link.path);
-              chrome.tabs.create({ url });
-            });
-          });
-        } else {
-          btnAllSites.disabled = true;
-        }
-        row.appendChild(btnAllSites);
+      if (hasPrefix) {
+        // Globe icon indicator (multisite prefix)
+        const globeDiv = document.createElement('span');
+        globeDiv.className = 'link-globe-icon';
+        globeDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+        row.appendChild(globeDiv);
+      } else {
+        // "New tab" icon (standard links)
+        const newtabDiv = document.createElement('span');
+        newtabDiv.className = 'link-newtab-icon';
+        newtabDiv.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
+        row.appendChild(newtabDiv);
       }
 
       if (!isDisabled) {
-        row.addEventListener('click', () => {
-          // URL is built using the domain and protocol of this card's env
-          const proto = env.protocol || 'https';
-          const url = `${proto}://${env.domain}${link.path}`;
-          chrome.tabs.create({ url });
-        });
+        if (hasPrefix && group.wpSites && group.wpSites.length > 0) {
+          // Popover for site selection
+          row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close any existing popovers
+            document.querySelectorAll('.link-popover').forEach((p) => p.remove());
+
+            const popover = document.createElement('div');
+            popover.className = 'link-popover';
+
+            // Position fixed relative to the row, anchored below it
+            const rect = row.getBoundingClientRect();
+            popover.style.top = `${rect.bottom + 4}px`;
+            popover.style.left = `${rect.left}px`;
+            popover.style.minWidth = `${rect.width}px`;
+
+            const title = document.createElement('div');
+            title.className = 'link-popover-title';
+            title.textContent = t('chooseSite');
+            popover.appendChild(title);
+
+            const sitesBtns = document.createElement('div');
+            sitesBtns.className = 'link-popover-sites';
+
+            // One button per configured site
+            group.wpSites.forEach((site) => {
+              const siteBtn = document.createElement('button');
+              siteBtn.type = 'button';
+              siteBtn.className = 'link-popover-btn';
+              siteBtn.textContent = site.label || site.prefix || '—';
+              if (site.prefix) {
+                const prefixSpan = document.createElement('span');
+                prefixSpan.className = 'link-popover-prefix';
+                prefixSpan.textContent = `(${site.prefix})`;
+                siteBtn.appendChild(prefixSpan);
+              }
+              siteBtn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
+                chrome.tabs.create({ url });
+                popover.remove();
+              });
+              sitesBtns.appendChild(siteBtn);
+            });
+            popover.appendChild(sitesBtns);
+
+            // "All sites" button
+            const allBtn = document.createElement('button');
+            allBtn.type = 'button';
+            allBtn.className = 'link-popover-btn link-popover-btn-all';
+            allBtn.textContent = t('allSites');
+            allBtn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              group.wpSites.forEach((site) => {
+                const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
+                chrome.tabs.create({ url });
+              });
+              popover.remove();
+            });
+            popover.appendChild(allBtn);
+
+            // "Without prefix" button
+            const noBtn = document.createElement('button');
+            noBtn.type = 'button';
+            noBtn.className = 'link-popover-btn link-popover-btn-noprefix';
+            noBtn.textContent = t('withoutPrefix');
+            noBtn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              const proto = env.protocol || 'https';
+              chrome.tabs.create({ url: `${proto}://${env.domain}${link.path}` });
+              popover.remove();
+            });
+            popover.appendChild(noBtn);
+
+            document.body.appendChild(popover);
+
+            // Close on outside click
+            const closePopover = (ev) => {
+              if (!popover.contains(ev.target) && ev.target !== row) {
+                popover.remove();
+                document.removeEventListener('click', closePopover, true);
+              }
+            };
+            setTimeout(() => document.addEventListener('click', closePopover, true), 0);
+          });
+        } else {
+          // Standard click: open in new tab
+          row.addEventListener('click', () => {
+            const proto = env.protocol || 'https';
+            const url = `${proto}://${env.domain}${link.path}`;
+            chrome.tabs.create({ url });
+          });
+        }
       }
 
       inner.appendChild(row);

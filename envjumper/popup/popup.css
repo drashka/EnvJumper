@@ -384,8 +384,15 @@ html, body {
 }
 
 .link-quick-row:hover .link-icon,
-.link-quick-row:hover .link-newtab-icon {
+.link-quick-row:hover .link-newtab-icon,
+.link-quick-row:hover .link-globe-icon {
   color: rgba(255, 255, 255, .8);
+}
+
+.link-quick-row:hover .link-badge {
+  color: #ffffff;
+  background: rgba(255, 255, 255, .2);
+  border-color: transparent;
 }
 
 .link-quick-row.disabled {
@@ -741,6 +748,9 @@ html, body {
 }
 
 .field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
 }
 
@@ -854,7 +864,6 @@ html, body {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: 4px;
 }
 
 .color-swatch {
@@ -1355,4 +1364,144 @@ html, body {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+/* ── Network badge (Jumper + Settings) */
+.link-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.link-badge-network {
+  background: var(--accent-blue);
+  color: #ffffff;
+}
+
+.link-badge-custom {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-light);
+}
+
+.link-type-badge.network {
+  background: #EBF8FF;
+  color: #2B6CB0;
+}
+
+/* Globe icon indicator on link rows */
+.link-globe-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.link-quick-row.has-prefix .link-globe-icon {
+  color: var(--accent-blue);
+  opacity: 1;
+}
+
+.link-quick-row.has-prefix:hover .link-globe-icon {
+  color: #ffffff;
+}
+
+/* Multisite prefix checkbox in settings link row */
+.link-prefix-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.link-prefix-checkbox-label input[type="checkbox"]:checked + span {
+  color: var(--accent-blue);
+}
+
+/* Badge text input in settings */
+.link-badge-input {
+  width: 80px !important;
+  flex: none !important;
+  font-size: 11px;
+}
+
+/* Popover for multisite site selection */
+.link-popover {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 8px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.link-popover-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 4px 4px;
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: 2px;
+}
+
+.link-popover-sites {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.link-popover-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 5px 8px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.link-popover-btn:hover {
+  background: var(--bg-card);
+}
+
+.link-popover-prefix {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.link-popover-btn-all,
+.link-popover-btn-noprefix {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  border-top: 1px solid var(--color-border-light);
+  margin-top: 2px;
+  padding-top: 6px;
+}
+
+/* Make link-quick-row position:relative for popover anchoring */
+.link-quick-row {
+  position: relative;
 }

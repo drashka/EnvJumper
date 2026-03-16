@@ -7,7 +7,7 @@ import { t } from './i18n.js';
 import { el, confirm } from './ui-helpers.js';
 import { buildMultisiteUrl } from './wordpress.js';
 import { buildLinksSection } from './links.js';
-import { CMS_IDS, CMS_DEFAULT_LOGIN_PATH, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks } from './cms.js';
+import { CMS_IDS, CMS_DEFAULT_LOGIN_PATH, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
 
 /**
  * Renders the Settings panel: group cards, general settings, export select.
@@ -371,9 +371,27 @@ function buildCmsGroupConfig(groupId, group, container) {
       msSection.style.display = isMs ? 'block' : 'none';
       const groups = await getGroups();
       const g = groups.find((x) => x.id === groupId);
-      if (g) {
-        g.isWordPressMultisite = isMs;
-        await saveGroups(groups);
+      if (!g) return;
+      g.isWordPressMultisite = isMs;
+      if (isMs) {
+        // Add network links if not already present
+        if (!g.links) g.links = [];
+        const hasNetwork = g.links.some((l) => l.type === 'network');
+        if (!hasNetwork) {
+          const netLinks = getDefaultNetworkLinks();
+          g.links = [...g.links, ...netLinks];
+        }
+      } else {
+        // Remove all network links automatically
+        if (g.links) g.links = g.links.filter((l) => l.type !== 'network');
+      }
+      await saveGroups(groups);
+      Object.assign(group, g);
+      // Rebuild links section to reflect added/removed network links
+      const linksSection = container.closest('.group-body')?.querySelector('.links-section');
+      if (linksSection) {
+        const { buildLinksSection } = await import('./links.js');
+        linksSection.replaceWith(buildLinksSection(groupId, group));
       }
     });
   }
@@ -647,7 +665,14 @@ function buildEnvItem(groupId, env) {
   row2.appendChild(domainInput);
   item.appendChild(row2);
 
-  // Row 3: Color picker
+  // Row 3: Color label + picker
+  const colorRow = document.createElement('div');
+  colorRow.className = 'field-row';
+  const colorLabel = document.createElement('label');
+  colorLabel.className = 'field-label';
+  colorLabel.textContent = t('colorLabel');
+  colorRow.appendChild(colorLabel);
+
   const colorPicker = document.createElement('div');
   colorPicker.className = 'color-picker';
 
@@ -665,7 +690,8 @@ function buildEnvItem(groupId, env) {
     colorPicker.appendChild(swatch);
   });
 
-  item.appendChild(colorPicker);
+  colorRow.appendChild(colorPicker);
+  item.appendChild(colorRow);
   return item;
 }
 

@@ -131,5 +131,20 @@
   "stealthModeToggle": { "message": "Mode discret — masquer bordure et badge" },
   "stealthModeActive": { "message": "Mode discret actif" },
 
-  "envProtocolLabel": { "message": "Protocole (HTTPS ou HTTP)" }
+  "envProtocolLabel": { "message": "Protocole (HTTPS ou HTTP)" },
+  "colorLabel": { "message": "Couleur" },
+
+  "multisitePrefixCheckbox": { "message": "Inclure le préfixe multisite" },
+  "chooseSite": { "message": "Choisir le site" },
+  "allSites": { "message": "Tous les sites" },
+  "withoutPrefix": { "message": "Sans préfixe" },
+  "networkBadge": { "message": "Network" },
+  "linkBadgeLabel": { "message": "Badge" },
+  "linkBadgePlaceholder": { "message": "Ex: Design, SEO, API..." },
+  "wpNetworkAdminLink": { "message": "Admin réseau" },
+  "wpNetworkPluginsLink": { "message": "Extensions réseau" },
+  "wpNetworkThemesLink": { "message": "Thèmes réseau" },
+  "wpNetworkSitesLink": { "message": "Sites du réseau" },
+  "wpNetworkUsersLink": { "message": "Utilisateurs réseau" },
+  "wpNetworkSettingsLink": { "message": "Réglages réseau" }
 }

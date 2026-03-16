@@ -294,10 +294,10 @@ Pour savoir si l'URL active correspond à un environnement :
 - **Logo** : `icons/logo-EnvJumper-small.png` utilisé dans le header de la popup et comme icône 48/128px. `icons/logo-EnvJumper.png` utilisé dans le README.
 - **i18n** : système `chrome.i18n` natif. Fichiers de traduction dans `_locales/fr/messages.json` et `_locales/en/messages.json`. Langue par défaut : français. Fonction helper `t(key, subs)` dans popup.js. Éléments HTML statiques traduits via `data-i18n="clé"` + `applyI18n()` au chargement.
 - **`chrome.storage.sync`** pour la persistance (synchronisé entre appareils).
-- Le code doit être propre, commenté en français, et bien structuré.
+- Le code doit être propre, commenté en anglais, et bien structuré.
 - **Licence GPL v3** : inclure un fichier `LICENSE` à la racine du projet. En-tête de licence en haut de chaque fichier JS :
   ```
-  // EnvJumper - https://github.com/<votre-repo>/envjump
+  // EnvJumper - https://github.com/<votre-repo>/envjumper
   // Copyright (C) 2026 <Votre Nom>
   // Licence : GPL v3 — voir le fichier LICENSE
   ```

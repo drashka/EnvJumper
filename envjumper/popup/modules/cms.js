@@ -113,3 +113,19 @@ export function getDefaultCmsLinks(cms, loginPath, adminPath) {
       return [];
   }
 }
+
+/**
+ * Returns the 6 predefined WP network links for WordPress Multisite.
+ * These links always open on the base domain, without any site prefix.
+ * @returns {Array}
+ */
+export function getDefaultNetworkLinks() {
+  return [
+    { id: `wp-net-admin-${generateId()}`,    label: t('wpNetworkAdminLink'),    path: '/wp-admin/network/',              icon: 'network',  type: 'network', order: 20 },
+    { id: `wp-net-plugins-${generateId()}`,  label: t('wpNetworkPluginsLink'),  path: '/wp-admin/network/plugins.php',   icon: 'puzzle',   type: 'network', order: 21 },
+    { id: `wp-net-themes-${generateId()}`,   label: t('wpNetworkThemesLink'),   path: '/wp-admin/network/themes.php',    icon: 'palette',  type: 'network', order: 22 },
+    { id: `wp-net-sites-${generateId()}`,    label: t('wpNetworkSitesLink'),    path: '/wp-admin/network/sites.php',     icon: 'globe',    type: 'network', order: 23 },
+    { id: `wp-net-users-${generateId()}`,    label: t('wpNetworkUsersLink'),    path: '/wp-admin/network/users.php',     icon: 'users',    type: 'network', order: 24 },
+    { id: `wp-net-settings-${generateId()}`, label: t('wpNetworkSettingsLink'), path: '/wp-admin/network/settings.php', icon: 'settings', type: 'network', order: 25 },
+  ];
+}

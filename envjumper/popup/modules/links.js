@@ -90,11 +90,53 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   pathInput.addEventListener('change', () => saveLinkField(groupId, link.id, 'path', pathInput.value));
   row.appendChild(pathInput);
 
+  // Badge text input (custom links only)
+  if (link.type === 'custom') {
+    const badgeInput = document.createElement('input');
+    badgeInput.type = 'text';
+    badgeInput.className = 'input-sm link-badge-input';
+    badgeInput.maxLength = 15;
+    badgeInput.placeholder = t('linkBadgePlaceholder');
+    badgeInput.value = link.badge || '';
+    badgeInput.title = t('linkBadgeLabel');
+    badgeInput.addEventListener('change', () => saveLinkField(groupId, link.id, 'badge', badgeInput.value));
+    row.appendChild(badgeInput);
+  }
+
+  // multisitePrefix checkbox — only for WP Multisite subdirectory + non-network links
+  const isSubdir = group.isWordPressMultisite && group.wpMultisiteType === 'subdirectory';
+  if (isSubdir && link.type !== 'network') {
+    const defaultPrefix = link.type === 'cms';
+    const prefixChecked = link.multisitePrefix !== undefined ? link.multisitePrefix : defaultPrefix;
+
+    const prefixLabel = document.createElement('label');
+    prefixLabel.className = 'link-prefix-checkbox-label';
+    prefixLabel.title = t('multisitePrefixCheckbox');
+    const prefixCheck = document.createElement('input');
+    prefixCheck.type = 'checkbox';
+    prefixCheck.checked = prefixChecked;
+    prefixCheck.addEventListener('change', () => saveLinkField(groupId, link.id, 'multisitePrefix', prefixCheck.checked));
+    const prefixIcon = document.createElement('span');
+    prefixIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+    prefixLabel.appendChild(prefixCheck);
+    prefixLabel.appendChild(prefixIcon);
+    row.appendChild(prefixLabel);
+  }
+
   // Type badge
+  const isNetworkLink = link.type === 'network';
   const isCmsLink = link.type === 'cms' || link.type === 'wordpress';
   const typeBadge = document.createElement('span');
-  typeBadge.className = `link-type-badge ${isCmsLink ? 'wp' : 'custom'}`;
-  typeBadge.textContent = isCmsLink ? 'CMS' : 'custom';
+  if (isNetworkLink) {
+    typeBadge.className = 'link-type-badge network';
+    typeBadge.textContent = t('networkBadge');
+  } else if (isCmsLink) {
+    typeBadge.className = 'link-type-badge wp';
+    typeBadge.textContent = 'CMS';
+  } else {
+    typeBadge.className = 'link-type-badge custom';
+    typeBadge.textContent = 'custom';
+  }
   row.appendChild(typeBadge);
 
   // Remove button
@@ -123,7 +165,6 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
 
   row.addEventListener('dragend', () => {
     row.classList.remove('dragging');
-    // Clear all drop indicators
     linksList.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach((el) => {
       el.classList.remove('drag-over-top', 'drag-over-bottom');
     });
@@ -134,13 +175,9 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
     e.dataTransfer.dropEffect = 'move';
     const dragging = linksList.querySelector('.dragging');
     if (!dragging || dragging === row) return;
-
-    // Clear previous indicators
     linksList.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach((el) => {
       el.classList.remove('drag-over-top', 'drag-over-bottom');
     });
-
-    // Determine whether to insert before or after
     const rect = row.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
     if (e.clientY < midY) {
@@ -157,25 +194,18 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   row.addEventListener('drop', async (e) => {
     e.preventDefault();
     row.classList.remove('drag-over-top', 'drag-over-bottom');
-
     const draggedId = e.dataTransfer.getData('text/plain');
     if (!draggedId || draggedId === link.id) return;
-
-    // Determine insert position
     const rect = row.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
     const insertBefore = e.clientY < midY;
-
     const draggedRow = linksList.querySelector(`[data-link-id="${draggedId}"]`);
     if (!draggedRow) return;
-
     if (insertBefore) {
       linksList.insertBefore(draggedRow, row);
     } else {
       row.after(draggedRow);
     }
-
-    // Persist the new order
     await reorderLinks(groupId, linksList);
   });
 
