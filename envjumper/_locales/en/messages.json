@@ -4,7 +4,10 @@
 
   "tabJumper": { "message": "Jumper" },
   "tabSettings": { "message": "Settings" },
-  "tabEnvironments": { "message": "Environments" },
+  "tabEnvironments": { "message": "Projects" },
+  "subtabEnvironments": { "message": "Environments" },
+  "deleteProject": { "message": "Delete project" },
+  "deleteEnvironment": { "message": "Delete environment" },
   "displaySection": { "message": "Display" },
   "dataSection": { "message": "Data" },
 

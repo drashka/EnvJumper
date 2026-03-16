@@ -8,7 +8,7 @@ import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } fro
 import { renderJumperPanel, initJumper } from './modules/jumper.js';
 import { initExportImport } from './modules/import-export.js';
 import { el } from './modules/ui-helpers.js';
-import { renderEnvironmentsPanel, renderSettingsPanel } from './modules/settings.js';
+import { renderEnvironmentsPanel, renderSettingsPanel, updateExportGroupSelect, initEnvironmentsPanel, openProjectEdit } from './modules/settings.js';
 
 // Wire up tab renderer callbacks to avoid circular dependencies
 setEnvironmentsRenderer(renderEnvironmentsPanel);
@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyI18n();
   initTabs();
   initJumper();
+  initEnvironmentsPanel();
   initExportImport();
   await initStealthButton();
 
@@ -72,15 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     groups.push(newGroup);
     await saveGroups(groups);
     await renderEnvironmentsPanel();
-    // Open and scroll to the newly added group card
-    const cards = el('groups-list').querySelectorAll('.group-card');
-    if (cards.length > 0) {
-      const lastCard = cards[cards.length - 1];
-      lastCard.classList.add('open');
-      lastCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      const nameInput = lastCard.querySelector('.group-name-input');
-      if (nameInput) { nameInput.focus(); nameInput.select(); }
-    }
+    openProjectEdit(newGroup);
   });
 
   await renderJumperPanel();

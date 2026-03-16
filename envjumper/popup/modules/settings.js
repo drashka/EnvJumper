@@ -9,19 +9,96 @@ import { buildMultisiteUrl } from './wordpress.js';
 import { buildLinksSection } from './links.js';
 import { CMS_IDS, CMS_DEFAULT_LOGIN_PATH, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
 
+// ── Module state ──────────────────────────────────────────────────────────────
+let _editingGroup = null;
+let _currentSubtab = 'envs';
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
 /**
- * Renders the Environments panel: group cards list.
+ * Renders the Projects panel: list view with project rows.
  */
 export async function renderEnvironmentsPanel() {
+  _closeProjectEdit();
   const groups = await getGroups();
   const container = el('groups-list');
+  if (!container) return;
   container.innerHTML = '';
+  groups.forEach((group) => container.appendChild(_buildProjectListItem(group)));
+  updateExportGroupSelect(groups);
+}
 
-  groups.forEach((group) => {
-    container.appendChild(buildGroupCard(group));
+/**
+ * Initializes the Environments panel's back button, sub-tabs, and name input.
+ * Must be called once at popup startup.
+ */
+export function initEnvironmentsPanel() {
+  // Back button: slide back to list, refresh
+  el('project-back-btn')?.addEventListener('click', async () => {
+    _closeProjectEdit();
+    const groups = await getGroups();
+    const container = el('groups-list');
+    if (container) {
+      container.innerHTML = '';
+      groups.forEach((g) => container.appendChild(_buildProjectListItem(g)));
+      updateExportGroupSelect(groups);
+    }
   });
 
-  updateExportGroupSelect(groups);
+  // Sub-tab switching
+  document.querySelectorAll('.project-subtab').forEach((btn) => {
+    btn.addEventListener('click', () => _switchProjectSubtab(btn.dataset.subtab));
+  });
+
+  // Project name inline editing
+  el('project-edit-name-input')?.addEventListener('change', async () => {
+    if (!_editingGroup) return;
+    const name = el('project-edit-name-input').value.trim();
+    const groups = await getGroups();
+    const g = groups.find((x) => x.id === _editingGroup.id);
+    if (g) {
+      g.name = name;
+      _editingGroup.name = name;
+      await saveGroups(groups);
+      updateExportGroupSelect(groups);
+    }
+  });
+}
+
+/**
+ * Opens the edit view for a project, sliding to it with animation.
+ * @param {object} group
+ */
+export function openProjectEdit(group) {
+  _editingGroup = group;
+
+  // Fill header
+  const nameInput = el('project-edit-name-input');
+  if (nameInput) nameInput.value = group.name || '';
+
+  // Load favicon in header
+  const faviconImg = el('project-edit-favicon-img');
+  const faviconDefault = el('project-edit-favicon-default');
+  if (faviconImg) faviconImg.style.display = 'none';
+  if (faviconDefault) faviconDefault.style.display = '';
+  _fetchGroupFavicon(group).then((url) => {
+    if (url && el('project-edit-favicon-img') && _editingGroup?.id === group.id) {
+      const img = el('project-edit-favicon-img');
+      img.onload = () => {
+        img.style.display = '';
+        if (el('project-edit-favicon-default')) el('project-edit-favicon-default').style.display = 'none';
+      };
+      img.onerror = () => {};
+      img.src = url;
+    }
+  });
+
+  // Default to envs sub-tab
+  _switchProjectSubtab('envs');
+
+  // Animate: slide the whole row left to reveal the edit view
+  const row = document.querySelector('.projects-views-row');
+  if (row) row.classList.add('show-edit');
 }
 
 /**
@@ -31,15 +108,35 @@ export async function renderSettingsPanel() {
   const settings = await getSettings();
   const generalContainer = el('general-settings-container');
   generalContainer.innerHTML = '';
-  generalContainer.appendChild(buildGeneralSettings(settings));
+  generalContainer.appendChild(_buildGeneralSettings(settings));
 }
+
+/**
+ * Refreshes the export group <select> options.
+ * @param {Array} groups
+ */
+export function updateExportGroupSelect(groups) {
+  const select = el('export-group-select');
+  if (!select) return;
+  const current = select.value;
+  select.innerHTML = `<option value="">${t('chooseGroup')}</option>`;
+  groups.forEach((g) => {
+    const opt = document.createElement('option');
+    opt.value = g.id;
+    opt.textContent = g.name;
+    select.appendChild(opt);
+  });
+  if (groups.find((g) => g.id === current)) select.value = current;
+}
+
+// ── General settings ──────────────────────────────────────────────────────────
 
 /**
  * Builds the "General Settings" section displayed at the top of the Settings tab.
  * @param {object} settings - Current settings object
  * @returns {HTMLElement}
  */
-function buildGeneralSettings(settings) {
+function _buildGeneralSettings(settings) {
   const section = document.createElement('div');
   section.className = 'general-settings-section';
 
@@ -91,64 +188,169 @@ function buildGeneralSettings(settings) {
   return section;
 }
 
+// ── Project list ──────────────────────────────────────────────────────────────
+
 /**
- * Builds the card for a group inside the Settings panel.
- * Includes the WordPress toggle and the links section at group level.
+ * Builds a project list item row (favicon, name, env count badge, chevron).
  * @param {object} group
  * @returns {HTMLElement}
  */
-function buildGroupCard(group) {
-  const card = document.createElement('div');
-  card.className = 'group-card';
-  card.dataset.groupId = group.id;
+function _buildProjectListItem(group) {
+  const item = document.createElement('div');
+  item.className = 'project-list-item';
+  item.dataset.groupId = group.id;
 
-  // ── Group header
-  const header = document.createElement('div');
-  header.className = 'group-header';
+  // Favicon
+  item.appendChild(_buildFaviconEl(group, 20));
 
-  const chevron = document.createElement('span');
-  chevron.className = 'group-chevron';
-  chevron.textContent = '▶';
+  // Info
+  const info = document.createElement('div');
+  info.className = 'project-list-info';
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'project-list-name';
+  nameSpan.textContent = group.name || t('unnamed');
+  info.appendChild(nameSpan);
+  item.appendChild(info);
 
-  const nameInput = document.createElement('input');
-  nameInput.type = 'text';
-  nameInput.className = 'group-name-input';
-  nameInput.value = group.name;
-  nameInput.placeholder = 'Group name';
-  nameInput.addEventListener('click', (e) => e.stopPropagation());
-  nameInput.addEventListener('change', async () => {
-    const groups = await getGroups();
-    const g = groups.find((x) => x.id === group.id);
-    if (g) {
-      g.name = nameInput.value;
-      await saveGroups(groups);
-      updateExportGroupSelect(groups);
-    }
+  // Env count badge
+  const badge = document.createElement('span');
+  badge.className = 'project-list-badge';
+  badge.textContent = `${group.environments.length} envs`;
+  item.appendChild(badge);
+
+  // Chevron
+  const chev = document.createElement('span');
+  chev.className = 'project-list-chevron';
+  chev.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 18l6-6-6-6"/></svg>`;
+  item.appendChild(chev);
+
+  item.addEventListener('click', () => openProjectEdit(group));
+  return item;
+}
+
+/**
+ * Builds a favicon element (globe default + async img load).
+ * @param {object} group
+ * @param {number} size
+ * @returns {HTMLElement}
+ */
+function _buildFaviconEl(group, size = 20) {
+  const wrap = document.createElement('div');
+  wrap.className = 'project-favicon';
+
+  // Globe icon (default)
+  const globe = document.createElement('span');
+  globe.className = 'project-favicon-globe';
+  globe.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="${size}" height="${size}"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+  wrap.appendChild(globe);
+
+  // Async favicon load
+  _fetchGroupFavicon(group).then((url) => {
+    if (!url) return;
+    const img = document.createElement('img');
+    img.width = size;
+    img.height = size;
+    img.style.borderRadius = '3px';
+    img.addEventListener('load', () => {
+      globe.style.display = 'none';
+      wrap.appendChild(img);
+    });
+    img.addEventListener('error', () => {});
+    img.src = url;
   });
 
-  const btnDelete = document.createElement('button');
-  btnDelete.className = 'btn-delete-group';
-  btnDelete.title = 'Delete this group';
-  btnDelete.innerHTML = '✕';
-  btnDelete.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const ok = await confirm(t('confirmDeleteGroup', group.name));
-    if (ok) {
-      const groups = await getGroups();
-      await saveGroups(groups.filter((g) => g.id !== group.id));
-      await renderEnvironmentsPanel();
+  return wrap;
+}
+
+/**
+ * Fetches (and caches) the favicon URL for a group.
+ * Tries direct /favicon.ico first, then falls back to Google Favicon API.
+ * Cache TTL: 24h, invalidated if group domains change.
+ * @param {object} group
+ * @returns {Promise<string|null>}
+ */
+async function _fetchGroupFavicon(group) {
+  const cacheKey = `favicon_${group.id}`;
+  const currentDomains = group.environments.map((e) => e.domain).join(',');
+
+  // Check cache
+  const cached = await chrome.storage.local.get([cacheKey]);
+  if (cached[cacheKey]) {
+    const { url, ts, domains } = cached[cacheKey];
+    if (Date.now() - ts < 86400000 && domains === currentDomains) {
+      return url;
     }
+  }
+
+  // Try direct favicon.ico for each environment
+  for (const env of group.environments) {
+    if (!env.domain) continue;
+    const proto = env.protocol || 'https';
+    const faviconUrl = `${proto}://${env.domain}/favicon.ico`;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const resp = await fetch(faviconUrl, { method: 'HEAD', signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (resp.ok) {
+        await chrome.storage.local.set({ [cacheKey]: { url: faviconUrl, ts: Date.now(), domains: currentDomains } });
+        return faviconUrl;
+      }
+    } catch {}
+  }
+
+  // Fallback: Google Favicon API
+  const firstDomain = group.environments.find((e) => e.domain)?.domain;
+  if (firstDomain) {
+    const googleUrl = `https://www.google.com/s2/favicons?domain=${firstDomain}&sz=32`;
+    await chrome.storage.local.set({ [cacheKey]: { url: googleUrl, ts: Date.now(), domains: currentDomains } });
+    return googleUrl;
+  }
+
+  return null;
+}
+
+// ── Project edit view ─────────────────────────────────────────────────────────
+
+/**
+ * Slides back to the list view without refreshing (used internally).
+ */
+function _closeProjectEdit() {
+  _editingGroup = null;
+  const row = document.querySelector('.projects-views-row');
+  if (row) row.classList.remove('show-edit');
+}
+
+/**
+ * Switches the active sub-tab in the project edit view.
+ * @param {string} subtab - 'envs' | 'cms' | 'links'
+ */
+function _switchProjectSubtab(subtab) {
+  _currentSubtab = subtab;
+
+  document.querySelectorAll('.project-subtab').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.subtab === subtab);
   });
 
-  header.appendChild(chevron);
-  header.appendChild(nameInput);
-  header.appendChild(btnDelete);
+  const content = el('project-subtab-content');
+  if (!content || !_editingGroup) return;
+  content.innerHTML = '';
 
-  // ── Group body
-  const body = document.createElement('div');
-  body.className = 'group-body';
+  if (subtab === 'envs') {
+    _buildEnvsSubtab(content, _editingGroup);
+  } else if (subtab === 'cms') {
+    _buildCmsSubtab(content, _editingGroup);
+  } else if (subtab === 'links') {
+    content.appendChild(buildLinksSection(_editingGroup.id, _editingGroup));
+  }
+}
 
-  // Environment list
+/**
+ * Builds the "Environnements" sub-tab content.
+ * @param {HTMLElement} container
+ * @param {object} group
+ */
+function _buildEnvsSubtab(container, group) {
   const envList = document.createElement('div');
   envList.className = 'env-manage-list';
   envList.dataset.groupId = group.id;
@@ -156,34 +358,53 @@ function buildGroupCard(group) {
   group.environments.forEach((env) => {
     envList.appendChild(buildEnvItem(group.id, env));
   });
-  body.appendChild(envList);
+  container.appendChild(envList);
 
-  // "Add environment" button
+  // Add environment button
   const btnAddEnv = document.createElement('button');
   btnAddEnv.className = 'btn btn-sm btn-outline btn-full';
+  btnAddEnv.style.marginTop = '8px';
   btnAddEnv.textContent = t('addEnv');
   btnAddEnv.addEventListener('click', async () => {
-    // An environment only stores: id, name, domain, color
-    const newEnv = {
-      id: generateId(),
-      name: '',
-      domain: '',
-      color: COLOR_PALETTE[0].hex,
-    };
+    const newEnv = { id: generateId(), name: '', domain: '', color: COLOR_PALETTE[0].hex };
     const groups = await getGroups();
     const g = groups.find((x) => x.id === group.id);
     if (g) {
       g.environments.push(newEnv);
       await saveGroups(groups);
+      group.environments = g.environments;
+      if (_editingGroup && _editingGroup.id === group.id) _editingGroup.environments = g.environments;
       envList.appendChild(buildEnvItem(group.id, newEnv));
     }
   });
-  body.appendChild(btnAddEnv);
+  container.appendChild(btnAddEnv);
 
-  // ── CMS selector row
+  // Delete project button
+  const btnDeleteProject = document.createElement('button');
+  btnDeleteProject.className = 'btn btn-sm btn-danger btn-full';
+  btnDeleteProject.style.marginTop = '20px';
+  btnDeleteProject.textContent = t('deleteProject');
+  btnDeleteProject.addEventListener('click', async () => {
+    const ok = await confirm(t('confirmDeleteGroup', group.name));
+    if (ok) {
+      const groups = await getGroups();
+      await saveGroups(groups.filter((g) => g.id !== group.id));
+      _closeProjectEdit();
+      await renderEnvironmentsPanel();
+    }
+  });
+  container.appendChild(btnDeleteProject);
+}
+
+/**
+ * Builds the "CMS" sub-tab content.
+ * @param {HTMLElement} container
+ * @param {object} group
+ */
+function _buildCmsSubtab(container, group) {
+  // CMS selector row
   const cmsRow = document.createElement('div');
   cmsRow.className = 'field-row';
-  cmsRow.style.marginTop = '12px';
   const cmsLabel = document.createElement('label');
   cmsLabel.className = 'field-label';
   cmsLabel.textContent = t('cmsLabel');
@@ -198,13 +419,13 @@ function buildGroupCard(group) {
   cmsSelect.value = group.cms || 'none';
   cmsRow.appendChild(cmsLabel);
   cmsRow.appendChild(cmsSelect);
-  body.appendChild(cmsRow);
+  container.appendChild(cmsRow);
 
-  // Container for CMS config (login path, admin path for PrestaShop, WP multisite)
+  // CMS config container
   const cmsConfigContainer = document.createElement('div');
   cmsConfigContainer.style.display = (group.cms && group.cms !== 'none') ? 'block' : 'none';
   buildCmsGroupConfig(group.id, group, cmsConfigContainer);
-  body.appendChild(cmsConfigContainer);
+  container.appendChild(cmsConfigContainer);
 
   cmsSelect.addEventListener('change', async () => {
     const newCms = cmsSelect.value;
@@ -212,7 +433,6 @@ function buildGroupCard(group) {
     const g = groups.find((x) => x.id === group.id);
     if (!g) return;
 
-    // Count existing CMS links
     const cmsLinksCount = g.links ? g.links.filter((l) => l.type === 'cms').length : 0;
 
     if (cmsLinksCount > 0 && newCms !== g.cms) {
@@ -221,51 +441,32 @@ function buildGroupCard(group) {
         cmsSelect.value = g.cms || 'none';
         return;
       }
-      // Remove old CMS links
       g.links = (g.links || []).filter((l) => l.type !== 'cms');
     }
 
     g.cms = newCms;
 
     if (newCms !== 'none') {
-      // Set default login path for the new CMS if not already custom
       g.cmsLoginPath = CMS_DEFAULT_LOGIN_PATH[newCms] || '/';
       g.cmsAdminPath = CMS_DEFAULT_ADMIN_PATH[newCms] || '';
-      // Add predefined links for the new CMS
       if (!g.links) g.links = [];
       const defaultLinks = getDefaultCmsLinks(newCms, g.cmsLoginPath, g.cmsAdminPath);
       g.links = [...defaultLinks, ...g.links];
     } else {
-      // Reset WP Multisite when switching to 'none'
       g.isWordPressMultisite = false;
     }
 
     await saveGroups(groups);
     Object.assign(group, g);
+    if (_editingGroup && _editingGroup.id === group.id) Object.assign(_editingGroup, g);
 
-    // Show/hide CMS config container
     cmsConfigContainer.style.display = newCms !== 'none' ? 'block' : 'none';
-    // Rebuild CMS config section
     cmsConfigContainer.innerHTML = '';
     buildCmsGroupConfig(group.id, group, cmsConfigContainer);
-    // Rebuild links section
-    const linksSection = body.querySelector('.links-section');
-    if (linksSection) linksSection.remove();
-    body.appendChild(buildLinksSection(group.id, group));
   });
-
-  // ── Quick links section at group level
-  body.appendChild(buildLinksSection(group.id, group));
-
-  // Accordion toggle
-  header.addEventListener('click', () => {
-    card.classList.toggle('open');
-  });
-
-  card.appendChild(header);
-  card.appendChild(body);
-  return card;
 }
+
+// ── CMS config ────────────────────────────────────────────────────────────────
 
 /**
  * Builds the CMS sub-form at group level.
@@ -392,12 +593,7 @@ function buildCmsGroupConfig(groupId, group, container) {
       }
       await saveGroups(groups);
       Object.assign(group, g);
-      // Rebuild links section to reflect added/removed network links
-      const linksSection = container.closest('.group-body')?.querySelector('.links-section');
-      if (linksSection) {
-        const { buildLinksSection } = await import('./links.js');
-        linksSection.replaceWith(buildLinksSection(groupId, group));
-      }
+      if (_editingGroup && _editingGroup.id === groupId) Object.assign(_editingGroup, g);
     });
   }
 
@@ -577,9 +773,10 @@ function buildWpSiteRow(groupId, group, site, idx, sitesList, typeSelect, getPre
   return row;
 }
 
+// ── Env item ──────────────────────────────────────────────────────────────────
+
 /**
- * Builds an environment item in the Settings panel.
- * An environment only stores: name, domain, color.
+ * Builds an environment item in the edit view.
  * @param {string} groupId
  * @param {object} env
  * @returns {HTMLElement}
@@ -589,43 +786,19 @@ function buildEnvItem(groupId, env) {
   item.className = 'env-manage-item';
   item.dataset.envId = env.id;
 
-  // Row 1: Name + delete button
-  const row1 = document.createElement('div');
-  row1.className = 'env-manage-row';
-
+  // Name input
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
   nameInput.className = 'input-sm';
   nameInput.placeholder = t('envNamePlaceholder');
   nameInput.value = env.name || '';
   nameInput.addEventListener('change', () => saveEnvField(groupId, env.id, 'name', nameInput.value));
+  item.appendChild(nameInput);
 
-  const btnDelete = document.createElement('button');
-  btnDelete.className = 'btn-delete-env';
-  btnDelete.title = 'Delete this environment';
-  btnDelete.innerHTML = '✕';
-  btnDelete.addEventListener('click', async () => {
-    const ok = await confirm(t('confirmDeleteEnv', env.name || t('unnamed')));
-    if (ok) {
-      const groups = await getGroups();
-      const g = groups.find((x) => x.id === groupId);
-      if (g) {
-        g.environments = g.environments.filter((e) => e.id !== env.id);
-        await saveGroups(groups);
-        item.remove();
-      }
-    }
-  });
-
-  row1.appendChild(nameInput);
-  row1.appendChild(btnDelete);
-  item.appendChild(row1);
-
-  // Row 2: Protocol + Domain
+  // Row: Protocol + Domain
   const row2 = document.createElement('div');
   row2.className = 'env-manage-row env-domain-row';
 
-  // Protocol selector (HTTPS / HTTP)
   const protocolSelect = document.createElement('select');
   protocolSelect.className = 'input-sm select-sm env-protocol-select';
   protocolSelect.title = t('envProtocolLabel');
@@ -636,9 +809,7 @@ function buildEnvItem(groupId, env) {
     protocolSelect.appendChild(opt);
   });
   protocolSelect.value = env.protocol || 'https';
-  protocolSelect.addEventListener('change', () => {
-    saveEnvField(groupId, env.id, 'protocol', protocolSelect.value);
-  });
+  protocolSelect.addEventListener('change', () => saveEnvField(groupId, env.id, 'protocol', protocolSelect.value));
 
   const domainInput = document.createElement('input');
   domainInput.type = 'text';
@@ -646,18 +817,16 @@ function buildEnvItem(groupId, env) {
   domainInput.placeholder = t('envDomainPlaceholder');
   domainInput.value = env.domain || '';
   domainInput.addEventListener('change', () => {
-    // Sanitize domain: strip protocol, paths, whitespace; preserve port
     let raw = domainInput.value.trim();
     try {
       if (raw.includes('://')) {
         const parsed = new URL(raw);
-        // Detect protocol from pasted URL and update selector
         const detectedProto = parsed.protocol.replace(':', '');
         if (detectedProto === 'http' || detectedProto === 'https') {
           protocolSelect.value = detectedProto;
           saveEnvField(groupId, env.id, 'protocol', detectedProto);
         }
-        raw = parsed.host; // host preserves port (e.g. localhost:3000)
+        raw = parsed.host;
       } else {
         raw = raw.split('/')[0].split('?')[0];
       }
@@ -670,7 +839,7 @@ function buildEnvItem(groupId, env) {
   row2.appendChild(domainInput);
   item.appendChild(row2);
 
-  // Row 3: Color label + picker
+  // Color row
   const colorRow = document.createElement('div');
   colorRow.className = 'field-row';
   const colorLabel = document.createElement('label');
@@ -680,7 +849,6 @@ function buildEnvItem(groupId, env) {
 
   const colorPicker = document.createElement('div');
   colorPicker.className = 'color-picker';
-
   COLOR_PALETTE.forEach(({ name, hex }) => {
     const swatch = document.createElement('button');
     swatch.className = 'color-swatch' + (env.color === hex ? ' selected' : '');
@@ -694,7 +862,6 @@ function buildEnvItem(groupId, env) {
     });
     colorPicker.appendChild(swatch);
   });
-
   colorRow.appendChild(colorPicker);
   item.appendChild(colorRow);
 
@@ -815,6 +982,29 @@ function buildEnvItem(groupId, env) {
 
   item.appendChild(baSection);
 
+  // Delete environment button (bottom, danger)
+  const btnDelete = document.createElement('button');
+  btnDelete.type = 'button';
+  btnDelete.className = 'btn btn-sm btn-danger-outline btn-full';
+  btnDelete.style.marginTop = '10px';
+  btnDelete.textContent = t('deleteEnvironment');
+  btnDelete.addEventListener('click', async () => {
+    const ok = await confirm(t('confirmDeleteEnv', env.name || t('unnamed')));
+    if (ok) {
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === groupId);
+      if (g) {
+        g.environments = g.environments.filter((e) => e.id !== env.id);
+        await saveGroups(groups);
+        item.remove();
+        if (_editingGroup && _editingGroup.id === groupId) {
+          _editingGroup.environments = g.environments;
+        }
+      }
+    }
+  });
+  item.appendChild(btnDelete);
+
   return item;
 }
 
@@ -833,21 +1023,4 @@ async function saveEnvField(groupId, envId, field, value) {
   if (!e) return;
   e[field] = value;
   await saveGroups(groups);
-}
-
-/**
- * Refreshes the export group <select> options.
- * @param {Array} groups
- */
-export function updateExportGroupSelect(groups) {
-  const select = el('export-group-select');
-  const current = select.value;
-  select.innerHTML = `<option value="">${t('chooseGroup')}</option>`;
-  groups.forEach((g) => {
-    const opt = document.createElement('option');
-    opt.value = g.id;
-    opt.textContent = g.name;
-    select.appendChild(opt);
-  });
-  if (groups.find((g) => g.id === current)) select.value = current;
 }

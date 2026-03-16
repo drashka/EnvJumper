@@ -88,18 +88,46 @@
 
     <!-- Panneau : Environnements -->
     <main class="panel hidden" id="panel-environments" role="tabpanel" aria-labelledby="tab-environments">
+      <div class="projects-views-row">
 
-      <!-- Liste des groupes -->
-      <div id="groups-list">
-        <!-- Groupes injectés par JS -->
+        <!-- Vue liste des projets -->
+        <div class="projects-view projects-view--list">
+          <div id="groups-list"></div>
+          <div class="add-group-container">
+            <button class="btn btn-outline btn-full" id="add-group-btn" data-i18n="addGroup"></button>
+          </div>
+        </div>
+
+        <!-- Vue édition d'un projet (drill-down) -->
+        <div class="projects-view projects-view--edit">
+          <div class="project-edit-header">
+            <button class="project-back-btn" id="project-back-btn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              <span data-i18n="back"></span>
+            </button>
+            <div class="project-edit-title-area">
+              <div class="project-edit-favicon-wrap">
+                <img class="project-edit-favicon-img" id="project-edit-favicon-img" style="display:none" width="20" height="20" />
+                <span class="project-edit-favicon-default" id="project-edit-favicon-default">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </span>
+              </div>
+              <input type="text" class="project-edit-name-input" id="project-edit-name-input" />
+            </div>
+          </div>
+
+          <!-- Sous-onglets -->
+          <nav class="project-subtabs" role="tablist">
+            <button class="project-subtab active" data-subtab="envs" role="tab" data-i18n="subtabEnvironments"></button>
+            <button class="project-subtab" data-subtab="cms" role="tab">CMS</button>
+            <button class="project-subtab" data-subtab="links" role="tab" data-i18n="linksSection"></button>
+          </nav>
+
+          <!-- Contenu du sous-onglet actif -->
+          <div id="project-subtab-content"></div>
+        </div>
+
       </div>
-
-      <!-- Bouton ajouter un groupe -->
-      <div class="add-group-container">
-        <button class="btn btn-outline btn-full" id="add-group-btn" data-i18n="addGroup">
-        </button>
-      </div>
-
     </main>
 
     <!-- Panneau : Paramètres -->
