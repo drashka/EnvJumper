@@ -139,6 +139,7 @@ async function _fetchGroupFavicon(group) {
   for (const env of group.environments) {
     if (!env.domain) continue;
     const proto = env.protocol || 'https';
+    if (proto !== 'http' && proto !== 'https') continue;
     const faviconUrl = `${proto}://${env.domain}/favicon.ico`;
     try {
       const controller = new AbortController();

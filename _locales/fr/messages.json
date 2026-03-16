@@ -10,10 +10,20 @@
   "deleteProject": { "message": "Supprimer le projet" },
   "deleteEnvironment": { "message": "Supprimer l'environnement" },
   "displaySection": { "message": "Affichage" },
+  "markerSection": { "message": "Marqueur d'environnement" },
+  "showFrame": { "message": "Afficher le cadre de couleur" },
+  "showLabel": { "message": "Afficher le label d'environnement" },
+  "labelSizeLabel": { "message": "Taille" },
   "dataSection": { "message": "Données" },
 
   "noMatchText": { "message": "Aucun projet reconnu pour cette URL." },
   "noMatchBtn": { "message": "Ajouter un projet →" },
+  "noMatchTitle": { "message": "Environnement non reconnu" },
+  "noMatchNewProject": { "message": "Nouveau projet" },
+  "noMatchAddToProject": { "message": "Ajouter à un projet" },
+  "noMatchChooseProject": { "message": "Choisir un projet" },
+  "noMatchSearch": { "message": "Rechercher un projet ou un environnement..." },
+  "noMatchNoResults": { "message": "Aucun résultat" },
 
   "badgeCurrent": { "message": "Actuel" },
   "noLinksConfigured": { "message": "Aucun lien rapide configuré." },
@@ -85,8 +95,8 @@
   "cms_prestashop": { "message": "PrestaShop" },
   "cms_magento": { "message": "Magento" },
   "cms_shopify": { "message": "Shopify" },
-  "cmsLoginPathLabel": { "message": "URL de connexion" },
   "cmsAdminPathLabel": { "message": "Chemin admin" },
+  "availableCmsLinks": { "message": "Liens CMS disponibles" },
   "chooseIcon": { "message": "Choisir une icône" },
   "searchIcon": { "message": "Rechercher une icône…" },
   "cmsLinkLogin": { "message": "Connexion" },
@@ -115,7 +125,6 @@
   "cmsLinkAdministration": { "message": "Administration" },
   "confirmDisableCms": { "message": "Changer de CMS supprimera les $COUNT$ lien(s) prédéfini(s). Continuer ?", "placeholders": { "count": { "content": "$1" } } },
 
-  "stealthModeToggle": { "message": "Mode discret — masquer bordure et badge" },
 
   "envProtocolLabel": { "message": "Protocole (HTTPS ou HTTP)" },
   "colorLabel": { "message": "Couleur" },

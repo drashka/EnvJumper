@@ -10,10 +10,20 @@
   "deleteProject": { "message": "Delete project" },
   "deleteEnvironment": { "message": "Delete environment" },
   "displaySection": { "message": "Display" },
+  "markerSection": { "message": "Environment Marker" },
+  "showFrame": { "message": "Show color frame" },
+  "showLabel": { "message": "Show environment label" },
+  "labelSizeLabel": { "message": "Size" },
   "dataSection": { "message": "Data" },
 
   "noMatchText": { "message": "No matching project for this URL." },
   "noMatchBtn": { "message": "Add a project →" },
+  "noMatchTitle": { "message": "Unrecognized environment" },
+  "noMatchNewProject": { "message": "New project" },
+  "noMatchAddToProject": { "message": "Add to a project" },
+  "noMatchChooseProject": { "message": "Choose a project" },
+  "noMatchSearch": { "message": "Search a project or environment..." },
+  "noMatchNoResults": { "message": "No results" },
 
   "badgeCurrent": { "message": "Current" },
   "noLinksConfigured": { "message": "No quick links configured." },
@@ -85,8 +95,8 @@
   "cms_prestashop": { "message": "PrestaShop" },
   "cms_magento": { "message": "Magento" },
   "cms_shopify": { "message": "Shopify" },
-  "cmsLoginPathLabel": { "message": "Login URL" },
   "cmsAdminPathLabel": { "message": "Admin path" },
+  "availableCmsLinks": { "message": "Available CMS links" },
   "chooseIcon": { "message": "Choose an icon" },
   "searchIcon": { "message": "Search icon…" },
   "cmsLinkLogin": { "message": "Login" },
@@ -115,7 +125,6 @@
   "cmsLinkAdministration": { "message": "Administration" },
   "confirmDisableCms": { "message": "Changing CMS will delete $COUNT$ predefined link(s). Continue?", "placeholders": { "count": { "content": "$1" } } },
 
-  "stealthModeToggle": { "message": "Stealth mode — hide border and badge" },
 
   "envProtocolLabel": { "message": "Protocol (HTTPS or HTTP)" },
   "colorLabel": { "message": "Color" },

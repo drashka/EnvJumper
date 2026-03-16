@@ -8,6 +8,19 @@ import { el, show, hide, buildTargetUrl } from '../helpers/ui-helpers.js';
 import { getWpLoginStatus } from '../projects/wordpress.js';
 import { hideSiteSelector } from './jumper-multisite.js';
 import { buildJumperCardBody } from './jumper-links.js';
+import { renderNoMatchPanel, hideProjectChooser } from './jumper-no-match.js';
+
+/** Callback set by popup.js to handle no-match action buttons. */
+let _noMatchActions = null;
+
+/**
+ * Sets the action callbacks for the no-match panel.
+ * Must be called once at popup startup.
+ * @param {{ onNewProject: Function, onAddToProject: Function }} actions
+ */
+export function setNoMatchActions(actions) {
+  _noMatchActions = actions;
+}
 
 /**
  * Initializes the Jumper panel's drill-down back button.
@@ -16,10 +29,13 @@ import { buildJumperCardBody } from './jumper-links.js';
 export function initJumper() {
   const backBtn = el('jumper-back-btn');
   if (backBtn) backBtn.addEventListener('click', hideSiteSelector);
+  const backBtn2 = el('jumper-choose-project-back-btn');
+  if (backBtn2) backBtn2.addEventListener('click', hideProjectChooser);
 }
 
 /**
  * Finds the group and environment matching a given hostname.
+ * Supports direct domain match and WP Multisite prefix-based subdomains.
  * @param {Array} groups
  * @param {string} hostname
  * @returns {{ group: object, env: object }|null}
@@ -37,20 +53,6 @@ export function findMatch(groups, hostname) {
             ? env.domain
             : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
           if (siteHost === hostname) return { group, env };
-        }
-      }
-      // Legacy: wpSites with domain field at group level
-      for (const site of group.wpSites) {
-        if (site.domain && site.domain === hostname) {
-          return { group, env: group.environments[0] || null };
-        }
-      }
-    }
-    // Legacy: wpSites with domain field at env level (oldest format)
-    for (const env of group.environments) {
-      if (env.isWordPressMultisite && env.wpSites) {
-        for (const site of env.wpSites) {
-          if (site.domain === hostname) return { group, env };
         }
       }
     }
@@ -75,8 +77,12 @@ export async function renderJumperPanel() {
     return;
   }
 
-  if (!tab || !tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('about:')) {
+  const groups = await getGroups();
+
+  if (!tab || !tab.url || (!tab.url.startsWith('http://') && !tab.url.startsWith('https://'))) {
     hide('jumper-loading');
+    const noMatchEl = el('jumper-no-match');
+    if (_noMatchActions) renderNoMatchPanel(noMatchEl, groups, '', _noMatchActions);
     show('jumper-no-match');
     return;
   }
@@ -86,17 +92,18 @@ export async function renderJumperPanel() {
     hostname = new URL(tab.url).host;
   } catch {
     hide('jumper-loading');
+    const noMatchEl = el('jumper-no-match');
+    if (_noMatchActions) renderNoMatchPanel(noMatchEl, groups, '', _noMatchActions);
     show('jumper-no-match');
     return;
   }
-
-  const groups = await getGroups();
   const match = findMatch(groups, hostname);
 
   hide('jumper-loading');
 
   if (!match) {
-    el('detected-hostname').textContent = t('detectedHostname', hostname);
+    const noMatchEl = el('jumper-no-match');
+    if (_noMatchActions) renderNoMatchPanel(noMatchEl, groups, hostname, _noMatchActions);
     show('jumper-no-match');
     return;
   }
@@ -116,7 +123,7 @@ export async function renderJumperPanel() {
     ? [currentEnv, ...group.environments.filter((e) => e.id !== currentEnv.id)]
     : group.environments;
 
-  sortedEnvs.forEach((env) => {
+  sortedEnvs.filter((env) => env.domain).forEach((env) => {
     const isCurrent = currentEnv && env.id === currentEnv.id;
     const loggedIn = isCurrent ? wpIsLoggedIn : null;
     const card = _buildJumperCard(env, isCurrent, tab.url, loggedIn, group);
@@ -148,12 +155,22 @@ function _buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
   dot.className = 'color-dot';
   dot.style.backgroundColor = env.color || '#6B7280';
 
+  const nameBlock = document.createElement('div');
+  nameBlock.className = 'jumper-card-name-block';
+
   const nameSpan = document.createElement('span');
   nameSpan.className = 'jumper-card-name';
   nameSpan.textContent = env.name || t('unnamed');
 
+  const domainSpan = document.createElement('span');
+  domainSpan.className = 'jumper-card-domain';
+  domainSpan.textContent = env.domain || '';
+
+  nameBlock.appendChild(nameSpan);
+  nameBlock.appendChild(domainSpan);
+
   header.appendChild(dot);
-  header.appendChild(nameSpan);
+  header.appendChild(nameBlock);
 
   if (env.basicAuth && env.basicAuth.enabled) {
     const lockIcon = document.createElement('span');

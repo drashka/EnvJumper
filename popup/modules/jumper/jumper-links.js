@@ -32,9 +32,9 @@ export function buildJumperCardBody(env, group, wpIsLoggedIn) {
     }
 
     links.forEach((link) => {
-      const isCmsLink = link.type === 'cms' || link.type === 'wordpress';
-      const isNetworkLink = link.type === 'network';
-      const isLoginLink = (link.icon === 'log-in') || (link.iconKey === 'login');
+      const isCmsLink = !!(link.cmsLinkId && !link.cmsLinkId.startsWith('network-'));
+      const isNetworkLink = !!(link.cmsLinkId?.startsWith('network-'));
+      const isLoginLink = link.icon === 'log-in';
       const isAdminLink = (isCmsLink || isNetworkLink) && !isLoginLink;
       const isDisabled = showWpNotice && isAdminLink;
 
@@ -46,7 +46,7 @@ export function buildJumperCardBody(env, group, wpIsLoggedIn) {
       row.className = 'link-quick-row' + (isDisabled ? ' disabled' : '') + (hasPrefix ? ' has-prefix' : '');
       row.type = 'button';
 
-      const iconSvg = ICONS[link.icon] || ICONS[link.iconKey] || ICONS['link'];
+      const iconSvg = ICONS[link.icon] || ICONS['link'];
       const iconDiv = document.createElement('span');
       iconDiv.className = 'link-icon';
       iconDiv.innerHTML = iconSvg;

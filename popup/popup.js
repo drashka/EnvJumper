@@ -3,9 +3,9 @@
 // Licence : GPL v3 — voir le fichier LICENSE
 
 import { applyI18n, t } from './modules/i18n.js';
-import { migrateData, generateId, getGroups, saveGroups, COLOR_PALETTE } from './modules/helpers/storage.js';
+import { generateId, getGroups, saveGroups, COLOR_PALETTE } from './modules/helpers/storage.js';
 import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } from './modules/tabs.js';
-import { renderJumperPanel, initJumper } from './modules/jumper/jumper.js';
+import { renderJumperPanel, initJumper, setNoMatchActions } from './modules/jumper/jumper.js';
 import { initExportImport } from './modules/settings/import-export.js';
 import { el } from './modules/helpers/ui-helpers.js';
 import { renderEnvironmentsPanel } from './modules/projects/projects.js';
@@ -78,8 +78,10 @@ async function addProjectFromActiveTab() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab && tab.url) {
       const url = new URL(tab.url);
-      hostname = url.hostname;
-      protocol = url.protocol.replace(':', '');
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        hostname = url.hostname;
+        protocol = url.protocol.replace(':', '');
+      }
     }
   } catch {}
 
@@ -90,10 +92,10 @@ async function addProjectFromActiveTab() {
   const newGroup = {
     id: generateId(),
     name: projectName,
-    isWordPress: false,
-    wpLoginPath: '/wp-login.php',
+    cms: 'none',
+    cmsAdminPath: '',
     isWordPressMultisite: false,
-    wpNetworkDomain: '',
+    wpMultisiteType: 'subdomain',
     wpSites: [],
     links: [],
     environments: hostname ? [{
@@ -111,57 +113,106 @@ async function addProjectFromActiveTab() {
   openProjectEdit(newGroup);
 }
 
+/**
+ * Creates a new environment in an existing group using the active tab's URL,
+ * then switches to the Environments tab and opens the project edit view.
+ * @param {object} group - The target group
+ */
+async function addEnvToProject(group) {
+  let hostname = '';
+  let protocol = 'https';
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab && tab.url) {
+      const url = new URL(tab.url);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        hostname = url.hostname;
+        protocol = url.protocol.replace(':', '');
+      }
+    }
+  } catch {}
+
+  const envName = hostname ? envNameFromHostname(hostname) : 'Production';
+  const newEnv = { id: generateId(), name: envName, domain: hostname, protocol, color: COLOR_PALETTE[0].hex };
+
+  const groups = await getGroups();
+  const g = groups.find((x) => x.id === group.id);
+  if (!g) return;
+  g.environments.push(newEnv);
+  await saveGroups(groups);
+  group.environments = g.environments;
+
+  await renderEnvironmentsPanel();
+  switchTab('environments');
+  openProjectEdit(group);
+
+  // Expand the new env card and focus its name input after DOM renders
+  setTimeout(() => {
+    const cards = document.querySelectorAll('#project-subtab-content .env-card');
+    const lastCard = cards[cards.length - 1];
+    if (!lastCard) return;
+    const body = lastCard.querySelector('.env-card-body');
+    if (body && body.style.display === 'none') lastCard.querySelector('.env-card-header')?.click();
+    setTimeout(() => lastCard.querySelector('input[type="text"]')?.focus(), 80);
+  }, 80);
+}
+
+/**
+ * Creates a blank project with one empty environment and opens its edit view,
+ * focusing the project name input.
+ */
+async function addEmptyProject() {
+  const groups = await getGroups();
+
+  const newGroup = {
+    id: generateId(),
+    name: '',
+    cms: 'none',
+    cmsAdminPath: '',
+    isWordPressMultisite: false,
+    wpMultisiteType: 'subdomain',
+    wpSites: [],
+    links: [],
+    environments: [{
+      id: generateId(),
+      name: '',
+      domain: '',
+      protocol: 'https',
+      color: COLOR_PALETTE[0].hex,
+    }],
+  };
+
+  groups.push(newGroup);
+  await saveGroups(groups);
+  await renderEnvironmentsPanel();
+  openProjectEdit(newGroup);
+
+  // Focus the project name input after the slide-in animation starts
+  setTimeout(() => el('project-edit-name-input')?.focus(), 50);
+}
+
 // Wire up tab renderer callbacks to avoid circular dependencies
 setEnvironmentsRenderer(renderEnvironmentsPanel);
 setSettingsRenderer(renderSettingsPanel);
 
-/**
- * Initializes the stealth mode toggle button.
- */
-async function initStealthButton() {
-  const btn = el('stealth-btn');
-  if (!btn) return;
-
-  btn.title = t('stealthModeToggle');
-
-  const initResult = await chrome.storage.local.get(['stealthMode']);
-  let stealthMode = !!initResult.stealthMode;
-
-  btn.classList.toggle('active', stealthMode);
-
-  btn.addEventListener('click', async () => {
-    const currentResult = await chrome.storage.local.get(['stealthMode']);
-    const next = !currentResult.stealthMode;
-    await chrome.storage.local.set({ stealthMode: next });
-    btn.classList.toggle('active', next);
-    btn.title = t('stealthModeToggle');
-
-    try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab && tab.id) {
-        chrome.tabs.sendMessage(tab.id, { type: 'STEALTH_MODE_CHANGED', stealthMode: next }).catch(() => {});
-      }
-    } catch {}
-  });
-}
+// Wire up no-match action callbacks for the Jumper panel
+setNoMatchActions({
+  onNewProject: async () => {
+    switchTab('environments');
+    await addProjectFromActiveTab();
+  },
+  onAddToProject: (group) => addEnvToProject(group),
+});
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await migrateData();
   applyI18n();
   initTabs();
   initJumper();
   initEnvironmentsPanel({ onBack: renderEnvironmentsPanel });
   initExportImport();
-  await initStealthButton();
 
-  // "Add a project" button shown on the Jumper no-match state — smart creation
-  el('goto-settings-btn').addEventListener('click', async () => {
-    switchTab('environments');
-    await addProjectFromActiveTab();
-  });
-
-  // "Add project" button in the Environments panel — smart creation from active tab
-  el('add-group-btn').addEventListener('click', () => addProjectFromActiveTab());
+  // "Add project" button in the Environments panel — blank project, focus on name
+  el('add-group-btn').addEventListener('click', () => addEmptyProject());
 
   await renderJumperPanel();
 });

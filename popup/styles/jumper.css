@@ -2,15 +2,6 @@
 
 /* ─── Label de groupe ──────────────────────────────────────── */
 
-.jumper-group-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--color-text-muted);
-  margin-bottom: 8px;
-  padding-left: 2px;
-}
 
 /* ─── Cards d'environnements ───────────────────────────────── */
 
@@ -18,7 +9,7 @@
   border: 1px solid var(--color-border);
   border-left: 4px solid var(--env-color, #6B7280);
   border-radius: var(--radius-lg);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-sm);
   overflow: hidden;
   background: var(--bg-card);
 }
@@ -26,8 +17,8 @@
 .jumper-card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 12px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   cursor: pointer;
   user-select: none;
   transition: background .12s;
@@ -41,11 +32,28 @@
   border-bottom: 1px solid var(--color-border-light);
 }
 
-.jumper-card-name {
+.jumper-card-name-block {
   flex: 1;
-  font-size: 14px;
-  font-weight: 500;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.jumper-card-name {
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
   color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jumper-card-domain {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .jumper-card-actions {
@@ -78,20 +86,20 @@
   gap: 2px 6px;
   overflow: hidden;
   min-height: 0;
-  padding: 0 12px;
+  padding: 0 var(--space-md);
   transition: padding 0.25s ease;
 }
 
-.jumper-card.open .jumper-card-body-inner { padding: 8px 12px 10px; }
+.jumper-card.open .jumper-card-body-inner { padding: var(--space-sm) var(--space-md); }
 
 /* Badge "Actuel" */
 .badge-current {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   background: var(--env-color, #6B7280);
   color: white;
   flex-shrink: 0;
@@ -106,15 +114,15 @@
 .wp-status-notice {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius);
   background: var(--color-error-bg);
   border: 1px solid var(--color-error-border);
   color: var(--color-error-text);
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 8px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  margin-bottom: var(--space-sm);
 }
 
 /* ─── Section WP Multisite dans le Jumper ─────────────────── */
@@ -126,12 +134,12 @@
 }
 
 .jumper-section-label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: .5px;
   color: var(--color-text-muted);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-sm);
 }
 
 /* ─── État vide ────────────────────────────────────────────── */
@@ -140,8 +148,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px;
-  gap: 10px;
+  padding: var(--space-xl) var(--space-lg);
+  gap: var(--space-md);
   text-align: center;
 }
 
@@ -151,28 +159,29 @@
 }
 
 .empty-text {
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-text-secondary);
   line-height: 1.4;
 }
 
 .empty-hostname {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
   font-family: monospace;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 3px 8px;
+  padding: 3px var(--space-sm);
+  display: inline-block;
 }
 
 /* ─── Section WP Multisite (boutons d'actions) ─────────────── */
 
 .wp-section {
-  margin-top: 14px;
+  margin-top: var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 12px 14px;
+  padding: var(--space-md);
 }
 
 .wp-actions {
@@ -184,14 +193,14 @@
 .btn-wp {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-bg);
   font-family: var(--font);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
   color: var(--color-text);
   cursor: pointer;
   text-align: left;
@@ -200,6 +209,228 @@
 }
 
 .btn-wp:hover { background: var(--color-surface); }
+
+/* ─── No-match enrichi ────────────────────────────────────── */
+
+.no-match-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.no-match-header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.no-match-title {
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+  margin: 0 0 var(--space-sm);
+}
+
+.no-match-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.no-match-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.no-match-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.no-match-btn-icon svg { width: 14px; height: 14px; }
+
+/* Search */
+.no-match-search-wrap {
+  position: relative;
+  margin-bottom: var(--space-sm);
+}
+
+.no-match-search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  display: flex;
+  pointer-events: none;
+}
+
+.no-match-search-icon svg { width: 13px; height: 13px; }
+
+.no-match-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) 30px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color .15s;
+}
+
+.no-match-search:focus { border-color: var(--color-primary); }
+
+/* No results */
+.no-match-no-results {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding: var(--space-md) 0;
+}
+
+/* Accordion */
+.no-match-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.no-match-project {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.no-match-project-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  user-select: none;
+  transition: background .12s;
+}
+
+.no-match-project-header:hover { background: var(--color-surface); }
+
+.no-match-project.open .no-match-project-header { border-bottom: 1px solid var(--color-border-light); }
+
+.no-match-project-name {
+  flex: 1;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-match-project-count {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+.no-match-project-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: transform .2s;
+}
+
+.no-match-project-chevron svg { width: 14px; height: 14px; }
+.no-match-project.open .no-match-project-chevron { transform: rotate(90deg); }
+
+/* Accordion body */
+.no-match-project-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ease;
+}
+
+.no-match-project.open .no-match-project-body { grid-template-rows: 1fr; }
+
+.no-match-project-body-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.no-match-env-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 5px var(--space-md);
+}
+
+.no-match-env-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.no-match-env-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-match-env-domain {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-match-env-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Favicon */
+.no-match-favicon {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.no-match-favicon-default { display: flex; color: var(--color-text-muted); }
+.no-match-favicon-default svg { width: 14px; height: 14px; }
+.no-match-favicon-img { border-radius: 2px; }
+
+/* "Choose a project" chooser */
+.no-match-choose-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  margin-bottom: 3px;
+  text-align: left;
+}
 
 /* Lock icon on jumper card */
 .env-basicauth-icon {

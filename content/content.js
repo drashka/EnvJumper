@@ -4,10 +4,9 @@
 
 /**
  * Content script EnvJumper.
- * Injecte une bordure colorée + badge de nom d'environnement autour de la page.
- * La position du badge est paramétrable via chrome.storage.sync (settings.badgePosition).
- * Répond aux messages GET_WP_STATUS pour détecter la connexion WordPress.
- * Supporte le mode discret (stealthMode) qui masque la bordure et le badge.
+ * Injects a colored border + environment name badge around the page.
+ * Badge position and visibility are controlled via chrome.storage.sync (settings).
+ * Responds to GET_WP_STATUS messages to detect WordPress login status.
  */
 
 (function () {
@@ -16,9 +15,9 @@
   const OVERLAY_ID = 'envjump-overlay';
 
   /**
-   * Calcule la couleur de texte (noir ou blanc) offrant le meilleur contraste.
-   * @param {string} hex - Couleur hex (#RRGGBB)
-   * @returns {string} '#000000' ou '#ffffff'
+   * Returns the text color (black or white) with the best contrast.
+   * @param {string} hex - Hex color (#RRGGBB)
+   * @returns {string} '#000000' or '#ffffff'
    */
   function contrastColor(hex) {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -29,10 +28,9 @@
   }
 
   /**
-   * Retourne les styles CSS de position et border-radius du badge
-   * selon la position choisie.
+   * Returns CSS position and border-radius styles for the badge.
    * @param {string} position - 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-   * @returns {string[]} Tableau de propriétés CSS
+   * @returns {string[]}
    */
   function getBadgePositionStyles(position) {
     const map = {
@@ -45,15 +43,16 @@
   }
 
   /**
-   * Applique ou retire la bordure colorée et le badge d'environnement.
-   * @param {string|null} color - Couleur hex, ou null pour retirer.
-   * @param {string|null} label - Nom de l'environnement, ou null.
-   * @param {string} position - Position du badge.
+   * Applies or removes the colored border and environment badge.
+   * @param {string|null} color - Hex color, or null to remove.
+   * @param {string|null} label - Environment name, or null to hide badge.
+   * @param {string} position - Badge position.
    */
-  function applyBorder(color, label, position = 'top-left') {
+  function applyBorder(color, showFrame, label, position = 'top-left', fontSize = 13) {
     const existing = document.getElementById(OVERLAY_ID);
     if (existing) existing.remove();
     if (!color) return;
+    if (!showFrame && !label) return;
 
     const textColor = contrastColor(color);
 
@@ -62,13 +61,12 @@
     overlay.style.cssText = [
       'position: fixed',
       'inset: 0',
-      `border: 4px solid ${color}`,
+      showFrame ? `border: 4px solid ${color}` : 'border: none',
       'pointer-events: none',
       'z-index: 2147483647',
       'box-sizing: border-box',
     ].join(';');
 
-    // Badge avec position paramétrable
     if (label) {
       const tag = document.createElement('span');
       tag.textContent = label;
@@ -78,7 +76,7 @@
         ...posStyles,
         `background: ${color}`,
         `color: ${textColor}`,
-        'font: 600 11px/1 system-ui, sans-serif',
+        `font: 600 ${fontSize}px/1 system-ui, sans-serif`,
         'padding: 3px 10px 4px 8px',
         'letter-spacing: 0.3px',
         'pointer-events: none',
@@ -93,76 +91,64 @@
   }
 
   /**
-   * Vérifie le hostname actuel dans le stockage et applique la bordure.
-   * Lit aussi settings.badgePosition pour positionner le badge.
-   * Si le mode discret est actif (chrome.storage.local), retire la bordure.
-   *
-   * Note: chrome.storage.session is NOT accessible from content scripts —
-   * stealth mode is stored in chrome.storage.local and cleared on browser startup.
+   * Checks the current hostname against stored groups and applies the border/badge.
+   * Reads settings.showFrame, settings.showLabel, settings.labelPosition.
    */
   function checkAndApplyBorder() {
     const host = window.location.host;
 
-    chrome.storage.local.get(['stealthMode'], (localResult) => {
-      if (localResult && localResult.stealthMode) {
-        applyBorder(null, null);
-        return;
-      }
+    chrome.storage.local.get(['groups'], (localResult) => {
+    chrome.storage.sync.get(['settings'], (syncResult) => {
+      const groups = localResult.groups || [];
+      const s = syncResult.settings || {};
+      const showFrame = s.showFrame !== false;
+      const showLabel = s.showLabel !== false;
+      const position = s.labelPosition || 'top-left';
+      const SIZE_MAP = { s: 11, m: 13, l: 15, xl: 18 };
+      const fontSize = SIZE_MAP[s.labelSize] || 13;
 
-      chrome.storage.sync.get(['groups', 'settings'], (result) => {
-        const groups = result.groups || [];
-        const position = (result.settings && result.settings.badgePosition) || 'top-left';
-        let matchColor = null;
-        let matchLabel = null;
+      let matchColor = null;
+      let matchLabel = null;
 
-        outer: for (const group of groups) {
-          for (const env of group.environments) {
-            if (env.domain === host) {
-              matchColor = env.color;
-              matchLabel = env.name;
-              break outer;
-            }
+      outer: for (const group of groups) {
+        for (const env of group.environments) {
+          if (env.domain === host) {
+            matchColor = env.color;
+            matchLabel = env.name;
+            break outer;
           }
-          // Current format: wpSites with prefix at group level
-          if (group.isWordPressMultisite && group.wpSites) {
-            const type = group.wpMultisiteType || 'subdomain';
-            for (const env of group.environments) {
-              for (const site of group.wpSites) {
-                let siteHost;
-                if (type === 'subdirectory') {
-                  siteHost = env.domain;
-                } else {
-                  siteHost = site.prefix ? `${site.prefix}.${env.domain}` : env.domain;
-                }
-                if (siteHost === host) {
-                  matchColor = env.color;
-                  matchLabel = env.name;
-                  break outer;
-                }
-              }
-            }
-          }
-          // Legacy: wpSites with domain field at env level (old format)
+        }
+        // WP Multisite: wpSites with prefix at group level
+        if (group.isWordPressMultisite && group.wpSites) {
+          const type = group.wpMultisiteType || 'subdomain';
           for (const env of group.environments) {
-            if (env.isWordPressMultisite && env.wpSites) {
-              for (const site of env.wpSites) {
-                if (site.domain === host) {
-                  matchColor = env.color;
-                  matchLabel = env.name;
-                  break outer;
-                }
+            for (const site of group.wpSites) {
+              const siteHost = type === 'subdirectory'
+                ? env.domain
+                : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
+              if (siteHost === host) {
+                matchColor = env.color;
+                matchLabel = env.name;
+                break outer;
               }
             }
           }
         }
+      }
 
-        applyBorder(matchColor, matchLabel, position);
-      });
+      applyBorder(
+        matchColor,
+        showFrame,
+        showLabel ? matchLabel : null,
+        position,
+        fontSize
+      );
+    });
     });
   }
 
   /**
-   * Détecte si l'utilisateur est connecté à WordPress.
+   * Detects whether the user is logged in to WordPress.
    * @returns {boolean}
    */
   function detectWpLoginStatus() {
@@ -172,27 +158,20 @@
     );
   }
 
-  // Appliquer au chargement initial
+  // Apply on initial load
   checkAndApplyBorder();
 
-  // Écouter les mises à jour de stockage (config ou réglages modifiés)
+  // React to storage changes (config or settings modified)
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'sync' || area === 'local') checkAndApplyBorder();
   });
 
-  // Écouter les messages du service worker ou de la popup
+  // Listen for messages from the service worker or popup
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === 'URL_CHANGED') {
       checkAndApplyBorder();
     } else if (message.type === 'GET_WP_STATUS') {
       sendResponse({ isLoggedIn: detectWpLoginStatus() });
-    } else if (message.type === 'STEALTH_MODE_CHANGED') {
-      // Act immediately on the value carried in the message — no storage round-trip.
-      if (message.stealthMode) {
-        applyBorder(null, null);
-      } else {
-        checkAndApplyBorder();
-      }
     }
     return true;
   });

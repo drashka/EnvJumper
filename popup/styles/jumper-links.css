@@ -5,8 +5,8 @@
 .link-quick-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius);
   cursor: pointer;
   transition: background .15s, color .15s, box-shadow .15s;
@@ -17,7 +17,7 @@
   width: 100%;
   text-align: left;
   font-family: var(--font);
-  font-size: 13px;
+  font-size: var(--text-base);
 }
 
 .link-quick-row:hover {
@@ -89,9 +89,9 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--font-semibold);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   margin-left: 5px;
@@ -144,5 +144,5 @@
 .link-badge-input {
   width: 80px !important;
   flex: none !important;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }

@@ -5,14 +5,13 @@
 .toggle-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--color-border-light);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-sm);
 }
 
 .toggle-label {
-  font-size: 13px;
+  font-size: var(--text-base);
   color: var(--color-text-secondary);
   flex: 1;
 }
@@ -59,36 +58,34 @@
 /* ─── Champs ───────────────────────────────────────────────── */
 
 .section-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--color-text-muted);
-  margin-bottom: 8px;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
 }
 
 .field-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
 }
 
 .field-label {
   display: block;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   color: var(--color-text-secondary);
   margin-bottom: 3px;
 }
 
 .input-sm {
   width: 100%;
-  padding: 5px 8px;
+  padding: 5px var(--space-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: var(--text-base);
   color: var(--color-text);
   background: var(--color-bg);
   transition: border-color .15s, box-shadow .15s;
@@ -102,11 +99,11 @@
 
 .select-sm {
   flex: 1;
-  padding: 5px 8px;
+  padding: 5px var(--space-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: var(--text-base);
   color: var(--color-text);
   background: var(--color-bg);
   cursor: pointer;
@@ -133,11 +130,11 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 7px 12px;
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius);
   font-family: var(--font);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
   cursor: pointer;
   transition: background .15s, color .15s, border-color .15s;
   border: 1px solid transparent;
@@ -182,17 +179,17 @@
   border: 1px solid var(--color-danger);
   color: var(--color-danger);
   background: none;
-  border-radius: var(--radius-sm, 4px);
-  padding: 4px 8px;
-  font-size: 11px;
+  border-radius: var(--radius-sm);
+  padding: 4px var(--space-sm);
+  font-size: var(--text-xs);
   cursor: pointer;
 }
 
 .btn-danger-outline:hover { background: var(--color-error-bg); }
 
 .btn-sm {
-  padding: 5px 10px;
-  font-size: 12px;
+  padding: 5px var(--space-md);
+  font-size: var(--text-sm);
 }
 
 .btn-full { width: 100%; }
@@ -208,7 +205,7 @@
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--text-md);
   transition: background .12s, color .12s;
 }
 
@@ -220,9 +217,9 @@
 /* ─── Alertes ──────────────────────────────────────────────── */
 
 .alert {
-  padding: 8px 10px;
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: var(--text-base);
   line-height: 1.4;
   margin-top: 6px;
 }
@@ -254,20 +251,20 @@
 .modal {
   background: var(--color-bg);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: var(--space-xl);
   width: 320px;
   box-shadow: var(--shadow);
 }
 
 .modal-message {
-  font-size: 14px;
+  font-size: var(--text-md);
   line-height: 1.5;
   color: var(--color-text);
-  margin-bottom: 14px;
+  margin-bottom: var(--space-md);
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-sm);
 }

@@ -23,120 +23,6 @@ function downloadJson(data, filename) {
 }
 
 /**
- * Converts a JSON export from the old format (WP/links at env level, or
- * WP Multisite at group level) to the current format (WP/links at group level).
- * @param {object} data - Parsed import JSON
- * @returns {object} Converted data
- */
-function convertOldFormat(data) {
-  if (!data || !Array.isArray(data.groups)) return data;
-
-  const groups = data.groups.map((group) => {
-    const newGroup = { ...group };
-
-    // Lift WP/links from envs if not already at group level
-    if (newGroup.isWordPress === undefined && newGroup.cms === undefined && newGroup.environments) {
-      const envWithWp = newGroup.environments.find((e) => e.isWordPress);
-      if (envWithWp) {
-        newGroup.isWordPress = true;
-        newGroup.wpLoginPath = envWithWp.wpLoginPath || '/wp-login.php';
-        newGroup.isWordPressMultisite = envWithWp.isWordPressMultisite || false;
-        newGroup.wpNetworkDomain = envWithWp.wpNetworkDomain || '';
-        newGroup.wpSites = envWithWp.wpSites || [];
-      }
-    }
-    if (!newGroup.links && newGroup.environments) {
-      const envWithLinks = newGroup.environments.find((e) => e.links && e.links.length > 0);
-      newGroup.links = envWithLinks ? envWithLinks.links : [];
-    }
-
-    // Migration: isWordPress → cms
-    if (newGroup.isWordPress !== undefined && newGroup.cms === undefined) {
-      newGroup.cms = newGroup.isWordPress ? 'wordpress' : 'none';
-      delete newGroup.isWordPress;
-    }
-    // Migration: wpLoginPath → cmsLoginPath
-    if (newGroup.wpLoginPath !== undefined) {
-      newGroup.cmsLoginPath = newGroup.cmsLoginPath || newGroup.wpLoginPath;
-      delete newGroup.wpLoginPath;
-    }
-    // Ensure cms is defined
-    if (!newGroup.cms) newGroup.cms = 'none';
-
-    // Migration: old format "WP Multisite at group level" (before env format)
-    if (newGroup.cms !== 'wordpress' && newGroup.isWordPressMultisite) {
-      newGroup.cms = 'wordpress';
-    }
-
-    // Migrate link types and icon keys
-    if (Array.isArray(newGroup.links)) {
-      newGroup.links = newGroup.links.map((link) => {
-        const l = { ...link };
-        if (l.type === 'wordpress') l.type = 'cms';
-        if (l.iconKey !== undefined && l.icon === undefined) {
-          l.icon = l.iconKey;
-          delete l.iconKey;
-        }
-        return l;
-      });
-    }
-
-    // Migration: old WP Multisite format wpNetworkDomain + wpSites[{label, domain}]
-    // → new format: wpSites[{label, prefix}] + wpMultisiteType
-    if (newGroup.isWordPressMultisite && newGroup.wpNetworkDomain
-        && Array.isArray(newGroup.wpSites) && newGroup.wpSites.length > 0
-        && newGroup.wpSites[0].domain !== undefined && newGroup.wpSites[0].prefix === undefined) {
-      const networkDomain = newGroup.wpNetworkDomain;
-      newGroup.wpSites = newGroup.wpSites.map((site) => {
-        let prefix;
-        if (site.domain === networkDomain) {
-          prefix = '';
-        } else {
-          prefix = site.domain.replace(`.${networkDomain}`, '');
-        }
-        return { label: site.label, prefix };
-      });
-      if (!newGroup.wpMultisiteType) newGroup.wpMultisiteType = 'subdomain';
-      delete newGroup.wpNetworkDomain;
-    } else if (newGroup.isWordPressMultisite && Array.isArray(newGroup.wpSites)
-               && newGroup.wpSites.length > 0 && newGroup.wpSites[0].domain !== undefined
-               && newGroup.wpSites[0].prefix === undefined) {
-      // wpSites with domain but no prefix — set prefix to ""
-      newGroup.wpSites = newGroup.wpSites.map((site) => ({ label: site.label, prefix: '' }));
-    }
-    // Ensure wpMultisiteType is set when multisite is enabled
-    if (newGroup.isWordPressMultisite && !newGroup.wpMultisiteType) {
-      newGroup.wpMultisiteType = 'subdomain';
-    }
-
-    // Group defaults
-    newGroup.cms = newGroup.cms || 'none';
-    newGroup.cmsLoginPath = newGroup.cmsLoginPath || '/';
-    newGroup.cmsAdminPath = newGroup.cmsAdminPath || '';
-    newGroup.isWordPressMultisite = newGroup.isWordPressMultisite || false;
-    newGroup.wpSites = newGroup.wpSites || [];
-    newGroup.links = newGroup.links || [];
-
-    // Clean up envs: keep only core fields + basicAuth if present
-    newGroup.environments = (newGroup.environments || []).map((env) => {
-      const e = {
-        id: env.id || generateId(),
-        name: env.name || '',
-        domain: env.domain || '',
-        color: env.color || '#6B7280',
-        protocol: env.protocol || 'https',
-      };
-      if (env.basicAuth) e.basicAuth = env.basicAuth;
-      return e;
-    });
-
-    return newGroup;
-  });
-
-  return { ...data, groups };
-}
-
-/**
  * Validates the structure of the imported JSON (new format).
  * @param {object} data
  * @returns {boolean}
@@ -166,7 +52,7 @@ export function initExportImport() {
     const baCheck = document.createElement('input');
     baCheck.type = 'checkbox';
     baCheck.id = 'export-basicauth-check';
-    baCheck.checked = false;
+    baCheck.checked = true;
     const baLabel = document.createElement('label');
     baLabel.htmlFor = 'export-basicauth-check';
     baLabel.className = 'export-basicauth-label';
@@ -177,7 +63,7 @@ export function initExportImport() {
 
     // Warning shown when checked
     const baWarning = document.createElement('p');
-    baWarning.className = 'export-basicauth-warning hidden';
+    baWarning.className = 'export-basicauth-warning';
     baWarning.textContent = t('exportBasicAuthWarning');
     exportRow.parentNode.insertBefore(baWarning, exportRow);
 
@@ -237,9 +123,6 @@ export function initExportImport() {
       e.target.value = '';
       return;
     }
-
-    // Convert old format if necessary
-    data = convertOldFormat(data);
 
     if (!validateImportData(data)) {
       showImportError(t('importErrorInvalidStructure'));

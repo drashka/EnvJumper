@@ -5,20 +5,29 @@
 import { findMatch } from './utils.js';
 
 let rebuildMenusTimer = null;
+let isRebuilding = false;
+let rebuildPending = false;
 
 /**
  * Rebuilds all context menu items based on the current groups configuration.
  * Debounced to avoid duplicate-id errors on rapid storage changes.
+ * Serialized to prevent concurrent rebuilds from creating duplicate IDs.
  */
 export function rebuildContextMenus() {
   clearTimeout(rebuildMenusTimer);
+  if (isRebuilding) {
+    rebuildPending = true;
+    return;
+  }
   rebuildMenusTimer = setTimeout(_doRebuildContextMenus, 100);
 }
 
 async function _doRebuildContextMenus() {
+  isRebuilding = true;
+  rebuildPending = false;
   return new Promise((resolve) => {
     chrome.contextMenus.removeAll(() => {
-      chrome.storage.sync.get(['groups'], ({ groups = [] }) => {
+      chrome.storage.local.get(['groups'], ({ groups = [] }) => {
         const allDomains = new Set();
         groups.forEach((group) => {
           group.environments.forEach((env) => { if (env.domain) allDomains.add(env.domain); });
@@ -36,6 +45,17 @@ async function _doRebuildContextMenus() {
         chrome.contextMenus.create({ id: 'envjump-root', title: 'EnvJumper', contexts: ['link'], documentUrlPatterns });
 
         groups.forEach((group) => {
+          // Build patterns restricted to this group's domains only
+          const groupDomains = new Set();
+          (group.environments || []).forEach((env) => { if (env.domain) groupDomains.add(env.domain); });
+          if (group.isWordPressMultisite && group.wpSites && group.wpMultisiteType === 'subdomain') {
+            (group.environments || []).forEach((env) => {
+              (group.wpSites || []).forEach((site) => { if (site.prefix) groupDomains.add(`${site.prefix}.${env.domain}`); });
+            });
+          }
+          if (!groupDomains.size) return;
+          const groupPatterns = [...groupDomains].flatMap((d) => [`http://${d}/*`, `https://${d}/*`]);
+
           (group.environments || []).forEach((env) => {
             if (!env.domain) return;
             chrome.contextMenus.create({
@@ -43,7 +63,7 @@ async function _doRebuildContextMenus() {
               parentId: 'envjump-root',
               title: `${group.name} → ${env.name}`,
               contexts: ['link'],
-              documentUrlPatterns,
+              documentUrlPatterns: groupPatterns,
             });
           });
         });
@@ -51,6 +71,11 @@ async function _doRebuildContextMenus() {
         resolve();
       });
     });
+  }).finally(() => {
+    isRebuilding = false;
+    if (rebuildPending) {
+      rebuildMenusTimer = setTimeout(_doRebuildContextMenus, 100);
+    }
   });
 }
 
@@ -63,7 +88,7 @@ export function initContextMenuListener() {
     if (!info.menuItemId || !String(info.menuItemId).startsWith('envjump-env-')) return;
     const envId = String(info.menuItemId).replace('envjump-env-', '');
 
-    chrome.storage.sync.get(['groups'], ({ groups = [] }) => {
+    chrome.storage.local.get(['groups'], ({ groups = [] }) => {
       let targetEnv = null;
       let targetGroup = null;
       for (const group of groups) {

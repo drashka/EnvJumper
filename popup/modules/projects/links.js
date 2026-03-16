@@ -5,13 +5,10 @@
 import { getGroups, saveGroups, generateId } from '../helpers/storage.js';
 import { t } from '../i18n.js';
 import { ICONS, buildIconPicker } from '../icons.js';
+import { getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
 
 /**
  * Saves the value of a single field on a link belonging to a group.
- * @param {string} groupId
- * @param {string} linkId
- * @param {string} field
- * @param {*} value
  */
 export async function saveLinkField(groupId, linkId, field, value) {
   const groups = await getGroups();
@@ -26,8 +23,6 @@ export async function saveLinkField(groupId, linkId, field, value) {
 /**
  * Updates the order property of every link in a group based on the
  * current DOM order of the rows inside linksList.
- * @param {string} groupId
- * @param {HTMLElement} linksList
  */
 export async function reorderLinks(groupId, linksList) {
   const rows = linksList.querySelectorAll('.link-settings-row');
@@ -50,9 +45,10 @@ export async function reorderLinks(groupId, linksList) {
  * @param {object} group
  * @param {object} link
  * @param {HTMLElement} linksList
+ * @param {{ onRemove?: Function }} [callbacks]
  * @returns {HTMLElement}
  */
-export function buildLinkSettingsRow(groupId, group, link, linksList) {
+export function buildLinkSettingsRow(groupId, group, link, linksList, callbacks = {}) {
   const row = document.createElement('div');
   row.className = 'link-settings-row';
   row.setAttribute('draggable', 'true');
@@ -65,7 +61,7 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   row.appendChild(handle);
 
   // Icon picker
-  const iconPicker = buildIconPicker(link.icon || link.iconKey || 'link', (iconName) => {
+  const iconPicker = buildIconPicker(link.icon || 'link', (iconName) => {
     saveLinkField(groupId, link.id, 'icon', iconName);
   });
   row.appendChild(iconPicker);
@@ -95,12 +91,14 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   });
   row.appendChild(pathInput);
 
-
-  // multisitePrefix checkbox — only for WP Multisite subdirectory + non-network links
+  // multisitePrefix checkbox — shown for all links in WP Multisite subdirectory mode
+  // Network links: always checked + disabled (they never use a site prefix)
   const isSubdir = group.isWordPressMultisite && group.wpMultisiteType === 'subdirectory';
-  if (isSubdir && link.type !== 'network') {
-    const defaultPrefix = link.type === 'cms';
-    const prefixChecked = link.multisitePrefix !== undefined ? link.multisitePrefix : defaultPrefix;
+  const isNetworkLink = !!(link.cmsLinkId?.startsWith('network-'));
+  if (isSubdir) {
+    const isCmsLink = !!(link.cmsLinkId && !link.cmsLinkId.startsWith('network-'));
+    const defaultPrefix = isCmsLink;
+    const prefixChecked = isNetworkLink ? true : (link.multisitePrefix !== undefined ? link.multisitePrefix : defaultPrefix);
 
     const prefixLabel = document.createElement('label');
     prefixLabel.className = 'link-prefix-checkbox-label';
@@ -108,14 +106,17 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
     const prefixCheck = document.createElement('input');
     prefixCheck.type = 'checkbox';
     prefixCheck.checked = prefixChecked;
-    prefixCheck.addEventListener('change', () => saveLinkField(groupId, link.id, 'multisitePrefix', prefixCheck.checked));
+    if (isNetworkLink) {
+      prefixCheck.disabled = true;
+    } else {
+      prefixCheck.addEventListener('change', () => saveLinkField(groupId, link.id, 'multisitePrefix', prefixCheck.checked));
+    }
     const prefixIcon = document.createElement('span');
     prefixIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
     prefixLabel.appendChild(prefixCheck);
     prefixLabel.appendChild(prefixIcon);
     row.appendChild(prefixLabel);
   }
-
 
   // Remove button
   const btnRemove = document.createElement('button');
@@ -130,6 +131,7 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
       await saveGroups(groups);
       group.links = g.links;
       row.remove();
+      if (callbacks.onRemove) callbacks.onRemove(link);
     }
   });
   row.appendChild(btnRemove);
@@ -192,7 +194,7 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
 
 /**
  * Builds the "Quick links" section for a group in the settings panel.
- * Supports HTML5 drag-and-drop reordering.
+ * Includes a "Available CMS links" recovery zone below the active list.
  * @param {string} groupId
  * @param {object} group
  * @returns {HTMLElement}
@@ -202,7 +204,7 @@ export function buildLinksSection(groupId, group) {
   section.className = 'links-section';
 
   const title = document.createElement('div');
-  title.className = 'links-section-title';
+  title.className = 'section-title';
   title.textContent = t('linksSection');
   section.appendChild(title);
 
@@ -210,10 +212,12 @@ export function buildLinksSection(groupId, group) {
   linksList.dataset.groupId = groupId;
   section.appendChild(linksList);
 
-  // Sort links by order before rendering
+  // Callback passed to every row so CMS link removal refreshes the available zone
+  const onRemove = (link) => { if (link.cmsLinkId) refresh(); };
+
   const links = (group.links || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
   links.forEach((link) => {
-    linksList.appendChild(buildLinkSettingsRow(groupId, group, link, linksList));
+    linksList.appendChild(buildLinkSettingsRow(groupId, group, link, linksList, { onRemove }));
   });
 
   // "Add custom link" button
@@ -226,22 +230,91 @@ export function buildLinksSection(groupId, group) {
     if (g) {
       if (!g.links) g.links = [];
       const maxOrder = g.links.length > 0 ? Math.max(...g.links.map((l) => l.order || 0)) + 1 : 0;
-      const newLink = {
-        id: generateId(),
-        label: '',
-        path: '/',
-        type: 'custom',
-        icon: 'link',
-        order: maxOrder,
-      };
+      const newLink = { id: generateId(), label: '', path: '/', icon: 'link', order: maxOrder };
       g.links.push(newLink);
       await saveGroups(groups);
-      // Update local group reference
       group.links = g.links;
-      linksList.appendChild(buildLinkSettingsRow(groupId, group, newLink, linksList));
+      linksList.appendChild(buildLinkSettingsRow(groupId, group, newLink, linksList, { onRemove }));
     }
   });
   section.appendChild(btnAdd);
 
+  // Available CMS links zone — rebuilt on every CMS link add/remove
+  let availableContainer = null;
+  function refresh() {
+    if (availableContainer) availableContainer.remove();
+    availableContainer = _buildAvailableCmsLinksZone(groupId, group, linksList, refresh);
+    if (availableContainer) section.appendChild(availableContainer);
+  }
+  refresh();
+
   return section;
+}
+
+/**
+ * Builds the "Available CMS links" recovery zone.
+ * Returns null when there are no missing predefined links or no CMS is selected.
+ */
+function _buildAvailableCmsLinksZone(groupId, group, linksList, refresh) {
+  if (!group.cms || group.cms === 'none') return null;
+
+  const allPredefined = getDefaultCmsLinks(group.cms, group.cmsAdminPath);
+  const allNetwork = group.isWordPressMultisite ? getDefaultNetworkLinks() : [];
+  const allLinks = [...allPredefined, ...allNetwork];
+
+  const existingIds = new Set((group.links || []).map((l) => l.cmsLinkId).filter(Boolean));
+  const available = allLinks.filter((l) => !existingIds.has(l.cmsLinkId));
+
+  if (available.length === 0) return null;
+
+  const zone = document.createElement('div');
+  zone.className = 'available-cms-links';
+
+  const zoneTitle = document.createElement('div');
+  zoneTitle.className = 'section-title';
+  zoneTitle.textContent = t('availableCmsLinks');
+  zone.appendChild(zoneTitle);
+
+  const grid = document.createElement('div');
+  grid.className = 'available-cms-links-grid';
+  zone.appendChild(grid);
+
+  available.forEach((defLink) => {
+    const row = document.createElement('div');
+    row.className = 'available-cms-link-row';
+
+    const btnRestore = document.createElement('button');
+    btnRestore.type = 'button';
+    btnRestore.className = 'btn-restore-cms-link';
+    btnRestore.textContent = '+';
+    btnRestore.addEventListener('click', async () => {
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === groupId);
+      if (!g) return;
+      if (!g.links) g.links = [];
+      const maxOrder = g.links.length > 0 ? Math.max(...g.links.map((l) => l.order || 0)) + 1 : 0;
+      const newLink = { ...defLink, id: generateId(), order: maxOrder };
+      g.links.push(newLink);
+      await saveGroups(groups);
+      group.links = g.links;
+      const onRemove = (link) => { if (link.cmsLinkId) refresh(); };
+      linksList.appendChild(buildLinkSettingsRow(groupId, group, newLink, linksList, { onRemove }));
+      refresh();
+    });
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'available-cms-link-icon';
+    iconSpan.innerHTML = ICONS[defLink.icon] || ICONS['link'];
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'available-cms-link-label';
+    labelSpan.textContent = defLink.label;
+
+    row.appendChild(btnRestore);
+    row.appendChild(iconSpan);
+    row.appendChild(labelSpan);
+    grid.appendChild(row);
+  });
+
+  return zone;
 }

@@ -7,13 +7,13 @@ import { t } from '../i18n.js';
 import { el } from '../helpers/ui-helpers.js';
 
 /**
- * Renders the Settings panel: general settings (badge position).
+ * Renders the Settings panel: environment marker options.
  */
 export async function renderSettingsPanel() {
   const settings = await getSettings();
   const generalContainer = el('general-settings-container');
   generalContainer.innerHTML = '';
-  generalContainer.appendChild(_buildGeneralSettings(settings));
+  generalContainer.appendChild(_buildMarkerSettings(settings));
 }
 
 /**
@@ -35,24 +35,94 @@ export function updateExportGroupSelect(groups) {
 }
 
 /**
- * Builds the "General Settings" section (badge position diagram).
+ * Builds the "Environment Marker" settings section.
  * @param {object} settings
  * @returns {HTMLElement}
  */
-function _buildGeneralSettings(settings) {
+function _buildMarkerSettings(settings) {
   const section = document.createElement('div');
   section.className = 'general-settings-section';
 
   const title = document.createElement('div');
   title.className = 'section-title';
-  title.textContent = t('displaySection');
+  title.textContent = t('markerSection');
   section.appendChild(title);
+
+  // Toggle: Show color frame
+  section.appendChild(_buildToggleRow(
+    t('showFrame'),
+    settings.showFrame !== false,
+    async (checked) => {
+      const current = await getSettings();
+      await saveSettings({ ...current, showFrame: checked });
+    }
+  ));
+
+  // Toggle: Show environment label
+  const posWrapper = _buildPositionWrapper(settings);
+  section.appendChild(_buildToggleRow(
+    t('showLabel'),
+    settings.showLabel !== false,
+    async (checked) => {
+      const current = await getSettings();
+      await saveSettings({ ...current, showLabel: checked });
+      posWrapper.classList.toggle('marker-position-wrapper--hidden', !checked);
+    }
+  ));
+
+  // Position selector (hidden when label is off)
+  section.appendChild(posWrapper);
+
+  return section;
+}
+
+/**
+ * Builds a toggle row (label + toggle switch).
+ * @param {string} label
+ * @param {boolean} checked
+ * @param {Function} onChange
+ * @returns {HTMLElement}
+ */
+function _buildToggleRow(label, checked, onChange) {
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.checked = checked;
+  const track = document.createElement('span');
+  track.className = 'toggle-track';
+  const wrapper = document.createElement('label');
+  wrapper.className = 'toggle';
+  wrapper.append(input, track);
+  const labelEl = document.createElement('span');
+  labelEl.className = 'toggle-label';
+  labelEl.textContent = label;
+  const row = document.createElement('div');
+  row.className = 'toggle-row';
+  row.append(labelEl, wrapper);
+  input.addEventListener('change', () => onChange(input.checked));
+  return row;
+}
+
+/**
+ * Builds the label options wrapper (2 columns: position + size).
+ * Shown only when the label toggle is enabled.
+ * @param {object} settings
+ * @returns {HTMLElement}
+ */
+function _buildPositionWrapper(settings) {
+  const posWrapper = document.createElement('div');
+  posWrapper.className = 'marker-position-wrapper' +
+    (settings.showLabel === false ? ' marker-position-wrapper--hidden' : '');
+
+  const cols = document.createElement('div');
+  cols.className = 'marker-label-cols';
+
+  // ── Left column: position diagram ─────────────────────────────────────────
+  const posCol = document.createElement('div');
 
   const posLabel = document.createElement('div');
   posLabel.className = 'field-label';
-  posLabel.style.marginBottom = '8px';
   posLabel.textContent = t('badgePositionLabel');
-  section.appendChild(posLabel);
+  posCol.appendChild(posLabel);
 
   const diagram = document.createElement('div');
   diagram.className = 'position-diagram';
@@ -71,7 +141,7 @@ function _buildGeneralSettings(settings) {
   POSITIONS.forEach(({ id, label }) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'position-btn' + (settings.badgePosition === id ? ' active' : '');
+    btn.className = 'position-btn' + (settings.labelPosition === id ? ' active' : '');
     btn.dataset.pos = id;
     btn.title = label;
     btn.textContent = label;
@@ -79,12 +149,51 @@ function _buildGeneralSettings(settings) {
       diagram.querySelectorAll('.position-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const current = await getSettings();
-      current.badgePosition = id;
-      await saveSettings(current);
+      await saveSettings({ ...current, labelPosition: id });
     });
     diagram.appendChild(btn);
   });
 
-  section.appendChild(diagram);
-  return section;
+  posCol.appendChild(diagram);
+  cols.appendChild(posCol);
+
+  // ── Right column: font size picker ────────────────────────────────────────
+  const sizeCol = document.createElement('div');
+
+  const sizeLabel = document.createElement('div');
+  sizeLabel.className = 'field-label';
+  sizeLabel.textContent = t('labelSizeLabel');
+  sizeCol.appendChild(sizeLabel);
+
+  const SIZES = [
+    { id: 's',  label: 'S',  px: 11 },
+    { id: 'm',  label: 'M',  px: 13 },
+    { id: 'l',  label: 'L',  px: 15 },
+    { id: 'xl', label: 'XL', px: 18 },
+  ];
+
+  const sizeRow = document.createElement('div');
+  sizeRow.className = 'label-size-row';
+
+  SIZES.forEach(({ id, label, px }) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'size-btn' + ((settings.labelSize || 'm') === id ? ' active' : '');
+    btn.dataset.size = id;
+    btn.title = `${px}px`;
+    btn.textContent = label;
+    btn.addEventListener('click', async () => {
+      sizeRow.querySelectorAll('.size-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const current = await getSettings();
+      await saveSettings({ ...current, labelSize: id });
+    });
+    sizeRow.appendChild(btn);
+  });
+
+  sizeCol.appendChild(sizeRow);
+  cols.appendChild(sizeCol);
+
+  posWrapper.appendChild(cols);
+  return posWrapper;
 }

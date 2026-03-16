@@ -5,108 +5,105 @@
 import { t } from '../i18n.js';
 import { generateId } from '../helpers/storage.js';
 
-/** Identifiants CMS disponibles */
+/** Available CMS identifiers */
 export const CMS_IDS = ['none', 'wordpress', 'joomla', 'drupal', 'prestashop', 'magento', 'shopify'];
 
-/** Chemin de connexion par défaut selon le CMS */
-export const CMS_DEFAULT_LOGIN_PATH = {
-  wordpress:   '/wp-login.php',
-  joomla:      '/administrator/index.php',
-  drupal:      '/user/login',
-  prestashop:  '/admin-dev/index.php',
-  magento:     '/admin/',
-  shopify:     '/admin',
-};
-
-/** Chemin admin de base par défaut (utilisé pour PrestaShop) */
+/** Default admin base path per CMS (PrestaShop only) */
 export const CMS_DEFAULT_ADMIN_PATH = {
   prestashop: '/admin-dev',
 };
 
+/** Default login paths per CMS (used when generating initial predefined links) */
+const DEFAULT_LOGIN_PATH = {
+  wordpress:  '/wp-login.php',
+  joomla:     '/administrator/index.php',
+  drupal:     '/user/login',
+  prestashop: '/admin-dev/index.php',
+  magento:    '/admin/',
+  shopify:    '/admin',
+};
+
 /**
- * Retourne les liens prédéfinis pour un CMS donné.
- * @param {string} cms - Identifiant du CMS
- * @param {string} [loginPath] - Chemin de connexion personnalisé
- * @param {string} [adminPath] - Chemin admin de base (pour PrestaShop)
+ * Returns the predefined links for a given CMS.
+ * Each link carries a `cmsLinkId` that uniquely identifies its role.
+ * @param {string} cms
+ * @param {string} [adminPath] - Admin base path (PrestaShop only)
  * @returns {Array}
  */
-export function getDefaultCmsLinks(cms, loginPath, adminPath) {
-  const login = loginPath || CMS_DEFAULT_LOGIN_PATH[cms] || '/';
-  const admin = adminPath || CMS_DEFAULT_ADMIN_PATH[cms] || '';
-
+export function getDefaultCmsLinks(cms, adminPath) {
   switch (cms) {
     case 'wordpress':
       return [
-        { id: `wp-login-${generateId()}`,    label: t('cmsLinkLogin'),       path: login,                                    type: 'cms', icon: 'log-in',           order: 0 },
-        { id: `wp-dash-${generateId()}`,     label: t('cmsLinkDashboard'),   path: '/wp-admin/',                             type: 'cms', icon: 'layout-dashboard', order: 1 },
-        { id: `wp-posts-${generateId()}`,    label: t('wpLinkPosts'),        path: '/wp-admin/edit.php',                     type: 'cms', icon: 'file-text',        order: 2 },
-        { id: `wp-pages-${generateId()}`,    label: t('wpLinkPages'),        path: '/wp-admin/edit.php?post_type=page',      type: 'cms', icon: 'file',             order: 3 },
-        { id: `wp-media-${generateId()}`,    label: t('cmsLinkMedia'),       path: '/wp-admin/upload.php',                   type: 'cms', icon: 'image',            order: 4 },
-        { id: `wp-plugins-${generateId()}`,  label: t('cmsLinkExtensions'),  path: '/wp-admin/plugins.php',                  type: 'cms', icon: 'puzzle',           order: 5 },
-        { id: `wp-themes-${generateId()}`,   label: t('wpLinkAppearance'),   path: '/wp-admin/themes.php',                   type: 'cms', icon: 'palette',          order: 6 },
-        { id: `wp-settings-${generateId()}`, label: t('cmsLinkSettings'),    path: '/wp-admin/options-general.php',          type: 'cms', icon: 'settings',         order: 7 },
-        { id: `wp-perma-${generateId()}`,    label: t('wpLinkPermalinks'),   path: '/wp-admin/options-permalink.php',        type: 'cms', icon: 'link',             order: 8 },
+        { id: generateId(), cmsLinkId: 'login',       label: t('cmsLinkLogin'),       path: DEFAULT_LOGIN_PATH.wordpress,             icon: 'log-in',           order: 0 },
+        { id: generateId(), cmsLinkId: 'dashboard',   label: t('cmsLinkDashboard'),   path: '/wp-admin/',                             icon: 'layout-dashboard', order: 1 },
+        { id: generateId(), cmsLinkId: 'posts',       label: t('wpLinkPosts'),        path: '/wp-admin/edit.php',                     icon: 'file-text',        order: 2 },
+        { id: generateId(), cmsLinkId: 'pages',       label: t('wpLinkPages'),        path: '/wp-admin/edit.php?post_type=page',      icon: 'file',             order: 3 },
+        { id: generateId(), cmsLinkId: 'media',       label: t('cmsLinkMedia'),       path: '/wp-admin/upload.php',                   icon: 'image',            order: 4 },
+        { id: generateId(), cmsLinkId: 'plugins',     label: t('cmsLinkExtensions'), path: '/wp-admin/plugins.php',                  icon: 'puzzle',           order: 5 },
+        { id: generateId(), cmsLinkId: 'appearance',  label: t('wpLinkAppearance'),   path: '/wp-admin/themes.php',                   icon: 'palette',          order: 6 },
+        { id: generateId(), cmsLinkId: 'settings',    label: t('cmsLinkSettings'),    path: '/wp-admin/options-general.php',          icon: 'settings',         order: 7 },
+        { id: generateId(), cmsLinkId: 'permalinks',  label: t('wpLinkPermalinks'),   path: '/wp-admin/options-permalink.php',        icon: 'link',             order: 8 },
       ];
 
     case 'joomla':
       return [
-        { id: `joomla-login-${generateId()}`, label: t('cmsLinkLogin'),         path: '/administrator/index.php',                            type: 'cms', icon: 'log-in',           order: 0 },
-        { id: `joomla-dash-${generateId()}`,  label: t('cmsLinkDashboard'),     path: '/administrator/',                                     type: 'cms', icon: 'layout-dashboard', order: 1 },
-        { id: `joomla-art-${generateId()}`,   label: t('cmsLinkArticles'),      path: '/administrator/index.php?option=com_content',         type: 'cms', icon: 'file-text',        order: 2 },
-        { id: `joomla-cat-${generateId()}`,   label: t('cmsLinkCategories'),    path: '/administrator/index.php?option=com_categories',      type: 'cms', icon: 'folder',           order: 3 },
-        { id: `joomla-med-${generateId()}`,   label: t('cmsLinkMedia'),         path: '/administrator/index.php?option=com_media',           type: 'cms', icon: 'image',            order: 4 },
-        { id: `joomla-ext-${generateId()}`,   label: t('cmsLinkExtensions'),    path: '/administrator/index.php?option=com_installer',       type: 'cms', icon: 'puzzle',           order: 5 },
-        { id: `joomla-usr-${generateId()}`,   label: t('cmsLinkUsers'),         path: '/administrator/index.php?option=com_users',           type: 'cms', icon: 'users',            order: 6 },
-        { id: `joomla-cfg-${generateId()}`,   label: t('cmsLinkConfiguration'), path: '/administrator/index.php?option=com_config',          type: 'cms', icon: 'settings',         order: 7 },
+        { id: generateId(), cmsLinkId: 'login',         label: t('cmsLinkLogin'),         path: '/administrator/index.php',                            icon: 'log-in',           order: 0 },
+        { id: generateId(), cmsLinkId: 'dashboard',     label: t('cmsLinkDashboard'),     path: '/administrator/',                                     icon: 'layout-dashboard', order: 1 },
+        { id: generateId(), cmsLinkId: 'articles',      label: t('cmsLinkArticles'),      path: '/administrator/index.php?option=com_content',         icon: 'file-text',        order: 2 },
+        { id: generateId(), cmsLinkId: 'categories',    label: t('cmsLinkCategories'),    path: '/administrator/index.php?option=com_categories',      icon: 'folder',           order: 3 },
+        { id: generateId(), cmsLinkId: 'media',         label: t('cmsLinkMedia'),         path: '/administrator/index.php?option=com_media',           icon: 'image',            order: 4 },
+        { id: generateId(), cmsLinkId: 'extensions',    label: t('cmsLinkExtensions'),    path: '/administrator/index.php?option=com_installer',       icon: 'puzzle',           order: 5 },
+        { id: generateId(), cmsLinkId: 'users',         label: t('cmsLinkUsers'),         path: '/administrator/index.php?option=com_users',           icon: 'users',            order: 6 },
+        { id: generateId(), cmsLinkId: 'configuration', label: t('cmsLinkConfiguration'), path: '/administrator/index.php?option=com_config',          icon: 'settings',         order: 7 },
       ];
 
     case 'drupal':
       return [
-        { id: `drupal-login-${generateId()}`, label: t('cmsLinkLogin'),          path: '/user/login',      type: 'cms', icon: 'log-in',           order: 0 },
-        { id: `drupal-adm-${generateId()}`,   label: t('cmsLinkAdministration'), path: '/admin',           type: 'cms', icon: 'layout-dashboard', order: 1 },
-        { id: `drupal-cnt-${generateId()}`,   label: t('cmsLinkContent'),        path: '/admin/content',   type: 'cms', icon: 'file-text',        order: 2 },
-        { id: `drupal-str-${generateId()}`,   label: t('cmsLinkStructure'),      path: '/admin/structure', type: 'cms', icon: 'layers',           order: 3 },
-        { id: `drupal-app-${generateId()}`,   label: t('wpLinkAppearance'),      path: '/admin/appearance',type: 'cms', icon: 'palette',          order: 4 },
-        { id: `drupal-mod-${generateId()}`,   label: t('cmsLinkModules'),        path: '/admin/modules',   type: 'cms', icon: 'puzzle',           order: 5 },
-        { id: `drupal-cfg-${generateId()}`,   label: t('cmsLinkConfiguration'), path: '/admin/config',    type: 'cms', icon: 'settings',         order: 6 },
-        { id: `drupal-ppl-${generateId()}`,   label: t('cmsLinkPeople'),         path: '/admin/people',    type: 'cms', icon: 'users',            order: 7 },
-        { id: `drupal-rep-${generateId()}`,   label: t('cmsLinkReports'),        path: '/admin/reports',   type: 'cms', icon: 'bar-chart-2',      order: 8 },
+        { id: generateId(), cmsLinkId: 'login',         label: t('cmsLinkLogin'),          path: '/user/login',       icon: 'log-in',           order: 0 },
+        { id: generateId(), cmsLinkId: 'administration', label: t('cmsLinkAdministration'), path: '/admin',            icon: 'layout-dashboard', order: 1 },
+        { id: generateId(), cmsLinkId: 'content',       label: t('cmsLinkContent'),        path: '/admin/content',    icon: 'file-text',        order: 2 },
+        { id: generateId(), cmsLinkId: 'structure',     label: t('cmsLinkStructure'),      path: '/admin/structure',  icon: 'layers',           order: 3 },
+        { id: generateId(), cmsLinkId: 'appearance',    label: t('wpLinkAppearance'),      path: '/admin/appearance', icon: 'palette',          order: 4 },
+        { id: generateId(), cmsLinkId: 'modules',       label: t('cmsLinkModules'),        path: '/admin/modules',    icon: 'puzzle',           order: 5 },
+        { id: generateId(), cmsLinkId: 'configuration', label: t('cmsLinkConfiguration'), path: '/admin/config',     icon: 'settings',         order: 6 },
+        { id: generateId(), cmsLinkId: 'people',        label: t('cmsLinkPeople'),         path: '/admin/people',     icon: 'users',            order: 7 },
+        { id: generateId(), cmsLinkId: 'reports',       label: t('cmsLinkReports'),        path: '/admin/reports',    icon: 'bar-chart-2',      order: 8 },
       ];
 
     case 'prestashop': {
-      const base = admin || '/admin-dev';
+      const base = adminPath || CMS_DEFAULT_ADMIN_PATH.prestashop;
       return [
-        { id: `ps-login-${generateId()}`, label: t('cmsLinkLogin'),     path: `${base}/index.php`,                               type: 'cms', icon: 'log-in',           order: 0 },
-        { id: `ps-dash-${generateId()}`,  label: t('cmsLinkDashboard'), path: `${base}/`,                                        type: 'cms', icon: 'layout-dashboard', order: 1 },
-        { id: `ps-ord-${generateId()}`,   label: t('cmsLinkOrders'),    path: `${base}/index.php?controller=AdminOrders`,        type: 'cms', icon: 'shopping-cart',    order: 2 },
-        { id: `ps-cat-${generateId()}`,   label: t('cmsLinkCatalog'),   path: `${base}/index.php?controller=AdminProducts`,      type: 'cms', icon: 'package',          order: 3 },
-        { id: `ps-cust-${generateId()}`,  label: t('cmsLinkCustomers'), path: `${base}/index.php?controller=AdminCustomers`,     type: 'cms', icon: 'users',            order: 4 },
-        { id: `ps-mod-${generateId()}`,   label: t('cmsLinkModules'),   path: `${base}/index.php?controller=AdminModules`,       type: 'cms', icon: 'puzzle',           order: 5 },
-        { id: `ps-des-${generateId()}`,   label: t('cmsLinkDesign'),    path: `${base}/index.php?controller=AdminThemes`,        type: 'cms', icon: 'palette',          order: 6 },
-        { id: `ps-set-${generateId()}`,   label: t('cmsLinkSettings'),  path: `${base}/index.php?controller=AdminPreferences`,   type: 'cms', icon: 'settings',         order: 7 },
+        { id: generateId(), cmsLinkId: 'login',     label: t('cmsLinkLogin'),     path: `${base}/index.php`,                               icon: 'log-in',           order: 0 },
+        { id: generateId(), cmsLinkId: 'dashboard', label: t('cmsLinkDashboard'), path: `${base}/`,                                        icon: 'layout-dashboard', order: 1 },
+        { id: generateId(), cmsLinkId: 'orders',    label: t('cmsLinkOrders'),    path: `${base}/index.php?controller=AdminOrders`,        icon: 'shopping-cart',    order: 2 },
+        { id: generateId(), cmsLinkId: 'catalog',   label: t('cmsLinkCatalog'),   path: `${base}/index.php?controller=AdminProducts`,      icon: 'package',          order: 3 },
+        { id: generateId(), cmsLinkId: 'customers', label: t('cmsLinkCustomers'), path: `${base}/index.php?controller=AdminCustomers`,     icon: 'users',            order: 4 },
+        { id: generateId(), cmsLinkId: 'modules',   label: t('cmsLinkModules'),   path: `${base}/index.php?controller=AdminModules`,       icon: 'puzzle',           order: 5 },
+        { id: generateId(), cmsLinkId: 'design',    label: t('cmsLinkDesign'),    path: `${base}/index.php?controller=AdminThemes`,        icon: 'palette',          order: 6 },
+        { id: generateId(), cmsLinkId: 'settings',  label: t('cmsLinkSettings'),  path: `${base}/index.php?controller=AdminPreferences`,   icon: 'settings',         order: 7 },
       ];
     }
 
     case 'magento':
       return [
-        { id: `mag-login-${generateId()}`, label: t('cmsLinkLogin'),     path: '/admin/',                    type: 'cms', icon: 'log-in',           order: 0 },
-        { id: `mag-dash-${generateId()}`,  label: t('cmsLinkDashboard'), path: '/admin/dashboard/',          type: 'cms', icon: 'layout-dashboard', order: 1 },
-        { id: `mag-cat-${generateId()}`,   label: t('cmsLinkCatalog'),   path: '/admin/catalog/product/',    type: 'cms', icon: 'package',          order: 2 },
-        { id: `mag-ord-${generateId()}`,   label: t('cmsLinkOrders'),    path: '/admin/sales/order/',        type: 'cms', icon: 'shopping-cart',    order: 3 },
-        { id: `mag-cust-${generateId()}`,  label: t('cmsLinkCustomers'), path: '/admin/customer/index/',     type: 'cms', icon: 'users',            order: 4 },
-        { id: `mag-cnt-${generateId()}`,   label: t('cmsLinkContent'),   path: '/admin/cms/page/',           type: 'cms', icon: 'file-text',        order: 5 },
-        { id: `mag-sys-${generateId()}`,   label: t('cmsLinkSystem'),    path: '/admin/admin/system_config/',type: 'cms', icon: 'settings',         order: 6 },
+        { id: generateId(), cmsLinkId: 'login',     label: t('cmsLinkLogin'),     path: '/admin/',                     icon: 'log-in',           order: 0 },
+        { id: generateId(), cmsLinkId: 'dashboard', label: t('cmsLinkDashboard'), path: '/admin/dashboard/',           icon: 'layout-dashboard', order: 1 },
+        { id: generateId(), cmsLinkId: 'catalog',   label: t('cmsLinkCatalog'),   path: '/admin/catalog/product/',     icon: 'package',          order: 2 },
+        { id: generateId(), cmsLinkId: 'orders',    label: t('cmsLinkOrders'),    path: '/admin/sales/order/',         icon: 'shopping-cart',    order: 3 },
+        { id: generateId(), cmsLinkId: 'customers', label: t('cmsLinkCustomers'), path: '/admin/customer/index/',      icon: 'users',            order: 4 },
+        { id: generateId(), cmsLinkId: 'content',   label: t('cmsLinkContent'),   path: '/admin/cms/page/',            icon: 'file-text',        order: 5 },
+        { id: generateId(), cmsLinkId: 'system',    label: t('cmsLinkSystem'),    path: '/admin/admin/system_config/', icon: 'settings',         order: 6 },
       ];
 
     case 'shopify':
       return [
-        { id: `sfy-adm-${generateId()}`,  label: t('cmsLinkAdmin'),     path: '/admin',           type: 'cms', icon: 'layout-dashboard', order: 0 },
-        { id: `sfy-pro-${generateId()}`,  label: t('cmsLinkProducts'),  path: '/admin/products',  type: 'cms', icon: 'package',          order: 1 },
-        { id: `sfy-ord-${generateId()}`,  label: t('cmsLinkOrders'),    path: '/admin/orders',    type: 'cms', icon: 'shopping-cart',    order: 2 },
-        { id: `sfy-cust-${generateId()}`, label: t('cmsLinkCustomers'), path: '/admin/customers', type: 'cms', icon: 'users',            order: 3 },
-        { id: `sfy-thm-${generateId()}`,  label: t('cmsLinkThemes'),    path: '/admin/themes',    type: 'cms', icon: 'palette',          order: 4 },
-        { id: `sfy-app-${generateId()}`,  label: t('cmsLinkApps'),      path: '/admin/apps',      type: 'cms', icon: 'puzzle',           order: 5 },
-        { id: `sfy-set-${generateId()}`,  label: t('cmsLinkSettings'),  path: '/admin/settings',  type: 'cms', icon: 'settings',         order: 6 },
+        { id: generateId(), cmsLinkId: 'admin',     label: t('cmsLinkAdmin'),     path: '/admin',           icon: 'layout-dashboard', order: 0 },
+        { id: generateId(), cmsLinkId: 'products',  label: t('cmsLinkProducts'),  path: '/admin/products',  icon: 'package',          order: 1 },
+        { id: generateId(), cmsLinkId: 'orders',    label: t('cmsLinkOrders'),    path: '/admin/orders',    icon: 'shopping-cart',    order: 2 },
+        { id: generateId(), cmsLinkId: 'customers', label: t('cmsLinkCustomers'), path: '/admin/customers', icon: 'users',            order: 3 },
+        { id: generateId(), cmsLinkId: 'themes',    label: t('cmsLinkThemes'),    path: '/admin/themes',    icon: 'palette',          order: 4 },
+        { id: generateId(), cmsLinkId: 'apps',      label: t('cmsLinkApps'),      path: '/admin/apps',      icon: 'puzzle',           order: 5 },
+        { id: generateId(), cmsLinkId: 'settings',  label: t('cmsLinkSettings'),  path: '/admin/settings',  icon: 'settings',         order: 6 },
       ];
 
     default:
@@ -116,16 +113,15 @@ export function getDefaultCmsLinks(cms, loginPath, adminPath) {
 
 /**
  * Returns the 6 predefined WP network links for WordPress Multisite.
- * These links always open on the base domain, without any site prefix.
  * @returns {Array}
  */
 export function getDefaultNetworkLinks() {
   return [
-    { id: `wp-net-admin-${generateId()}`,    label: t('wpNetworkAdminLink'),    path: '/wp-admin/network/',              icon: 'network',  type: 'network', order: 20 },
-    { id: `wp-net-plugins-${generateId()}`,  label: t('wpNetworkPluginsLink'),  path: '/wp-admin/network/plugins.php',   icon: 'puzzle',   type: 'network', order: 21 },
-    { id: `wp-net-themes-${generateId()}`,   label: t('wpNetworkThemesLink'),   path: '/wp-admin/network/themes.php',    icon: 'palette',  type: 'network', order: 22 },
-    { id: `wp-net-sites-${generateId()}`,    label: t('wpNetworkSitesLink'),    path: '/wp-admin/network/sites.php',     icon: 'globe',    type: 'network', order: 23 },
-    { id: `wp-net-users-${generateId()}`,    label: t('wpNetworkUsersLink'),    path: '/wp-admin/network/users.php',     icon: 'users',    type: 'network', order: 24 },
-    { id: `wp-net-settings-${generateId()}`, label: t('wpNetworkSettingsLink'), path: '/wp-admin/network/settings.php', icon: 'settings', type: 'network', order: 25 },
+    { id: generateId(), cmsLinkId: 'network-admin',    label: t('wpNetworkAdminLink'),    path: '/wp-admin/network/',              icon: 'network',  order: 20 },
+    { id: generateId(), cmsLinkId: 'network-plugins',  label: t('wpNetworkPluginsLink'),  path: '/wp-admin/network/plugins.php',   icon: 'puzzle',   order: 21 },
+    { id: generateId(), cmsLinkId: 'network-themes',   label: t('wpNetworkThemesLink'),   path: '/wp-admin/network/themes.php',    icon: 'palette',  order: 22 },
+    { id: generateId(), cmsLinkId: 'network-sites',    label: t('wpNetworkSitesLink'),    path: '/wp-admin/network/sites.php',     icon: 'globe',    order: 23 },
+    { id: generateId(), cmsLinkId: 'network-users',    label: t('wpNetworkUsersLink'),    path: '/wp-admin/network/users.php',     icon: 'users',    order: 24 },
+    { id: generateId(), cmsLinkId: 'network-settings', label: t('wpNetworkSettingsLink'), path: '/wp-admin/network/settings.php', icon: 'settings', order: 25 },
   ];
 }

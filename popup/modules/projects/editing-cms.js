@@ -6,7 +6,13 @@ import { getGroups, saveGroups } from '../helpers/storage.js';
 import { t } from '../i18n.js';
 import { confirm } from '../helpers/ui-helpers.js';
 import { buildMultisiteUrl } from './wordpress.js';
-import { CMS_IDS, CMS_DEFAULT_LOGIN_PATH, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
+import { CMS_IDS, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
+
+/** Returns true if a link is a predefined CMS link (not network). */
+function _isCmsLink(l) { return !!(l.cmsLinkId && !l.cmsLinkId.startsWith('network-')); }
+
+/** Returns true if a link is a predefined network link. */
+function _isNetworkLink(l) { return !!(l.cmsLinkId?.startsWith('network-')); }
 
 /** Builds the "CMS" sub-tab content. */
 export function buildCmsSubtab(container, group) {
@@ -35,65 +41,53 @@ export function buildCmsSubtab(container, group) {
 
   cmsSelect.addEventListener('change', async () => {
     const newCms = cmsSelect.value;
-    const groups = await getGroups();
-    const g = groups.find((x) => x.id === group.id);
-    if (!g) return;
 
-    const cmsLinksCount = g.links ? g.links.filter((l) => l.type === 'cms').length : 0;
-    if (cmsLinksCount > 0 && newCms !== g.cms) {
+    const cmsLinksCount = (group.links || []).filter(_isCmsLink).length;
+    if (cmsLinksCount > 0 && newCms !== (group.cms || 'none')) {
       const ok = await confirm(t('confirmDisableCms', String(cmsLinksCount)));
-      if (!ok) { cmsSelect.value = g.cms || 'none'; return; }
-      g.links = (g.links || []).filter((l) => l.type !== 'cms');
+      if (!ok) { cmsSelect.value = group.cms || 'none'; return; }
+      group.links = (group.links || []).filter((l) => !_isCmsLink(l));
     }
-    g.cms = newCms;
+
+    group.cms = newCms;
     if (newCms !== 'none') {
-      g.cmsLoginPath = CMS_DEFAULT_LOGIN_PATH[newCms] || '/';
-      g.cmsAdminPath = CMS_DEFAULT_ADMIN_PATH[newCms] || '';
-      if (!g.links) g.links = [];
-      g.links = [...getDefaultCmsLinks(newCms, g.cmsLoginPath, g.cmsAdminPath), ...g.links];
+      group.cmsAdminPath = CMS_DEFAULT_ADMIN_PATH[newCms] || '';
+      if (!group.links) group.links = [];
+      group.links = [...getDefaultCmsLinks(newCms, group.cmsAdminPath), ...group.links];
     } else {
-      g.isWordPressMultisite = false;
+      group.isWordPressMultisite = false;
     }
-    await saveGroups(groups);
-    Object.assign(group, g);
 
     cmsConfigContainer.style.display = newCms !== 'none' ? 'block' : 'none';
     cmsConfigContainer.innerHTML = '';
     buildCmsGroupConfig(group.id, group, cmsConfigContainer);
+
+    try {
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === group.id);
+      if (g) {
+        Object.assign(g, group);
+      } else {
+        groups.push(Object.assign({}, group));
+      }
+      await saveGroups(groups);
+    } catch (e) {
+      console.error('[EnvJumper] CMS save failed:', e);
+    }
   });
 }
 
-/** Builds the CMS sub-form (login path, admin path, WP Multisite toggle). */
+/** Builds the CMS sub-form (admin path for PrestaShop, WP Multisite toggle). */
 export function buildCmsGroupConfig(groupId, group, container) {
   const section = document.createElement('div');
   section.className = 'wp-env-section';
 
   const titleRow = document.createElement('div');
-  titleRow.className = 'wp-env-section-title';
+  titleRow.className = 'section-title';
   titleRow.textContent = t('wpConfigTitle');
   section.appendChild(titleRow);
 
-  // cmsLoginPath field
-  const loginRow = document.createElement('div');
-  loginRow.className = 'field-row';
-  const loginLabel = document.createElement('label');
-  loginLabel.className = 'field-label';
-  loginLabel.textContent = t('cmsLoginPathLabel');
-  const loginInput = document.createElement('input');
-  loginInput.type = 'text';
-  loginInput.className = 'input-sm';
-  loginInput.placeholder = CMS_DEFAULT_LOGIN_PATH[group.cms] || '/';
-  loginInput.value = group.cmsLoginPath || CMS_DEFAULT_LOGIN_PATH[group.cms] || '/';
-  loginInput.addEventListener('change', async () => {
-    const groups = await getGroups();
-    const g = groups.find((x) => x.id === groupId);
-    if (g) { g.cmsLoginPath = loginInput.value.trim() || CMS_DEFAULT_LOGIN_PATH[g.cms] || '/'; await saveGroups(groups); }
-  });
-  loginRow.appendChild(loginLabel);
-  loginRow.appendChild(loginInput);
-  section.appendChild(loginRow);
-
-  if (group.cms === 'prestashop') { // cmsAdminPath (PrestaShop only)
+  if (group.cms === 'prestashop') {
     const adminPathRow = document.createElement('div');
     adminPathRow.className = 'field-row';
     const adminPathLabel = document.createElement('label');
@@ -105,24 +99,24 @@ export function buildCmsGroupConfig(groupId, group, container) {
     adminPathInput.placeholder = '/admin-dev';
     adminPathInput.value = group.cmsAdminPath || '/admin-dev';
     adminPathInput.addEventListener('change', async () => {
-      const groups = await getGroups();
-      const g = groups.find((x) => x.id === groupId);
-      if (g) {
-        g.cmsAdminPath = adminPathInput.value.trim() || '/admin-dev';
-        const cmsLinksCount = g.links ? g.links.filter((l) => l.type === 'cms').length : 0;
-        if (cmsLinksCount > 0) {
-          g.links = [...getDefaultCmsLinks(g.cms, g.cmsLoginPath, g.cmsAdminPath), ...(g.links || []).filter((l) => l.type !== 'cms')];
-        }
-        await saveGroups(groups);
-        Object.assign(group, g);
+      const val = adminPathInput.value.trim() || '/admin-dev';
+      group.cmsAdminPath = val;
+      const cmsLinksCount = (group.links || []).filter(_isCmsLink).length;
+      if (cmsLinksCount > 0) {
+        group.links = [...getDefaultCmsLinks(group.cms, group.cmsAdminPath), ...(group.links || []).filter((l) => !_isCmsLink(l))];
       }
+      try {
+        const groups = await getGroups();
+        const g = groups.find((x) => x.id === groupId);
+        if (g) { Object.assign(g, group); await saveGroups(groups); }
+      } catch (e) { console.error('[EnvJumper] adminPath save failed:', e); }
     });
     adminPathRow.appendChild(adminPathLabel);
     adminPathRow.appendChild(adminPathInput);
     section.appendChild(adminPathRow);
   }
 
-  if (group.cms === 'wordpress') { // WordPress Multisite toggle
+  if (group.cms === 'wordpress') {
     const msToggleRow = document.createElement('div');
     msToggleRow.className = 'toggle-row';
     msToggleRow.style.cssText = 'margin-bottom:6px;padding-bottom:6px;';
@@ -147,23 +141,32 @@ export function buildCmsGroupConfig(groupId, group, container) {
     msSection.style.display = group.isWordPressMultisite ? 'block' : 'none';
     buildWpMultisiteFields(groupId, group, msSection);
     section.appendChild(msSection);
+
     msToggleInput.addEventListener('change', async () => {
       const isMs = msToggleInput.checked;
+      group.isWordPressMultisite = isMs;
       msSection.style.display = isMs ? 'block' : 'none';
-      const groups = await getGroups();
-      const g = groups.find((x) => x.id === groupId);
-      if (!g) return;
-      g.isWordPressMultisite = isMs;
       if (isMs) {
-        if (!g.links) g.links = [];
-        if (!g.links.some((l) => l.type === 'network')) {
-          g.links = [...g.links, ...getDefaultNetworkLinks()];
+        if (!group.links) group.links = [];
+        if (!group.links.some(_isNetworkLink)) {
+          group.links = [...group.links, ...getDefaultNetworkLinks()];
         }
       } else {
-        if (g.links) g.links = g.links.filter((l) => l.type !== 'network');
+        if (group.links) group.links = group.links.filter((l) => !_isNetworkLink(l));
       }
-      await saveGroups(groups);
-      Object.assign(group, g);
+
+      try {
+        const groups = await getGroups();
+        const g = groups.find((x) => x.id === groupId);
+        if (g) {
+          Object.assign(g, group);
+        } else {
+          groups.push(Object.assign({}, group));
+        }
+        await saveGroups(groups);
+      } catch (e) {
+        console.error('[EnvJumper] Multisite save failed:', e);
+      }
     });
   }
 
@@ -175,7 +178,7 @@ export function buildWpMultisiteFields(groupId, group, container) {
   container.innerHTML = '';
 
   const msTitle = document.createElement('div');
-  msTitle.className = 'wp-config-title';
+  msTitle.className = 'section-title';
   msTitle.textContent = t('wpMultisiteConfigTitle');
   container.appendChild(msTitle);
 
@@ -196,18 +199,18 @@ export function buildWpMultisiteFields(groupId, group, container) {
   });
   typeSelect.value = group.wpMultisiteType || 'subdomain';
   typeSelect.addEventListener('change', async () => {
-    const groups = await getGroups();
-    const g = groups.find((x) => x.id === groupId);
-    if (g) {
-      g.wpMultisiteType = typeSelect.value;
-      await saveGroups(groups);
-      container.querySelectorAll('.wp-site-preview').forEach((span, idx) => {
-        const site = (g.wpSites || [])[idx];
-        if (site !== undefined) {
-          span.textContent = `→ ${buildMultisiteUrl(getPreviewDomain(), site.prefix || '', typeSelect.value, '/').replace('https://', '').replace(/\/$/, '')}`;
-        }
-      });
-    }
+    group.wpMultisiteType = typeSelect.value;
+    container.querySelectorAll('.wp-site-preview').forEach((span, idx) => {
+      const site = (group.wpSites || [])[idx];
+      if (site !== undefined) {
+        span.textContent = `→ ${buildMultisiteUrl(getPreviewDomain(), site.prefix || '', typeSelect.value, '/').replace('https://', '').replace(/\/$/, '')}`;
+      }
+    });
+    try {
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === groupId);
+      if (g) { g.wpMultisiteType = typeSelect.value; await saveGroups(groups); }
+    } catch (e) { console.error('[EnvJumper] multisiteType save failed:', e); }
   });
   typeRow.appendChild(typeLabel);
   typeRow.appendChild(typeSelect);
