@@ -70,7 +70,8 @@ export async function renderJumperPanel() {
 
   let hostname;
   try {
-    hostname = new URL(tab.url).hostname;
+    // Use .host to include port for non-standard ports (e.g. localhost:3000)
+    hostname = new URL(tab.url).host;
   } catch {
     hide('jumper-loading');
     show('jumper-no-match');
@@ -169,7 +170,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     btnSameTab.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M5 10h10M11 6l4 4-4 4"/></svg>`;
     btnSameTab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const url = buildTargetUrl(currentUrl, env.domain);
+      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
       if (url) chrome.tabs.update(undefined, { url });
       window.close();
     });
@@ -180,7 +181,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     btnNewTab.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
     btnNewTab.addEventListener('click', (e) => {
       e.stopPropagation();
-      const url = buildTargetUrl(currentUrl, env.domain);
+      const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
       if (url) chrome.tabs.create({ url });
     });
 
@@ -271,8 +272,9 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
 
       if (!isDisabled) {
         row.addEventListener('click', () => {
-          // URL is built using the domain of this card's env
-          const url = `https://${env.domain}${link.path}`;
+          // URL is built using the domain and protocol of this card's env
+          const proto = env.protocol || 'https';
+          const url = `${proto}://${env.domain}${link.path}`;
           chrome.tabs.create({ url });
         });
       }

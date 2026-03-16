@@ -187,6 +187,7 @@ export async function migrateData() {
     }
 
     // Clean up envs: remove fields that now belong at the group level
+    // Also ensure each env has a protocol field (default: 'https')
     for (const env of group.environments) {
       const hadExtra = env.isWordPress !== undefined || env.links !== undefined;
       delete env.isWordPress;
@@ -196,6 +197,8 @@ export async function migrateData() {
       delete env.wpSites;
       delete env.links;
       if (hadExtra) dirty = true;
+      // Add default protocol if missing
+      if (env.protocol === undefined) { env.protocol = 'https'; dirty = true; }
     }
   }
 

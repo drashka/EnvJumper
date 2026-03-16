@@ -28,16 +28,27 @@ export function hide(id) {
 }
 
 /**
- * Builds a URL by replacing only the hostname with the target domain.
+ * Builds a URL by replacing the domain (and optionally protocol) of the current URL.
  * Preserves path, query string and hash.
+ * If targetDomain contains a port (e.g. "localhost:3000"), it sets url.host.
  * @param {string} currentUrl
- * @param {string} targetDomain
+ * @param {string} targetDomain - Domain, optionally including port (e.g. "localhost:3000")
+ * @param {string} [targetProtocol] - 'https' or 'http' (default: 'https')
  * @returns {string|null}
  */
-export function buildTargetUrl(currentUrl, targetDomain) {
+export function buildTargetUrl(currentUrl, targetDomain, targetProtocol = 'https') {
   try {
     const url = new URL(currentUrl);
-    url.hostname = targetDomain;
+    const proto = targetProtocol || 'https';
+    url.protocol = proto + ':';
+    if (targetDomain.includes(':')) {
+      // Domain includes port — set both hostname and port via url.host
+      url.host = targetDomain;
+    } else {
+      url.hostname = targetDomain;
+      // Clear any existing port when switching to a domain without explicit port
+      url.port = '';
+    }
     return url.toString();
   } catch {
     return null;

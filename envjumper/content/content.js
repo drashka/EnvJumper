@@ -7,6 +7,7 @@
  * Injecte une bordure colorée + badge de nom d'environnement autour de la page.
  * La position du badge est paramétrable via chrome.storage.sync (settings.badgePosition).
  * Répond aux messages GET_WP_STATUS pour détecter la connexion WordPress.
+ * Supporte le mode discret (stealthMode) qui masque la bordure et le badge.
  */
 
 (function () {
@@ -94,58 +95,69 @@
   /**
    * Vérifie le hostname actuel dans le stockage et applique la bordure.
    * Lit aussi settings.badgePosition pour positionner le badge.
+   * Si le mode discret est actif (chrome.storage.local), retire la bordure.
+   *
+   * Note: chrome.storage.session is NOT accessible from content scripts —
+   * stealth mode is stored in chrome.storage.local and cleared on browser startup.
    */
   function checkAndApplyBorder() {
-    const hostname = window.location.hostname;
+    const host = window.location.host;
 
-    chrome.storage.sync.get(['groups', 'settings'], (result) => {
-      const groups = result.groups || [];
-      const position = (result.settings && result.settings.badgePosition) || 'top-left';
-      let matchColor = null;
-      let matchLabel = null;
-
-      outer: for (const group of groups) {
-        for (const env of group.environments) {
-          if (env.domain === hostname) {
-            matchColor = env.color;
-            matchLabel = env.name;
-            break outer;
-          }
-        }
-        // Current format: wpSites with prefix at group level
-        if (group.isWordPressMultisite && group.wpSites) {
-          const type = group.wpMultisiteType || 'subdomain';
-          for (const env of group.environments) {
-            for (const site of group.wpSites) {
-              let siteHost;
-              if (type === 'subdirectory') {
-                siteHost = env.domain; // subdirectory: hostname is env.domain (already matched above)
-              } else {
-                siteHost = site.prefix ? `${site.prefix}.${env.domain}` : env.domain;
-              }
-              if (siteHost === hostname) {
-                matchColor = env.color;
-                matchLabel = env.name;
-                break outer;
-              }
-            }
-          }
-        }
-        // Legacy: wpSites with domain field at env level (old format)
-        for (const env of group.environments) {
-          if (env.isWordPressMultisite && env.wpSites) {
-            for (const site of env.wpSites) {
-              if (site.domain === hostname) {
-                matchColor = env.color;
-                matchLabel = env.name;
-                break outer;
-              }
-            }
-          }
-        }
+    chrome.storage.local.get(['stealthMode'], (localResult) => {
+      if (localResult && localResult.stealthMode) {
+        applyBorder(null, null);
+        return;
       }
 
-      applyBorder(matchColor, matchLabel, position);
+      chrome.storage.sync.get(['groups', 'settings'], (result) => {
+        const groups = result.groups || [];
+        const position = (result.settings && result.settings.badgePosition) || 'top-left';
+        let matchColor = null;
+        let matchLabel = null;
+
+        outer: for (const group of groups) {
+          for (const env of group.environments) {
+            if (env.domain === host) {
+              matchColor = env.color;
+              matchLabel = env.name;
+              break outer;
+            }
+          }
+          // Current format: wpSites with prefix at group level
+          if (group.isWordPressMultisite && group.wpSites) {
+            const type = group.wpMultisiteType || 'subdomain';
+            for (const env of group.environments) {
+              for (const site of group.wpSites) {
+                let siteHost;
+                if (type === 'subdirectory') {
+                  siteHost = env.domain;
+                } else {
+                  siteHost = site.prefix ? `${site.prefix}.${env.domain}` : env.domain;
+                }
+                if (siteHost === host) {
+                  matchColor = env.color;
+                  matchLabel = env.name;
+                  break outer;
+                }
+              }
+            }
+          }
+          // Legacy: wpSites with domain field at env level (old format)
+          for (const env of group.environments) {
+            if (env.isWordPressMultisite && env.wpSites) {
+              for (const site of env.wpSites) {
+                if (site.domain === host) {
+                  matchColor = env.color;
+                  matchLabel = env.name;
+                  break outer;
+                }
+              }
+            }
+          }
+        }
+
+        applyBorder(matchColor, matchLabel, position);
+      });
     });
   }
 
@@ -164,8 +176,8 @@
   checkAndApplyBorder();
 
   // Écouter les mises à jour de stockage (config ou réglages modifiés)
-  chrome.storage.onChanged.addListener(() => {
-    checkAndApplyBorder();
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' || area === 'local') checkAndApplyBorder();
   });
 
   // Écouter les messages du service worker ou de la popup
@@ -174,6 +186,13 @@
       checkAndApplyBorder();
     } else if (message.type === 'GET_WP_STATUS') {
       sendResponse({ isLoggedIn: detectWpLoginStatus() });
+    } else if (message.type === 'STEALTH_MODE_CHANGED') {
+      // Act immediately on the value carried in the message — no storage round-trip.
+      if (message.stealthMode) {
+        applyBorder(null, null);
+      } else {
+        checkAndApplyBorder();
+      }
     }
     return true;
   });

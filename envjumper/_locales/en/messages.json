@@ -126,5 +126,10 @@
   "cmsLinkSystem": { "message": "System" },
   "cmsLinkAdmin": { "message": "Admin" },
   "cmsLinkAdministration": { "message": "Administration" },
-  "confirmDisableCms": { "message": "Changing CMS will delete $COUNT$ predefined link(s). Continue?", "placeholders": { "count": { "content": "$1" } } }
+  "confirmDisableCms": { "message": "Changing CMS will delete $COUNT$ predefined link(s). Continue?", "placeholders": { "count": { "content": "$1" } } },
+
+  "stealthModeToggle": { "message": "Stealth mode — hide border and badge" },
+  "stealthModeActive": { "message": "Stealth mode active" },
+
+  "envProtocolLabel": { "message": "Protocol (HTTPS or HTTP)" }
 }

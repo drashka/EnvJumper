@@ -14,11 +14,47 @@ import { renderSettingsPanel } from './modules/settings.js';
 // between tabs.js and settings.js.
 setSettingsRenderer(renderSettingsPanel);
 
+/**
+ * Initializes the stealth mode toggle button.
+ * Reads from chrome.storage.session and updates the button state.
+ */
+async function initStealthButton() {
+  const btn = el('stealth-btn');
+  if (!btn) return;
+
+  // Set button title with i18n
+  btn.title = t('stealthModeToggle');
+
+  // Read current stealth state from local storage (session storage is not accessible to content scripts)
+  const initResult = await chrome.storage.local.get(['stealthMode']);
+  let stealthMode = !!initResult.stealthMode;
+
+  btn.classList.toggle('active', stealthMode);
+
+  btn.addEventListener('click', async () => {
+    const currentResult = await chrome.storage.local.get(['stealthMode']);
+    const next = !currentResult.stealthMode;
+    await chrome.storage.local.set({ stealthMode: next });
+    btn.classList.toggle('active', next);
+    btn.title = t('stealthModeToggle');
+
+    // Send directly to the active tab's content script for instant feedback.
+    // (The service worker may be sleeping in MV3 and can't be relied on for immediate dispatch.)
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && tab.id) {
+        chrome.tabs.sendMessage(tab.id, { type: 'STEALTH_MODE_CHANGED', stealthMode: next }).catch(() => {});
+      }
+    } catch {}
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await migrateData();
   applyI18n();
   initTabs();
   initExportImport();
+  await initStealthButton();
 
   // "Go to settings" button shown on the empty Jumper state
   el('goto-settings-btn').addEventListener('click', () => switchTab('settings'));

@@ -598,9 +598,24 @@ function buildEnvItem(groupId, env) {
   row1.appendChild(btnDelete);
   item.appendChild(row1);
 
-  // Row 2: Domain
+  // Row 2: Protocol + Domain
   const row2 = document.createElement('div');
-  row2.className = 'env-manage-row';
+  row2.className = 'env-manage-row env-domain-row';
+
+  // Protocol selector (HTTPS / HTTP)
+  const protocolSelect = document.createElement('select');
+  protocolSelect.className = 'input-sm select-sm env-protocol-select';
+  protocolSelect.title = t('envProtocolLabel');
+  ['https', 'http'].forEach((proto) => {
+    const opt = document.createElement('option');
+    opt.value = proto;
+    opt.textContent = proto.toUpperCase();
+    protocolSelect.appendChild(opt);
+  });
+  protocolSelect.value = env.protocol || 'https';
+  protocolSelect.addEventListener('change', () => {
+    saveEnvField(groupId, env.id, 'protocol', protocolSelect.value);
+  });
 
   const domainInput = document.createElement('input');
   domainInput.type = 'text';
@@ -608,16 +623,27 @@ function buildEnvItem(groupId, env) {
   domainInput.placeholder = t('envDomainPlaceholder');
   domainInput.value = env.domain || '';
   domainInput.addEventListener('change', () => {
-    // Sanitize domain: strip protocol, paths, whitespace
+    // Sanitize domain: strip protocol, paths, whitespace; preserve port
     let raw = domainInput.value.trim();
     try {
-      if (raw.includes('://')) raw = new URL(raw).hostname;
-      else raw = raw.split('/')[0].split('?')[0];
+      if (raw.includes('://')) {
+        const parsed = new URL(raw);
+        // Detect protocol from pasted URL and update selector
+        const detectedProto = parsed.protocol.replace(':', '');
+        if (detectedProto === 'http' || detectedProto === 'https') {
+          protocolSelect.value = detectedProto;
+          saveEnvField(groupId, env.id, 'protocol', detectedProto);
+        }
+        raw = parsed.host; // host preserves port (e.g. localhost:3000)
+      } else {
+        raw = raw.split('/')[0].split('?')[0];
+      }
     } catch {}
     domainInput.value = raw;
     saveEnvField(groupId, env.id, 'domain', raw);
   });
 
+  row2.appendChild(protocolSelect);
   row2.appendChild(domainInput);
   item.appendChild(row2);
 

@@ -95,10 +95,11 @@ export function buildIconPicker(currentIcon, onSelect) {
   btn.innerHTML = ICONS[currentIcon] || ICONS['link'];
   wrapper.appendChild(btn);
 
-  // Popover
+  // Popover — appended to document.body to escape overflow:hidden/auto containers
   const popover = document.createElement('div');
   popover.className = 'icon-picker-popover';
   popover.hidden = true;
+  document.body.appendChild(popover);
 
   // Champ de recherche
   const searchInput = document.createElement('input');
@@ -146,13 +147,39 @@ export function buildIconPicker(currentIcon, onSelect) {
 
   renderGrid('');
   popover.appendChild(grid);
-  wrapper.appendChild(popover);
+
+  /**
+   * Positions the popover using fixed coordinates computed from the button's rect.
+   * Opens downward if there's enough space, upward otherwise.
+   */
+  function positionPopover() {
+    const rect = btn.getBoundingClientRect();
+    const popoverHeight = 220; // approximate: search (28) + grid (160) + padding (32)
+    const popoverWidth = 220;
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+
+    popover.style.width = popoverWidth + 'px';
+    popover.style.left = rect.left + 'px';
+
+    if (spaceBelow >= popoverHeight || spaceBelow >= 120) {
+      // Open downward
+      popover.style.top = (rect.bottom + 4) + 'px';
+      popover.style.bottom = '';
+    } else {
+      // Open upward
+      popover.style.top = '';
+      popover.style.bottom = (viewportHeight - rect.top + 4) + 'px';
+    }
+  }
 
   // Ouvrir/fermer le popover au clic du bouton
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
-    popover.hidden = !popover.hidden;
-    if (!popover.hidden) {
+    const willOpen = popover.hidden;
+    popover.hidden = !willOpen;
+    if (willOpen) {
+      positionPopover();
       searchInput.value = '';
       renderGrid('');
       searchInput.focus();
@@ -166,7 +193,7 @@ export function buildIconPicker(currentIcon, onSelect) {
 
   // Fermer le popover au clic en dehors
   document.addEventListener('click', (e) => {
-    if (!wrapper.contains(e.target)) {
+    if (!wrapper.contains(e.target) && !popover.contains(e.target)) {
       popover.hidden = true;
     }
   });

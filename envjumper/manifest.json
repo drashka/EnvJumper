@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "manifest_version": 3,
   "default_locale": "fr",
-  "permissions": ["storage", "tabs", "activeTab"],
+  "permissions": ["storage", "tabs", "activeTab", "contextMenus"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {

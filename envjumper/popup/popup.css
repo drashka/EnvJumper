@@ -123,7 +123,42 @@ html, body {
   font-weight: 700;
   letter-spacing: -.3px;
   color: var(--color-text);
+  flex: 1;
 }
+
+/* ─── Bouton mode discret ──────────────────────────────────── */
+
+.btn-stealth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color .15s, background .15s, border-color .15s;
+  flex-shrink: 0;
+}
+
+.btn-stealth:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.btn-stealth.active {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: #fff;
+}
+
+/* Show/hide the correct icon based on stealth state */
+.btn-stealth .stealth-icon-off { display: none; }
+.btn-stealth.active .stealth-icon-on { display: none; }
+.btn-stealth.active .stealth-icon-off { display: block; }
 
 /* ─── Onglets ──────────────────────────────────────────────── */
 
@@ -804,6 +839,16 @@ html, body {
   flex: 1;
 }
 
+/* Sélecteur de protocole (HTTPS/HTTP) dans la ligne domaine */
+.env-domain-row .env-protocol-select {
+  flex: 0 0 auto;
+  width: 68px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 4px;
+  color: var(--color-text-secondary);
+}
+
 /* Sélecteur de couleur (12 pastilles) */
 .color-picker {
   display: flex;
@@ -973,7 +1018,6 @@ html, body {
 
 /* ── Icon picker */
 .icon-picker {
-  position: relative;
   display: inline-flex;
 }
 
@@ -1001,14 +1045,12 @@ html, body {
 }
 
 .icon-picker-popover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 100;
+  position: fixed;
+  z-index: 9999;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   width: 220px;
   padding: 8px;
 }
