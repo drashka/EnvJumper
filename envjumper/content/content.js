@@ -1,9 +1,9 @@
-// EnvJump - https://github.com/<votre-repo>/envjump
+// EnvJumper - https://github.com/<votre-repo>/envjump
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
 /**
- * Content script EnvJump.
+ * Content script EnvJumper.
  * Injecte une bordure colorée + badge de nom d'environnement autour de la page.
  * La position du badge est paramétrable via chrome.storage.sync (settings.badgePosition).
  * Répond aux messages GET_WP_STATUS pour détecter la connexion WordPress.

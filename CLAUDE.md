@@ -1,10 +1,10 @@
 # CLAUDE.md — Instructions pour Claude Code
 
-> Ce fichier est lu automatiquement par Claude Code. Il contient la spécification complète du projet EnvJump.
+> Ce fichier est lu automatiquement par Claude Code. Il contient la spécification complète du projet EnvJumper.
 
 ## Contexte
 
-Crée une extension Chrome (Manifest V3) appelée **EnvJump**. Elle est destinée à toute personne travaillant sur des projets web multi-environnements : développeurs, designers, chefs de projet, QA, etc. Chaque projet peut avoir plusieurs environnements (production, staging, dev, local…). L'extension permet de "sauter" d'un environnement à l'autre en un clic tout en conservant le path de l'URL, et d'identifier visuellement l'environnement actif grâce à une bordure colorée. L'interface doit être intuitive et accessible à des profils non-techniques.
+Crée une extension Chrome (Manifest V3) appelée **EnvJumper**. Elle est destinée à toute personne travaillant sur des projets web multi-environnements : développeurs, designers, chefs de projet, QA, etc. Chaque projet peut avoir plusieurs environnements (production, staging, dev, local…). L'extension permet de "sauter" d'un environnement à l'autre en un clic tout en conservant le path de l'URL, et d'identifier visuellement l'environnement actif grâce à une bordure colorée. L'interface doit être intuitive et accessible à des profils non-techniques.
 
 ---
 
@@ -259,7 +259,7 @@ Pour savoir si l'URL active correspond à un environnement :
 
 ```json
 {
-  "name": "EnvJump",
+  "name": "EnvJumper",
   "description": "Sautez entre vos environnements web en un clic. Bordure colorée, gestion de projets, support WordPress Multisite.",
   "manifest_version": 3,
   "permissions": ["storage", "tabs", "activeTab"],
@@ -291,13 +291,13 @@ Pour savoir si l'URL active correspond à un environnement :
 - **Pas de framework JS** (pas de React, Vue, etc.) — Vanilla JS uniquement.
 - **Pas de framework CSS** — CSS custom, propre, bien structuré.
 - **Thème clair/sombre** : détection automatique via `prefers-color-scheme`. Variables CSS : `--bg-primary`, `--bg-card`, `--text-primary`, `--text-secondary`, `--border`, `--accent-blue` (#4299E1), `--accent-green` (#48BB78), `--accent-red` (#E53E3E), `--accent-orange` (#F6AD55).
-- **Logo** : `icons/logo-EnvJump-small.png` utilisé dans le header de la popup et comme icône 48/128px. `icons/logo-EnvJump.png` utilisé dans le README.
+- **Logo** : `icons/logo-EnvJumper-small.png` utilisé dans le header de la popup et comme icône 48/128px. `icons/logo-EnvJumper.png` utilisé dans le README.
 - **i18n** : système `chrome.i18n` natif. Fichiers de traduction dans `_locales/fr/messages.json` et `_locales/en/messages.json`. Langue par défaut : français. Fonction helper `t(key, subs)` dans popup.js. Éléments HTML statiques traduits via `data-i18n="clé"` + `applyI18n()` au chargement.
 - **`chrome.storage.sync`** pour la persistance (synchronisé entre appareils).
 - Le code doit être propre, commenté en français, et bien structuré.
 - **Licence GPL v3** : inclure un fichier `LICENSE` à la racine du projet. En-tête de licence en haut de chaque fichier JS :
   ```
-  // EnvJump - https://github.com/<votre-repo>/envjump
+  // EnvJumper - https://github.com/<votre-repo>/envjump
   // Copyright (C) 2026 <Votre Nom>
   // Licence : GPL v3 — voir le fichier LICENSE
   ```

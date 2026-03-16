@@ -1,9 +1,9 @@
-// EnvJump - https://github.com/<votre-repo>/envjump
+// EnvJumper - https://github.com/<votre-repo>/envjump
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
 /**
- * Helpers d'accès à chrome.storage.sync pour EnvJump.
+ * Helpers d'accès à chrome.storage.sync pour EnvJumper.
  * Toutes les fonctions retournent des Promises.
  */
 

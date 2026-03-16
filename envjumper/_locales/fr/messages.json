@@ -1,5 +1,5 @@
 {
-  "extensionName": { "message": "EnvJump" },
+  "extensionName": { "message": "EnvJumper" },
   "extensionDescription": { "message": "Sautez entre vos environnements web en un clic. Bordure colorée, gestion de projets, support WordPress Multisite." },
 
   "tabJumper": { "message": "Jumper" },

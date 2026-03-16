@@ -1,4 +1,4 @@
-// EnvJump - https://github.com/<votre-repo>/envjump
+// EnvJumper - https://github.com/<votre-repo>/envjump
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 

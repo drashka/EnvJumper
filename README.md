@@ -23,7 +23,7 @@ EnvJumper est une extension Chrome qui permet de naviguer instantanément entre 
 
 ## Pour qui ?
 
-EnvJump est conçu pour toute personne travaillant sur des projets web multi-environnements : développeurs, designers, chefs de projet, QA, intégrateurs…
+EnvJumper est conçu pour toute personne travaillant sur des projets web multi-environnements : développeurs, designers, chefs de projet, QA, intégrateurs…
 
 ---
 
@@ -40,7 +40,7 @@ EnvJump est conçu pour toute personne travaillant sur des projets web multi-env
 4. Cliquez sur **Charger l'extension non empaquetée**
 5. Sélectionnez le dossier `envjump/`
 
-L'icône EnvJump apparaît dans votre barre d'extensions.
+L'icône EnvJumper apparaît dans votre barre d'extensions.
 
 ---
 
@@ -48,7 +48,7 @@ L'icône EnvJump apparaît dans votre barre d'extensions.
 
 ### Ajouter un projet et ses environnements
 
-1. Cliquez sur l'icône EnvJump
+1. Cliquez sur l'icône EnvJumper
 2. Allez dans l'onglet **Gestion**
 3. Cliquez sur **Ajouter un groupe**
 4. Donnez un nom au projet (ex: "Mon site client")
@@ -60,7 +60,7 @@ L'icône EnvJump apparaît dans votre barre d'extensions.
 ### Naviguer entre environnements
 
 1. Rendez-vous sur une page d'un environnement configuré (ex: `staging.exemple.com/mon-article`)
-2. Cliquez sur l'icône EnvJump
+2. Cliquez sur l'icône EnvJumper
 3. L'onglet **Environnement actuel** affiche votre environnement et les alternatives
 4. Cliquez sur un environnement pour y accéder :
    - 🔄 Bouton **onglet courant** — remplace l'URL dans l'onglet actif

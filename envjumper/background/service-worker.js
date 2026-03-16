@@ -1,9 +1,9 @@
-// EnvJump - https://github.com/<votre-repo>/envjump
+// EnvJumper - https://github.com/<votre-repo>/envjump
 // Copyright (C) 2026 <Votre Nom>
 // Licence : GPL v3 — voir le fichier LICENSE
 
 /**
- * Service Worker EnvJump.
+ * Service Worker EnvJumper.
  * - Notifie les content scripts lors des navigations.
  * - Met à jour le badge de l'icône d'extension en fonction de l'environnement actif.
  * - Gère les menus contextuels (clic droit) pour ouvrir un lien sur un autre environnement.
@@ -91,8 +91,9 @@ async function updateBadge(tabId, url) {
   const match = findMatch(groups, host);
 
   if (match && match.env) {
-    // Env connu : badge coloré, 2 premières lettres en majuscules
-    const label = match.env.name.slice(0, 2).toUpperCase();
+    // Env connu : badge coloré, initiales des 2 ou 3 premiers mots
+    const words = match.env.name.trim().split(/\s+/);
+    const label = words.slice(0, 3).map(w => w[0]).join('').toUpperCase();
     chrome.action.setBadgeText({ tabId, text: label });
     chrome.action.setBadgeBackgroundColor({ tabId, color: match.env.color });
   } else {
@@ -105,7 +106,7 @@ async function updateBadge(tabId, url) {
 
 /**
  * Rebuilds all context menu items based on the current groups configuration.
- * Shows "EnvJump → [Group] → [Env]" when right-clicking a link on a known env page.
+ * Shows "EnvJumper → [Group] → [Env]" when right-clicking a link on a known env page.
  */
 async function rebuildContextMenus() {
   return new Promise((resolve) => {
@@ -137,7 +138,7 @@ async function rebuildContextMenus() {
         // Root menu item
         chrome.contextMenus.create({
           id: 'envjump-root',
-          title: 'EnvJump',
+          title: 'EnvJumper',
           contexts: ['link'],
           documentUrlPatterns,
         });
