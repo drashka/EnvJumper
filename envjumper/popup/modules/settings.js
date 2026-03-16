@@ -5,8 +5,9 @@
 import { getGroups, saveGroups, getSettings, saveSettings, generateId, COLOR_PALETTE } from './storage.js';
 import { t } from './i18n.js';
 import { el, confirm } from './ui-helpers.js';
-import { WP_ICONS, getDefaultWpLinks, buildMultisiteUrl } from './wordpress.js';
+import { buildMultisiteUrl } from './wordpress.js';
 import { buildLinksSection } from './links.js';
+import { CMS_IDS, CMS_DEFAULT_LOGIN_PATH, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks } from './cms.js';
 
 /**
  * Renders the Settings panel: group cards, general settings, export select.
@@ -174,92 +175,78 @@ function buildGroupCard(group) {
   });
   body.appendChild(btnAddEnv);
 
-  // ── WordPress toggle at group level
-  const wpToggleRow = document.createElement('div');
-  wpToggleRow.className = 'toggle-row';
-  wpToggleRow.style.marginTop = '12px';
-  wpToggleRow.style.marginBottom = '0';
-  wpToggleRow.style.paddingBottom = '0';
-  wpToggleRow.style.borderBottom = 'none';
+  // ── CMS selector row
+  const cmsRow = document.createElement('div');
+  cmsRow.className = 'field-row';
+  cmsRow.style.marginTop = '12px';
+  const cmsLabel = document.createElement('label');
+  cmsLabel.className = 'field-label';
+  cmsLabel.textContent = t('cmsLabel');
+  const cmsSelect = document.createElement('select');
+  cmsSelect.className = 'input-sm select-sm';
+  CMS_IDS.forEach((id) => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = t(`cms_${id}`);
+    cmsSelect.appendChild(opt);
+  });
+  cmsSelect.value = group.cms || 'none';
+  cmsRow.appendChild(cmsLabel);
+  cmsRow.appendChild(cmsSelect);
+  body.appendChild(cmsRow);
 
-  const wpToggleLabel = document.createElement('span');
-  wpToggleLabel.className = 'toggle-label';
-  wpToggleLabel.textContent = t('wordpress');
+  // Container for CMS config (login path, admin path for PrestaShop, WP multisite)
+  const cmsConfigContainer = document.createElement('div');
+  cmsConfigContainer.style.display = (group.cms && group.cms !== 'none') ? 'block' : 'none';
+  buildCmsGroupConfig(group.id, group, cmsConfigContainer);
+  body.appendChild(cmsConfigContainer);
 
-  const wpToggleWrapper = document.createElement('label');
-  wpToggleWrapper.className = 'toggle';
-  const wpToggleInput = document.createElement('input');
-  wpToggleInput.type = 'checkbox';
-  wpToggleInput.checked = !!group.isWordPress;
-  const wpToggleTrack = document.createElement('span');
-  wpToggleTrack.className = 'toggle-track';
-  wpToggleWrapper.appendChild(wpToggleInput);
-  wpToggleWrapper.appendChild(wpToggleTrack);
+  cmsSelect.addEventListener('change', async () => {
+    const newCms = cmsSelect.value;
+    const groups = await getGroups();
+    const g = groups.find((x) => x.id === group.id);
+    if (!g) return;
 
-  wpToggleRow.appendChild(wpToggleLabel);
-  wpToggleRow.appendChild(wpToggleWrapper);
-  body.appendChild(wpToggleRow);
+    // Count existing CMS links
+    const cmsLinksCount = g.links ? g.links.filter((l) => l.type === 'cms').length : 0;
 
-  // Container for the WP config section (shown when isWordPress is true)
-  const wpConfigContainer = document.createElement('div');
-  wpConfigContainer.style.display = group.isWordPress ? 'block' : 'none';
-  buildWpGroupConfig(group.id, group, wpConfigContainer);
-  body.appendChild(wpConfigContainer);
-
-  wpToggleInput.addEventListener('change', async () => {
-    const isWp = wpToggleInput.checked;
-
-    if (isWp) {
-      // Enable WordPress: add predefined links if none exist yet
-      const groups = await getGroups();
-      const g = groups.find((x) => x.id === group.id);
-      if (g) {
-        g.isWordPress = true;
-        if (!g.links) g.links = [];
-        const hasWpLinks = g.links.some((l) => l.type === 'wordpress');
-        if (!hasWpLinks) {
-          const defaultLinks = getDefaultWpLinks(g.wpLoginPath || '/wp-login.php');
-          g.links = [...defaultLinks, ...g.links];
-        }
-        await saveGroups(groups);
-        // Update local group reference to rebuild WP section
-        Object.assign(group, g);
+    if (cmsLinksCount > 0 && newCms !== g.cms) {
+      const ok = await confirm(t('confirmDisableCms', String(cmsLinksCount)));
+      if (!ok) {
+        cmsSelect.value = g.cms || 'none';
+        return;
       }
-      wpConfigContainer.style.display = 'block';
-      // Rebuild WP config section
-      wpConfigContainer.innerHTML = '';
-      buildWpGroupConfig(group.id, group, wpConfigContainer);
-      // Rebuild links section
-      const linksSection = body.querySelector('.links-section');
-      if (linksSection) linksSection.remove();
-      body.appendChild(buildLinksSection(group.id, group));
-    } else {
-      // Disable WordPress
-      const groups = await getGroups();
-      const g = groups.find((x) => x.id === group.id);
-      const wpLinksCount = g && g.links ? g.links.filter((l) => l.type === 'wordpress').length : 0;
-
-      if (wpLinksCount > 0) {
-        const ok = await confirm(t('confirmDisableWp', String(wpLinksCount)));
-        if (!ok) {
-          wpToggleInput.checked = true;
-          return;
-        }
-      }
-
-      if (g) {
-        g.isWordPress = false;
-        g.isWordPressMultisite = false;
-        g.links = (g.links || []).filter((l) => l.type !== 'wordpress');
-        await saveGroups(groups);
-        Object.assign(group, g);
-      }
-      wpConfigContainer.style.display = 'none';
-      // Rebuild links section
-      const linksSection = body.querySelector('.links-section');
-      if (linksSection) linksSection.remove();
-      body.appendChild(buildLinksSection(group.id, group));
+      // Remove old CMS links
+      g.links = (g.links || []).filter((l) => l.type !== 'cms');
     }
+
+    g.cms = newCms;
+
+    if (newCms !== 'none') {
+      // Set default login path for the new CMS if not already custom
+      g.cmsLoginPath = CMS_DEFAULT_LOGIN_PATH[newCms] || '/';
+      g.cmsAdminPath = CMS_DEFAULT_ADMIN_PATH[newCms] || '';
+      // Add predefined links for the new CMS
+      if (!g.links) g.links = [];
+      const defaultLinks = getDefaultCmsLinks(newCms, g.cmsLoginPath, g.cmsAdminPath);
+      g.links = [...defaultLinks, ...g.links];
+    } else {
+      // Reset WP Multisite when switching to 'none'
+      g.isWordPressMultisite = false;
+    }
+
+    await saveGroups(groups);
+    Object.assign(group, g);
+
+    // Show/hide CMS config container
+    cmsConfigContainer.style.display = newCms !== 'none' ? 'block' : 'none';
+    // Rebuild CMS config section
+    cmsConfigContainer.innerHTML = '';
+    buildCmsGroupConfig(group.id, group, cmsConfigContainer);
+    // Rebuild links section
+    const linksSection = body.querySelector('.links-section');
+    if (linksSection) linksSection.remove();
+    body.appendChild(buildLinksSection(group.id, group));
   });
 
   // ── Quick links section at group level
@@ -276,36 +263,37 @@ function buildGroupCard(group) {
 }
 
 /**
- * Builds the WordPress sub-form at group level.
+ * Builds the CMS sub-form at group level.
+ * Handles login path, optional admin path (PrestaShop), and WP Multisite (WordPress only).
  * @param {string} groupId
  * @param {object} group
  * @param {HTMLElement} container - Parent element to append the section into
  */
-function buildWpGroupConfig(groupId, group, container) {
+function buildCmsGroupConfig(groupId, group, container) {
   const section = document.createElement('div');
   section.className = 'wp-env-section';
 
   const titleRow = document.createElement('div');
   titleRow.className = 'wp-env-section-title';
-  titleRow.innerHTML = `<span style="display:inline-flex;width:14px;height:14px;flex-shrink:0">${WP_ICONS.wordpress}</span> ${t('wpConfigTitle')}`;
+  titleRow.textContent = t('wpConfigTitle');
   section.appendChild(titleRow);
 
-  // wpLoginPath field
+  // cmsLoginPath field
   const loginRow = document.createElement('div');
   loginRow.className = 'field-row';
   const loginLabel = document.createElement('label');
   loginLabel.className = 'field-label';
-  loginLabel.textContent = t('wpLoginPathLabel');
+  loginLabel.textContent = t('cmsLoginPathLabel');
   const loginInput = document.createElement('input');
   loginInput.type = 'text';
   loginInput.className = 'input-sm';
-  loginInput.placeholder = '/wp-login.php';
-  loginInput.value = group.wpLoginPath || '/wp-login.php';
+  loginInput.placeholder = CMS_DEFAULT_LOGIN_PATH[group.cms] || '/';
+  loginInput.value = group.cmsLoginPath || CMS_DEFAULT_LOGIN_PATH[group.cms] || '/';
   loginInput.addEventListener('change', async () => {
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
     if (g) {
-      g.wpLoginPath = loginInput.value.trim() || '/wp-login.php';
+      g.cmsLoginPath = loginInput.value.trim() || CMS_DEFAULT_LOGIN_PATH[g.cms] || '/';
       await saveGroups(groups);
     }
   });
@@ -313,47 +301,82 @@ function buildWpGroupConfig(groupId, group, container) {
   loginRow.appendChild(loginInput);
   section.appendChild(loginRow);
 
-  // WordPress Multisite toggle
-  const msToggleRow = document.createElement('div');
-  msToggleRow.className = 'toggle-row';
-  msToggleRow.style.marginBottom = '6px';
-  msToggleRow.style.paddingBottom = '6px';
+  // cmsAdminPath field (PrestaShop only)
+  if (group.cms === 'prestashop') {
+    const adminPathRow = document.createElement('div');
+    adminPathRow.className = 'field-row';
+    const adminPathLabel = document.createElement('label');
+    adminPathLabel.className = 'field-label';
+    adminPathLabel.textContent = t('cmsAdminPathLabel');
+    const adminPathInput = document.createElement('input');
+    adminPathInput.type = 'text';
+    adminPathInput.className = 'input-sm';
+    adminPathInput.placeholder = '/admin-dev';
+    adminPathInput.value = group.cmsAdminPath || '/admin-dev';
+    adminPathInput.addEventListener('change', async () => {
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === groupId);
+      if (g) {
+        g.cmsAdminPath = adminPathInput.value.trim() || '/admin-dev';
+        // Regenerate CMS links with the new admin path
+        const cmsLinksCount = g.links ? g.links.filter((l) => l.type === 'cms').length : 0;
+        if (cmsLinksCount > 0) {
+          g.links = (g.links || []).filter((l) => l.type !== 'cms');
+          const newLinks = getDefaultCmsLinks(g.cms, g.cmsLoginPath, g.cmsAdminPath);
+          g.links = [...newLinks, ...g.links];
+        }
+        await saveGroups(groups);
+        Object.assign(group, g);
+      }
+    });
+    adminPathRow.appendChild(adminPathLabel);
+    adminPathRow.appendChild(adminPathInput);
+    section.appendChild(adminPathRow);
+  }
 
-  const msToggleLabel = document.createElement('span');
-  msToggleLabel.className = 'toggle-label';
-  msToggleLabel.textContent = t('wpMultisite');
+  // WordPress Multisite toggle — only for WordPress
+  if (group.cms === 'wordpress') {
+    const msToggleRow = document.createElement('div');
+    msToggleRow.className = 'toggle-row';
+    msToggleRow.style.marginBottom = '6px';
+    msToggleRow.style.paddingBottom = '6px';
 
-  const msToggleWrapper = document.createElement('label');
-  msToggleWrapper.className = 'toggle';
-  const msToggleInput = document.createElement('input');
-  msToggleInput.type = 'checkbox';
-  msToggleInput.checked = !!group.isWordPressMultisite;
-  const msToggleTrack = document.createElement('span');
-  msToggleTrack.className = 'toggle-track';
-  msToggleWrapper.appendChild(msToggleInput);
-  msToggleWrapper.appendChild(msToggleTrack);
+    const msToggleLabel = document.createElement('span');
+    msToggleLabel.className = 'toggle-label';
+    msToggleLabel.textContent = t('wpMultisite');
 
-  msToggleRow.appendChild(msToggleLabel);
-  msToggleRow.appendChild(msToggleWrapper);
-  section.appendChild(msToggleRow);
+    const msToggleWrapper = document.createElement('label');
+    msToggleWrapper.className = 'toggle';
+    const msToggleInput = document.createElement('input');
+    msToggleInput.type = 'checkbox';
+    msToggleInput.checked = !!group.isWordPressMultisite;
+    const msToggleTrack = document.createElement('span');
+    msToggleTrack.className = 'toggle-track';
+    msToggleWrapper.appendChild(msToggleInput);
+    msToggleWrapper.appendChild(msToggleTrack);
 
-  // Multisite sub-section
-  const msSection = document.createElement('div');
-  msSection.className = 'wp-multisite-section';
-  msSection.style.display = group.isWordPressMultisite ? 'block' : 'none';
-  buildWpMultisiteFields(groupId, group, msSection);
-  section.appendChild(msSection);
+    msToggleRow.appendChild(msToggleLabel);
+    msToggleRow.appendChild(msToggleWrapper);
+    section.appendChild(msToggleRow);
 
-  msToggleInput.addEventListener('change', async () => {
-    const isMs = msToggleInput.checked;
-    msSection.style.display = isMs ? 'block' : 'none';
-    const groups = await getGroups();
-    const g = groups.find((x) => x.id === groupId);
-    if (g) {
-      g.isWordPressMultisite = isMs;
-      await saveGroups(groups);
-    }
-  });
+    // Multisite sub-section
+    const msSection = document.createElement('div');
+    msSection.className = 'wp-multisite-section';
+    msSection.style.display = group.isWordPressMultisite ? 'block' : 'none';
+    buildWpMultisiteFields(groupId, group, msSection);
+    section.appendChild(msSection);
+
+    msToggleInput.addEventListener('change', async () => {
+      const isMs = msToggleInput.checked;
+      msSection.style.display = isMs ? 'block' : 'none';
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === groupId);
+      if (g) {
+        g.isWordPressMultisite = isMs;
+        await saveGroups(groups);
+      }
+    });
+  }
 
   container.appendChild(section);
 }

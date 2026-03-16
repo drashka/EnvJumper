@@ -35,7 +35,7 @@ function convertOldFormat(data) {
     const newGroup = { ...group };
 
     // Lift WP/links from envs if not already at group level
-    if (newGroup.isWordPress === undefined && newGroup.environments) {
+    if (newGroup.isWordPress === undefined && newGroup.cms === undefined && newGroup.environments) {
       const envWithWp = newGroup.environments.find((e) => e.isWordPress);
       if (envWithWp) {
         newGroup.isWordPress = true;
@@ -50,9 +50,35 @@ function convertOldFormat(data) {
       newGroup.links = envWithLinks ? envWithLinks.links : [];
     }
 
+    // Migration: isWordPress → cms
+    if (newGroup.isWordPress !== undefined && newGroup.cms === undefined) {
+      newGroup.cms = newGroup.isWordPress ? 'wordpress' : 'none';
+      delete newGroup.isWordPress;
+    }
+    // Migration: wpLoginPath → cmsLoginPath
+    if (newGroup.wpLoginPath !== undefined) {
+      newGroup.cmsLoginPath = newGroup.cmsLoginPath || newGroup.wpLoginPath;
+      delete newGroup.wpLoginPath;
+    }
+    // Ensure cms is defined
+    if (!newGroup.cms) newGroup.cms = 'none';
+
     // Migration: old format "WP Multisite at group level" (before env format)
-    if (!newGroup.isWordPress && newGroup.isWordPressMultisite) {
-      newGroup.isWordPress = true;
+    if (newGroup.cms !== 'wordpress' && newGroup.isWordPressMultisite) {
+      newGroup.cms = 'wordpress';
+    }
+
+    // Migrate link types and icon keys
+    if (Array.isArray(newGroup.links)) {
+      newGroup.links = newGroup.links.map((link) => {
+        const l = { ...link };
+        if (l.type === 'wordpress') l.type = 'cms';
+        if (l.iconKey !== undefined && l.icon === undefined) {
+          l.icon = l.iconKey;
+          delete l.iconKey;
+        }
+        return l;
+      });
     }
 
     // Migration: old WP Multisite format wpNetworkDomain + wpSites[{label, domain}]
@@ -84,8 +110,9 @@ function convertOldFormat(data) {
     }
 
     // Group defaults
-    newGroup.isWordPress = newGroup.isWordPress || false;
-    newGroup.wpLoginPath = newGroup.wpLoginPath || '/wp-login.php';
+    newGroup.cms = newGroup.cms || 'none';
+    newGroup.cmsLoginPath = newGroup.cmsLoginPath || '/';
+    newGroup.cmsAdminPath = newGroup.cmsAdminPath || '';
     newGroup.isWordPressMultisite = newGroup.isWordPressMultisite || false;
     newGroup.wpSites = newGroup.wpSites || [];
     newGroup.links = newGroup.links || [];

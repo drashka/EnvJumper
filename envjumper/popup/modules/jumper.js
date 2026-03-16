@@ -5,7 +5,8 @@
 import { getGroups } from './storage.js';
 import { t } from './i18n.js';
 import { el, show, hide, buildTargetUrl } from './ui-helpers.js';
-import { WP_ICONS, getWpLoginStatus, buildMultisiteUrl } from './wordpress.js';
+import { getWpLoginStatus, buildMultisiteUrl } from './wordpress.js';
+import { ICONS } from './icons.js';
 
 /**
  * Finds the group and environment matching the given hostname.
@@ -94,7 +95,7 @@ export async function renderJumperPanel() {
 
   // Fetch WP login status if the group is WordPress
   let wpIsLoggedIn = null;
-  if (group.isWordPress) {
+  if (group.cms === 'wordpress') {
     wpIsLoggedIn = await getWpLoginStatus(tab.id);
   }
 
@@ -206,7 +207,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
 
   if (links.length > 0) {
     // "Not logged in" notice if WordPress and not authenticated (only for the active env)
-    const showWpNotice = group.isWordPress && wpIsLoggedIn === false;
+    const showWpNotice = group.cms === 'wordpress' && wpIsLoggedIn === false;
     if (showWpNotice) {
       const notice = document.createElement('div');
       notice.className = 'wp-status-notice';
@@ -215,7 +216,9 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
     }
 
     links.forEach((link) => {
-      const isAdminLink = link.type === 'wordpress' && link.iconKey !== 'login';
+      const isCmsLink = link.type === 'cms' || link.type === 'wordpress';
+      const isLoginLink = (link.icon === 'log-in') || (link.iconKey === 'login');
+      const isAdminLink = isCmsLink && !isLoginLink;
       const isDisabled = showWpNotice && isAdminLink;
 
       const row = document.createElement('button');
@@ -223,8 +226,7 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
       row.type = 'button';
 
       // Icon
-      const iconKey = link.iconKey || 'custom';
-      const iconSvg = WP_ICONS[iconKey] || WP_ICONS.custom;
+      const iconSvg = ICONS[link.icon] || ICONS[link.iconKey] || ICONS['link'];
       const iconDiv = document.createElement('span');
       iconDiv.className = 'link-icon';
       iconDiv.innerHTML = iconSvg;
@@ -237,14 +239,14 @@ function buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
       // "New tab" icon
       const newtabDiv = document.createElement('span');
       newtabDiv.className = 'link-newtab-icon';
-      newtabDiv.innerHTML = WP_ICONS.newtab;
+      newtabDiv.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
 
       row.appendChild(iconDiv);
       row.appendChild(labelSpan);
       row.appendChild(newtabDiv);
 
       // "Open on all sites" button — only for WP Multisite groups with sites configured
-      if (group.isWordPressMultisite && group.wpSites && group.wpSites.length > 0) {
+      if (group.cms === 'wordpress' && group.isWordPressMultisite && group.wpSites && group.wpSites.length > 0) {
         const btnAllSites = document.createElement('button');
         btnAllSites.type = 'button';
         btnAllSites.className = 'link-allsites-btn';

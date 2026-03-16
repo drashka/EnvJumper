@@ -87,8 +87,6 @@ export async function migrateData() {
 
   for (const group of groups) {
     // Ensure group fields exist
-    if (group.isWordPress === undefined) { group.isWordPress = false; dirty = true; }
-    if (!group.wpLoginPath) { group.wpLoginPath = '/wp-login.php'; dirty = true; }
     if (group.isWordPressMultisite === undefined) { group.isWordPressMultisite = false; dirty = true; }
     if (!group.wpSites) { group.wpSites = []; dirty = true; }
     if (!group.links) {
@@ -97,12 +95,41 @@ export async function migrateData() {
       group.links = envWithLinks ? envWithLinks.links : [];
       dirty = true;
     }
-    if (!group.isWordPress) {
-      // Pull isWordPress from the first env that has it
+
+    // Migrate isWordPress → cms
+    if (group.isWordPress !== undefined && group.cms === undefined) {
+      group.cms = group.isWordPress ? 'wordpress' : 'none';
+      delete group.isWordPress;
+      dirty = true;
+    }
+    // Migrate wpLoginPath → cmsLoginPath
+    if (group.wpLoginPath !== undefined && group.cmsLoginPath === undefined) {
+      group.cmsLoginPath = group.wpLoginPath;
+      delete group.wpLoginPath;
+      dirty = true;
+    }
+    // Ensure cms is defined
+    if (group.cms === undefined) { group.cms = 'none'; dirty = true; }
+    // Ensure cmsAdminPath is defined (don't mark dirty)
+    if (!group.cmsAdminPath) { group.cmsAdminPath = ''; }
+    // Migrate link type: 'wordpress' → 'cms'
+    if (group.links) {
+      for (const link of group.links) {
+        if (link.type === 'wordpress') { link.type = 'cms'; dirty = true; }
+        // Migrate iconKey → icon
+        if (link.iconKey !== undefined && link.icon === undefined) {
+          link.icon = link.iconKey; dirty = true;
+          delete link.iconKey;
+        }
+      }
+    }
+
+    if (group.cms === 'none') {
+      // Pull isWordPress from the first env that has it (legacy path: env-level WP fields)
       const envWithWp = group.environments.find((e) => e.isWordPress);
       if (envWithWp) {
-        group.isWordPress = true;
-        group.wpLoginPath = envWithWp.wpLoginPath || '/wp-login.php';
+        group.cms = 'wordpress';
+        group.cmsLoginPath = group.cmsLoginPath || envWithWp.wpLoginPath || '/wp-login.php';
         group.isWordPressMultisite = envWithWp.isWordPressMultisite || false;
         group.wpNetworkDomain = envWithWp.wpNetworkDomain || '';
         group.wpSites = envWithWp.wpSites || [];
@@ -144,6 +171,12 @@ export async function migrateData() {
       const I18N_LINK_KEYS = [
         'wpLinkLogin', 'wpLinkDashboard', 'wpLinkPosts', 'wpLinkPages',
         'wpLinkMedia', 'wpLinkPlugins', 'wpLinkAppearance', 'wpLinkSettings', 'wpLinkPermalinks',
+        'cmsLinkLogin', 'cmsLinkDashboard', 'cmsLinkMedia', 'cmsLinkUsers',
+        'cmsLinkConfiguration', 'cmsLinkSettings', 'cmsLinkModules', 'cmsLinkCategories',
+        'cmsLinkExtensions', 'cmsLinkContent', 'cmsLinkArticles', 'cmsLinkStructure',
+        'cmsLinkPeople', 'cmsLinkReports', 'cmsLinkOrders', 'cmsLinkCatalog',
+        'cmsLinkCustomers', 'cmsLinkDesign', 'cmsLinkProducts', 'cmsLinkThemes',
+        'cmsLinkApps', 'cmsLinkSystem', 'cmsLinkAdmin', 'cmsLinkAdministration',
       ];
       for (const link of group.links) {
         if (I18N_LINK_KEYS.includes(link.label)) {

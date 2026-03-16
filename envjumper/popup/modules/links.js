@@ -4,7 +4,7 @@
 
 import { getGroups, saveGroups, generateId } from './storage.js';
 import { t } from './i18n.js';
-import { WP_ICONS } from './wordpress.js';
+import { ICONS, buildIconPicker } from './icons.js';
 
 /**
  * Saves the value of a single field on a link belonging to a group.
@@ -64,6 +64,12 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   handle.textContent = '⠿';
   row.appendChild(handle);
 
+  // Icon picker
+  const iconPicker = buildIconPicker(link.icon || link.iconKey || 'link', (iconName) => {
+    saveLinkField(groupId, link.id, 'icon', iconName);
+  });
+  row.appendChild(iconPicker);
+
   // Label input
   const labelInput = document.createElement('input');
   labelInput.type = 'text';
@@ -85,9 +91,10 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   row.appendChild(pathInput);
 
   // Type badge
+  const isCmsLink = link.type === 'cms' || link.type === 'wordpress';
   const typeBadge = document.createElement('span');
-  typeBadge.className = `link-type-badge ${link.type === 'wordpress' ? 'wp' : 'custom'}`;
-  typeBadge.textContent = link.type === 'wordpress' ? 'WP' : 'custom';
+  typeBadge.className = `link-type-badge ${isCmsLink ? 'wp' : 'custom'}`;
+  typeBadge.textContent = isCmsLink ? 'CMS' : 'custom';
   row.appendChild(typeBadge);
 
   // Remove button
@@ -216,7 +223,7 @@ export function buildLinksSection(groupId, group) {
         label: '',
         path: '/',
         type: 'custom',
-        iconKey: null,
+        icon: 'link',
         order: maxOrder,
       };
       g.links.push(newLink);
