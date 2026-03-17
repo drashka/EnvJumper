@@ -12,8 +12,9 @@ export function buildEnvsSubtab(container, group, { onClose, onRefresh }) {
   envList.className = 'env-manage-list';
   envList.dataset.groupId = group.id;
 
-  group.environments.forEach((env) => {
-    envList.appendChild(buildEnvItem(group.id, env, group));
+  group.environments.forEach((env, i) => {
+    const expandFirst = i === 0 && !env.name && !env.domain;
+    envList.appendChild(buildEnvItem(group.id, env, group, { expanded: expandFirst }));
   });
   container.appendChild(envList);
 
@@ -54,7 +55,7 @@ export function buildProjectSettingsSubtab(container, group, { onClose, onRefres
 }
 
 /** Builds a collapsible environment card. */
-export function buildEnvItem(groupId, env, editingGroup) {
+export function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   const card = document.createElement('div');
   card.className = 'env-card';
   card.dataset.envId = env.id;
@@ -109,10 +110,11 @@ export function buildEnvItem(groupId, env, editingGroup) {
   header.append(headerInfo, headerActions);
   card.appendChild(header);
 
-  // ── Body (collapsed by default) ───────────────────────────────────────────
+  // ── Body ──────────────────────────────────────────────────────────────────
   const body = document.createElement('div');
   body.className = 'env-card-body';
-  body.style.display = 'none';
+  body.style.display = expanded ? 'flex' : 'none';
+  if (expanded) card.classList.add('env-card--open');
 
   // Name input
   const nameInput = document.createElement('input');

@@ -111,6 +111,40 @@ async function addProjectFromActiveTab() {
   openProjectEdit(newGroup);
 }
 
+/**
+ * Creates a blank project with one empty environment and opens its edit view,
+ * focusing the project name input.
+ */
+async function addEmptyProject() {
+  const groups = await getGroups();
+
+  const newGroup = {
+    id: generateId(),
+    name: '',
+    isWordPress: false,
+    wpLoginPath: '/wp-login.php',
+    isWordPressMultisite: false,
+    wpNetworkDomain: '',
+    wpSites: [],
+    links: [],
+    environments: [{
+      id: generateId(),
+      name: '',
+      domain: '',
+      protocol: 'https',
+      color: COLOR_PALETTE[0].hex,
+    }],
+  };
+
+  groups.push(newGroup);
+  await saveGroups(groups);
+  await renderEnvironmentsPanel();
+  openProjectEdit(newGroup);
+
+  // Focus the project name input after the slide-in animation starts
+  setTimeout(() => el('project-edit-name-input')?.focus(), 50);
+}
+
 // Wire up tab renderer callbacks to avoid circular dependencies
 setEnvironmentsRenderer(renderEnvironmentsPanel);
 setSettingsRenderer(renderSettingsPanel);
@@ -160,8 +194,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await addProjectFromActiveTab();
   });
 
-  // "Add project" button in the Environments panel — smart creation from active tab
-  el('add-group-btn').addEventListener('click', () => addProjectFromActiveTab());
+  // "Add project" button in the Environments panel — blank project, focus on name
+  el('add-group-btn').addEventListener('click', () => addEmptyProject());
 
   await renderJumperPanel();
 });
