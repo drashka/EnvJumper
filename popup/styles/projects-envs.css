@@ -162,6 +162,10 @@
   gap: 10px;
 }
 
+.env-auth-cols .field-label {
+  padding: 6px 0 2px;
+}
+
 .env-manage-row {
   display: flex;
   gap: 6px;
