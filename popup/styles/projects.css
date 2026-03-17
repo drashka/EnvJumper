@@ -22,7 +22,7 @@
   overflow-y: auto;
   height: 100%;
   box-sizing: border-box;
-  padding: 14px;
+  padding: var(--space-md);
 }
 
 /* Vue édition : pas de padding/scroll global — gérés par les enfants */
@@ -38,11 +38,11 @@
 .project-list-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  margin-bottom: 6px;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-sm);
   cursor: pointer;
   background: var(--color-surface);
   transition: background 0.12s, border-color 0.12s;
@@ -74,8 +74,8 @@
 }
 
 .project-list-name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -85,11 +85,11 @@
 
 .project-list-badge {
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-muted);
   background: var(--color-bg);
   border: 1px solid var(--color-border-light);
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   padding: 1px 7px;
 }
 
@@ -107,8 +107,8 @@
 .project-edit-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 14px 12px;
+  gap: var(--space-md);
+  padding: var(--space-md);
   border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
@@ -117,11 +117,11 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 8px;
+  padding: 4px var(--space-sm);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
   cursor: pointer;
   white-space: nowrap;
@@ -136,7 +136,7 @@
 .project-edit-title-area {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
   flex: 1;
   min-width: 0;
 }
@@ -151,11 +151,11 @@
 .project-edit-name-input {
   flex: 1;
   min-width: 0;
-  padding: 4px 8px;
+  padding: 4px var(--space-sm);
   border: 1px solid transparent;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
   background: none;
   color: var(--color-text);
 }
@@ -186,9 +186,9 @@
 }
 
 .project-subtab {
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   color: var(--color-text-secondary);
   background: none;
   border: none;
@@ -214,5 +214,5 @@
 }
 
 .editing-content-inner {
-  padding: 14px;
+  padding: var(--space-md);
 }
