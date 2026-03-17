@@ -11,6 +11,67 @@
 
 .general-settings-section { padding: var(--space-md) 0 4px; }
 
+.general-settings-section .toggle-row {
+  margin-bottom: var(--space-sm);
+}
+
+/* Label sub-options — smooth show/hide when label toggle changes */
+.marker-position-wrapper {
+  overflow: hidden;
+  max-height: 160px;
+  opacity: 1;
+  transition: max-height 0.2s ease, opacity 0.2s ease;
+  margin-bottom: var(--space-sm);
+}
+
+.marker-position-wrapper--hidden {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* 2-column layout: position diagram | size picker */
+.marker-label-cols {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.marker-label-cols .field-label {
+  margin-bottom: 8px;
+}
+
+/* Size buttons */
+.label-size-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.size-btn {
+  width: 36px;
+  height: 26px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+
+.size-btn:hover {
+  background: var(--color-surface);
+  border-color: var(--color-text-secondary);
+}
+
+.size-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
 .position-diagram {
   position: relative;
   width: 200px;

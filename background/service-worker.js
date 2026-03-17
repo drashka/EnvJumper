@@ -22,12 +22,6 @@ async function updateBadge(tabId, url) {
     return;
   }
 
-  const localResult = await chrome.storage.local.get(['stealthMode']);
-  if (localResult.stealthMode) {
-    chrome.action.setBadgeText({ tabId, text: '' });
-    return;
-  }
-
   let host;
   try {
     host = new URL(url).host;
@@ -98,6 +92,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onStartup.addListener(() => {
+  // Clean up any legacy stealthMode key from older versions
   chrome.storage.local.remove('stealthMode');
 });
 
@@ -127,12 +122,4 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
     if (tab) updateBadge(tab.id, tab.url);
   }
 
-  if (area === 'local' && 'stealthMode' in changes) {
-    const tabs = await chrome.tabs.query({});
-    for (const tab of tabs) {
-      if (tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('about:')) {
-        updateBadge(tab.id, tab.url);
-      }
-    }
-  }
 });

@@ -52,12 +52,26 @@ export async function saveGroups(groups) {
 
 /**
  * Retrieves global settings from chrome.storage.sync.
+ * Applies defaults and migrates legacy badgePosition → labelPosition.
  * @returns {Promise<object>}
  */
 export async function getSettings() {
   return new Promise((resolve) => {
     chrome.storage.sync.get(['settings'], (result) => {
-      resolve(result.settings || { badgePosition: 'top-left' });
+      const s = result.settings || {};
+      // Migration: badgePosition → labelPosition
+      if (s.badgePosition !== undefined && s.labelPosition === undefined) {
+        s.labelPosition = s.badgePosition;
+        delete s.badgePosition;
+        chrome.storage.sync.set({ settings: s });
+      }
+      resolve({
+        showFrame: true,
+        showLabel: true,
+        labelPosition: 'top-left',
+        labelSize: 'm',
+        ...s,
+      });
     });
   });
 }

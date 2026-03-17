@@ -78,8 +78,10 @@ async function addProjectFromActiveTab() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab && tab.url) {
       const url = new URL(tab.url);
-      hostname = url.hostname;
-      protocol = url.protocol.replace(':', '');
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        hostname = url.hostname;
+        protocol = url.protocol.replace(':', '');
+      }
     }
   } catch {}
 
@@ -149,36 +151,6 @@ async function addEmptyProject() {
 setEnvironmentsRenderer(renderEnvironmentsPanel);
 setSettingsRenderer(renderSettingsPanel);
 
-/**
- * Initializes the stealth mode toggle button.
- */
-async function initStealthButton() {
-  const btn = el('stealth-btn');
-  if (!btn) return;
-
-  btn.title = t('stealthModeToggle');
-
-  const initResult = await chrome.storage.local.get(['stealthMode']);
-  let stealthMode = !!initResult.stealthMode;
-
-  btn.classList.toggle('active', stealthMode);
-
-  btn.addEventListener('click', async () => {
-    const currentResult = await chrome.storage.local.get(['stealthMode']);
-    const next = !currentResult.stealthMode;
-    await chrome.storage.local.set({ stealthMode: next });
-    btn.classList.toggle('active', next);
-    btn.title = t('stealthModeToggle');
-
-    try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab && tab.id) {
-        chrome.tabs.sendMessage(tab.id, { type: 'STEALTH_MODE_CHANGED', stealthMode: next }).catch(() => {});
-      }
-    } catch {}
-  });
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   await migrateData();
   applyI18n();
@@ -186,7 +158,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initJumper();
   initEnvironmentsPanel({ onBack: renderEnvironmentsPanel });
   initExportImport();
-  await initStealthButton();
 
   // "Add a project" button shown on the Jumper no-match state — smart creation
   el('goto-settings-btn').addEventListener('click', async () => {

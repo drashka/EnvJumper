@@ -75,8 +75,9 @@ export async function renderJumperPanel() {
     return;
   }
 
-  if (!tab || !tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('about:')) {
+  if (!tab || !tab.url || (!tab.url.startsWith('http://') && !tab.url.startsWith('https://'))) {
     hide('jumper-loading');
+    el('detected-hostname').style.display = 'none';
     show('jumper-no-match');
     return;
   }
@@ -96,7 +97,14 @@ export async function renderJumperPanel() {
   hide('jumper-loading');
 
   if (!match) {
-    el('detected-hostname').textContent = t('detectedHostname', hostname);
+    const hostnameEl = el('detected-hostname');
+    if (hostname) {
+      hostnameEl.textContent = t('detectedHostname', hostname);
+      hostnameEl.style.display = '';
+    } else {
+      hostnameEl.textContent = '';
+      hostnameEl.style.display = 'none';
+    }
     show('jumper-no-match');
     return;
   }

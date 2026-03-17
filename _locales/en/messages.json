@@ -10,6 +10,10 @@
   "deleteProject": { "message": "Delete project" },
   "deleteEnvironment": { "message": "Delete environment" },
   "displaySection": { "message": "Display" },
+  "markerSection": { "message": "Environment Marker" },
+  "showFrame": { "message": "Show color frame" },
+  "showLabel": { "message": "Show environment label" },
+  "labelSizeLabel": { "message": "Size" },
   "dataSection": { "message": "Data" },
 
   "noMatchText": { "message": "No matching project for this URL." },
@@ -115,7 +119,6 @@
   "cmsLinkAdministration": { "message": "Administration" },
   "confirmDisableCms": { "message": "Changing CMS will delete $COUNT$ predefined link(s). Continue?", "placeholders": { "count": { "content": "$1" } } },
 
-  "stealthModeToggle": { "message": "Stealth mode — hide border and badge" },
 
   "envProtocolLabel": { "message": "Protocol (HTTPS or HTTP)" },
   "colorLabel": { "message": "Color" },

@@ -10,6 +10,10 @@
   "deleteProject": { "message": "Supprimer le projet" },
   "deleteEnvironment": { "message": "Supprimer l'environnement" },
   "displaySection": { "message": "Affichage" },
+  "markerSection": { "message": "Marqueur d'environnement" },
+  "showFrame": { "message": "Afficher le cadre de couleur" },
+  "showLabel": { "message": "Afficher le label d'environnement" },
+  "labelSizeLabel": { "message": "Taille" },
   "dataSection": { "message": "Données" },
 
   "noMatchText": { "message": "Aucun projet reconnu pour cette URL." },
@@ -115,7 +119,6 @@
   "cmsLinkAdministration": { "message": "Administration" },
   "confirmDisableCms": { "message": "Changer de CMS supprimera les $COUNT$ lien(s) prédéfini(s). Continuer ?", "placeholders": { "count": { "content": "$1" } } },
 
-  "stealthModeToggle": { "message": "Mode discret — masquer bordure et badge" },
 
   "envProtocolLabel": { "message": "Protocole (HTTPS ou HTTP)" },
   "colorLabel": { "message": "Couleur" },
