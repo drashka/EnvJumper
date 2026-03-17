@@ -36,6 +36,17 @@ async function _doRebuildContextMenus() {
         chrome.contextMenus.create({ id: 'envjump-root', title: 'EnvJumper', contexts: ['link'], documentUrlPatterns });
 
         groups.forEach((group) => {
+          // Build patterns restricted to this group's domains only
+          const groupDomains = new Set();
+          (group.environments || []).forEach((env) => { if (env.domain) groupDomains.add(env.domain); });
+          if (group.isWordPressMultisite && group.wpSites && group.wpMultisiteType === 'subdomain') {
+            (group.environments || []).forEach((env) => {
+              (group.wpSites || []).forEach((site) => { if (site.prefix) groupDomains.add(`${site.prefix}.${env.domain}`); });
+            });
+          }
+          if (!groupDomains.size) return;
+          const groupPatterns = [...groupDomains].flatMap((d) => [`http://${d}/*`, `https://${d}/*`]);
+
           (group.environments || []).forEach((env) => {
             if (!env.domain) return;
             chrome.contextMenus.create({
@@ -43,7 +54,7 @@ async function _doRebuildContextMenus() {
               parentId: 'envjump-root',
               title: `${group.name} → ${env.name}`,
               contexts: ['link'],
-              documentUrlPatterns,
+              documentUrlPatterns: groupPatterns,
             });
           });
         });
