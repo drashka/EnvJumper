@@ -91,10 +91,6 @@ chrome.runtime.onInstalled.addListener(() => {
   rebuildContextMenus();
 });
 
-chrome.runtime.onStartup.addListener(() => {
-  // Clean up any legacy stealthMode key from older versions
-  chrome.storage.local.remove('stealthMode');
-});
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {

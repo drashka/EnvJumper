@@ -118,7 +118,7 @@
             break outer;
           }
         }
-        // Current format: wpSites with prefix at group level
+        // WP Multisite: wpSites with prefix at group level
         if (group.isWordPressMultisite && group.wpSites) {
           const type = group.wpMultisiteType || 'subdomain';
           for (const env of group.environments) {
@@ -127,18 +127,6 @@
                 ? env.domain
                 : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
               if (siteHost === host) {
-                matchColor = env.color;
-                matchLabel = env.name;
-                break outer;
-              }
-            }
-          }
-        }
-        // Legacy: wpSites with domain field at env level (old format)
-        for (const env of group.environments) {
-          if (env.isWordPressMultisite && env.wpSites) {
-            for (const site of env.wpSites) {
-              if (site.domain === host) {
                 matchColor = env.color;
                 matchLabel = env.name;
                 break outer;

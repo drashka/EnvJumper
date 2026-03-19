@@ -65,7 +65,7 @@ export function buildLinkSettingsRow(groupId, group, link, linksList) {
   row.appendChild(handle);
 
   // Icon picker
-  const iconPicker = buildIconPicker(link.icon || link.iconKey || 'link', (iconName) => {
+  const iconPicker = buildIconPicker(link.icon || 'link', (iconName) => {
     saveLinkField(groupId, link.id, 'icon', iconName);
   });
   row.appendChild(iconPicker);

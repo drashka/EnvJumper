@@ -20,6 +20,7 @@ export function initJumper() {
 
 /**
  * Finds the group and environment matching a given hostname.
+ * Supports direct domain match and WP Multisite prefix-based subdomains.
  * @param {Array} groups
  * @param {string} hostname
  * @returns {{ group: object, env: object }|null}
@@ -37,20 +38,6 @@ export function findMatch(groups, hostname) {
             ? env.domain
             : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
           if (siteHost === hostname) return { group, env };
-        }
-      }
-      // Legacy: wpSites with domain field at group level
-      for (const site of group.wpSites) {
-        if (site.domain && site.domain === hostname) {
-          return { group, env: group.environments[0] || null };
-        }
-      }
-    }
-    // Legacy: wpSites with domain field at env level (oldest format)
-    for (const env of group.environments) {
-      if (env.isWordPressMultisite && env.wpSites) {
-        for (const site of env.wpSites) {
-          if (site.domain === hostname) return { group, env };
         }
       }
     }

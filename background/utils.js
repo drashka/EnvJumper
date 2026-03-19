@@ -4,8 +4,7 @@
 
 /**
  * Finds the environment matching a given host in the groups.
- * Supports direct domain match, WP Multisite prefix-based subdomains,
- * and legacy domain-based sites.
+ * Supports direct domain match and WP Multisite prefix-based subdomains.
  * @param {Array} groups
  * @param {string} host - hostname or hostname:port
  * @returns {{env: object, group: object}|null}
@@ -23,20 +22,6 @@ export function findMatch(groups, host) {
             ? env.domain
             : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
           if (siteHost === host) return { env, group };
-        }
-      }
-      // Legacy: wpSites with domain field at group level
-      for (const site of group.wpSites) {
-        if (site.domain && site.domain === host) {
-          return { env: group.environments[0] || null, group };
-        }
-      }
-    }
-    // Legacy: wpSites with domain field at env level (oldest format)
-    for (const env of group.environments) {
-      if (env.isWordPressMultisite && env.wpSites) {
-        for (const site of env.wpSites) {
-          if (site.domain === host) return { env, group };
         }
       }
     }

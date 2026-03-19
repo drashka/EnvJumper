@@ -3,7 +3,7 @@
 // Licence : GPL v3 — voir le fichier LICENSE
 
 import { applyI18n, t } from './modules/i18n.js';
-import { migrateData, generateId, getGroups, saveGroups, COLOR_PALETTE } from './modules/helpers/storage.js';
+import { generateId, getGroups, saveGroups, COLOR_PALETTE } from './modules/helpers/storage.js';
 import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } from './modules/tabs.js';
 import { renderJumperPanel, initJumper } from './modules/jumper/jumper.js';
 import { initExportImport } from './modules/settings/import-export.js';
@@ -154,7 +154,6 @@ setEnvironmentsRenderer(renderEnvironmentsPanel);
 setSettingsRenderer(renderSettingsPanel);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await migrateData();
   applyI18n();
   initTabs();
   initJumper();
