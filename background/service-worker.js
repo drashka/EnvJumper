@@ -30,7 +30,7 @@ async function updateBadge(tabId, url) {
     return;
   }
 
-  const result = await chrome.storage.sync.get(['groups']);
+  const result = await chrome.storage.local.get(['groups']);
   const groups = result.groups || [];
   const match = findMatch(groups, host);
 
@@ -54,7 +54,7 @@ async function updateBadge(tabId, url) {
 let authCache = new Map();
 
 async function loadAuthCache() {
-  const { groups = [] } = await chrome.storage.sync.get('groups');
+  const { groups = [] } = await chrome.storage.local.get('groups');
   authCache.clear();
   for (const group of groups) {
     for (const env of group.environments || []) {
@@ -113,13 +113,14 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 });
 
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === 'sync') {
-    if (changes.groups) {
-      rebuildContextMenus();
-      loadAuthCache();
-    }
+  if (area === 'local' && changes.groups) {
+    rebuildContextMenus();
+    loadAuthCache();
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab) updateBadge(tab.id, tab.url);
   }
-
+  if (area === 'sync' && changes.settings) {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab) updateBadge(tab.id, tab.url);
+  }
 });

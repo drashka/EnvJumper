@@ -97,9 +97,10 @@
   function checkAndApplyBorder() {
     const host = window.location.host;
 
-    chrome.storage.sync.get(['groups', 'settings'], (result) => {
-      const groups = result.groups || [];
-      const s = result.settings || {};
+    chrome.storage.local.get(['groups'], (localResult) => {
+    chrome.storage.sync.get(['settings'], (syncResult) => {
+      const groups = localResult.groups || [];
+      const s = syncResult.settings || {};
       const showFrame = s.showFrame !== false;
       const showLabel = s.showLabel !== false;
       const position = s.labelPosition || 'top-left';
@@ -155,6 +156,7 @@
         fontSize
       );
     });
+    });
   }
 
   /**
@@ -173,7 +175,7 @@
 
   // React to storage changes (config or settings modified)
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync') checkAndApplyBorder();
+    if (area === 'sync' || area === 'local') checkAndApplyBorder();
   });
 
   // Listen for messages from the service worker or popup

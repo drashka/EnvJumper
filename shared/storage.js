@@ -13,8 +13,14 @@
  */
 async function getGroups() {
   return new Promise((resolve) => {
-    chrome.storage.sync.get(['groups'], (result) => {
-      resolve(result.groups || []);
+    chrome.storage.local.get(['groups'], (localResult) => {
+      if (localResult.groups && localResult.groups.length > 0) {
+        resolve(localResult.groups);
+      } else {
+        chrome.storage.sync.get(['groups'], (syncResult) => {
+          resolve(syncResult.groups || []);
+        });
+      }
     });
   });
 }
@@ -26,7 +32,7 @@ async function getGroups() {
  */
 async function saveGroups(groups) {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.set({ groups }, () => {
+    chrome.storage.local.set({ groups }, () => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError);
       } else {

@@ -52,7 +52,7 @@ export function initExportImport() {
     const baCheck = document.createElement('input');
     baCheck.type = 'checkbox';
     baCheck.id = 'export-basicauth-check';
-    baCheck.checked = false;
+    baCheck.checked = true;
     const baLabel = document.createElement('label');
     baLabel.htmlFor = 'export-basicauth-check';
     baLabel.className = 'export-basicauth-label';
@@ -63,7 +63,7 @@ export function initExportImport() {
 
     // Warning shown when checked
     const baWarning = document.createElement('p');
-    baWarning.className = 'export-basicauth-warning hidden';
+    baWarning.className = 'export-basicauth-warning';
     baWarning.textContent = t('exportBasicAuthWarning');
     exportRow.parentNode.insertBefore(baWarning, exportRow);
 

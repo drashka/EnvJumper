@@ -27,23 +27,33 @@ export function generateId() {
 }
 
 /**
- * Retrieves all groups from chrome.storage.sync.
+ * Retrieves all groups from chrome.storage.local.
+ * Falls back to chrome.storage.sync for one-time migration of existing data.
  * @returns {Promise<Array>}
  */
 export async function getGroups() {
   return new Promise((resolve) => {
-    chrome.storage.sync.get(['groups'], (result) => resolve(result.groups || []));
+    chrome.storage.local.get(['groups'], (localResult) => {
+      if (localResult.groups && localResult.groups.length > 0) {
+        resolve(localResult.groups);
+      } else {
+        // Fallback: migrate from sync storage (legacy)
+        chrome.storage.sync.get(['groups'], (syncResult) => {
+          resolve(syncResult.groups || []);
+        });
+      }
+    });
   });
 }
 
 /**
- * Persists all groups to chrome.storage.sync.
+ * Persists all groups to chrome.storage.local.
  * @param {Array} groups
  * @returns {Promise<void>}
  */
 export async function saveGroups(groups) {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.set({ groups }, () => {
+    chrome.storage.local.set({ groups }, () => {
       if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
       else resolve();
     });
@@ -96,6 +106,25 @@ export async function saveSettings(settings) {
  * Also ensures every group has all expected fields.
  */
 export async function migrateData() {
+  // One-time migration: move groups from sync → local if not yet done
+  await new Promise((resolve) => {
+    chrome.storage.local.get(['groups', 'syncMigrationDone'], (localResult) => {
+      if (localResult.syncMigrationDone || (localResult.groups && localResult.groups.length > 0)) {
+        resolve();
+      } else {
+        chrome.storage.sync.get(['groups'], (syncResult) => {
+          if (syncResult.groups && syncResult.groups.length > 0) {
+            chrome.storage.local.set({ groups: syncResult.groups, syncMigrationDone: true }, () => {
+              chrome.storage.sync.remove('groups', resolve);
+            });
+          } else {
+            chrome.storage.local.set({ syncMigrationDone: true }, resolve);
+          }
+        });
+      }
+    });
+  });
+
   const groups = await getGroups();
   let dirty = false;
 

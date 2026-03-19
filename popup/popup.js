@@ -92,10 +92,11 @@ async function addProjectFromActiveTab() {
   const newGroup = {
     id: generateId(),
     name: projectName,
-    isWordPress: false,
-    wpLoginPath: '/wp-login.php',
+    cms: 'none',
+    cmsLoginPath: '',
+    cmsAdminPath: '',
     isWordPressMultisite: false,
-    wpNetworkDomain: '',
+    wpMultisiteType: 'subdomain',
     wpSites: [],
     links: [],
     environments: hostname ? [{
@@ -123,10 +124,11 @@ async function addEmptyProject() {
   const newGroup = {
     id: generateId(),
     name: '',
-    isWordPress: false,
-    wpLoginPath: '/wp-login.php',
+    cms: 'none',
+    cmsLoginPath: '',
+    cmsAdminPath: '',
     isWordPressMultisite: false,
-    wpNetworkDomain: '',
+    wpMultisiteType: 'subdomain',
     wpSites: [],
     links: [],
     environments: [{

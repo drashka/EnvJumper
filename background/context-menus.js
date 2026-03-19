@@ -18,7 +18,7 @@ export function rebuildContextMenus() {
 async function _doRebuildContextMenus() {
   return new Promise((resolve) => {
     chrome.contextMenus.removeAll(() => {
-      chrome.storage.sync.get(['groups'], ({ groups = [] }) => {
+      chrome.storage.local.get(['groups'], ({ groups = [] }) => {
         const allDomains = new Set();
         groups.forEach((group) => {
           group.environments.forEach((env) => { if (env.domain) allDomains.add(env.domain); });
@@ -74,7 +74,7 @@ export function initContextMenuListener() {
     if (!info.menuItemId || !String(info.menuItemId).startsWith('envjump-env-')) return;
     const envId = String(info.menuItemId).replace('envjump-env-', '');
 
-    chrome.storage.sync.get(['groups'], ({ groups = [] }) => {
+    chrome.storage.local.get(['groups'], ({ groups = [] }) => {
       let targetEnv = null;
       let targetGroup = null;
       for (const group of groups) {
