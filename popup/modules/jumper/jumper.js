@@ -9,6 +9,7 @@ import { getWpLoginStatus } from '../projects/wordpress.js';
 import { hideSiteSelector } from './jumper-multisite.js';
 import { buildJumperCardBody } from './jumper-links.js';
 import { renderNoMatchPanel, hideProjectChooser } from './jumper-no-match.js';
+import { findMatch } from '../../../background/utils.js';
 
 /** Callback set by popup.js to handle no-match action buttons. */
 let _noMatchActions = null;
@@ -31,33 +32,6 @@ export function initJumper() {
   if (backBtn) backBtn.addEventListener('click', hideSiteSelector);
   const backBtn2 = el('jumper-choose-project-back-btn');
   if (backBtn2) backBtn2.addEventListener('click', hideProjectChooser);
-}
-
-/**
- * Finds the group and environment matching a given hostname.
- * Supports direct domain match and WP Multisite prefix-based subdomains.
- * @param {Array} groups
- * @param {string} hostname
- * @returns {{ group: object, env: object }|null}
- */
-export function findMatch(groups, hostname) {
-  for (const group of groups) {
-    for (const env of group.environments) {
-      if (env.domain === hostname) return { group, env };
-    }
-    if (group.isWordPressMultisite && group.wpSites) {
-      const type = group.wpMultisiteType || 'subdomain';
-      for (const env of group.environments) {
-        for (const site of group.wpSites) {
-          const siteHost = type === 'subdirectory'
-            ? env.domain
-            : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
-          if (siteHost === hostname) return { group, env };
-        }
-      }
-    }
-  }
-  return null;
 }
 
 /**

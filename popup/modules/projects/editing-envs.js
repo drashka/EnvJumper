@@ -19,7 +19,7 @@ export function buildEnvsSubtab(container, group, { onClose, onRefresh }) {
   container.appendChild(envList);
 
   const btnAddEnv = document.createElement('button');
-  btnAddEnv.className = 'btn btn-sm btn-outline btn-full';
+  btnAddEnv.className = 'btn btn-sm btn-outline btn-full btn-add-env';
   btnAddEnv.style.marginTop = '8px';
   btnAddEnv.textContent = t('addEnv');
   btnAddEnv.addEventListener('click', async () => {
@@ -41,7 +41,7 @@ export function buildEnvsSubtab(container, group, { onClose, onRefresh }) {
 /** Builds the "Paramètres" sub-tab content (delete project). */
 export function buildProjectSettingsSubtab(container, group, { onClose, onRefresh }) {
   const btnDelete = document.createElement('button');
-  btnDelete.className = 'btn btn-sm btn-danger btn-full';
+  btnDelete.className = 'btn btn-sm btn-danger btn-full btn-delete-project';
   btnDelete.style.marginTop = '20px';
   btnDelete.textContent = t('deleteProject');
   btnDelete.addEventListener('click', async () => {
@@ -121,7 +121,7 @@ export function buildEnvItem(groupId, env, editingGroup, { expanded = false } = 
   // Name input
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
-  nameInput.className = 'input-sm';
+  nameInput.className = 'input-sm env-name-input';
   nameInput.placeholder = t('envNamePlaceholder');
   nameInput.value = env.name || '';
   nameInput.addEventListener('change', () => {
@@ -148,7 +148,7 @@ export function buildEnvItem(groupId, env, editingGroup, { expanded = false } = 
 
   const domainInput = document.createElement('input');
   domainInput.type = 'text';
-  domainInput.className = 'input-sm';
+  domainInput.className = 'input-sm env-domain-input';
   domainInput.placeholder = t('envDomainPlaceholder');
   domainInput.value = env.domain || '';
   domainInput.addEventListener('change', () => {

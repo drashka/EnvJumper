@@ -53,6 +53,7 @@ export function buildLinkSettingsRow(groupId, group, link, linksList, callbacks 
   row.className = 'link-settings-row';
   row.setAttribute('draggable', 'true');
   row.dataset.linkId = link.id;
+  if (link.cmsLinkId) row.dataset.cmsLinkId = link.cmsLinkId;
 
   // Drag handle
   const handle = document.createElement('span');
@@ -79,7 +80,7 @@ export function buildLinkSettingsRow(groupId, group, link, linksList, callbacks 
   // Path input
   const pathInput = document.createElement('input');
   pathInput.type = 'text';
-  pathInput.className = 'input-sm';
+  pathInput.className = 'input-sm link-path-input';
   pathInput.style.flex = '1.5';
   pathInput.placeholder = t('linkPathPlaceholder');
   pathInput.value = link.path || '/';
@@ -282,6 +283,7 @@ function _buildAvailableCmsLinksZone(groupId, group, linksList, refresh) {
   available.forEach((defLink) => {
     const row = document.createElement('div');
     row.className = 'available-cms-link-row';
+    row.dataset.cmsLinkId = defLink.cmsLinkId;
 
     const btnRestore = document.createElement('button');
     btnRestore.type = 'button';

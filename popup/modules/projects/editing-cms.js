@@ -230,7 +230,7 @@ export function buildWpMultisiteFields(groupId, group, container) {
   container.appendChild(sitesList);
 
   const btnAddSite = document.createElement('button');
-  btnAddSite.className = 'btn btn-sm btn-outline btn-full';
+  btnAddSite.className = 'btn btn-sm btn-outline btn-full btn-add-wp-site';
   btnAddSite.style.marginTop = '5px';
   btnAddSite.textContent = t('addWpSite');
   btnAddSite.addEventListener('click', async () => {

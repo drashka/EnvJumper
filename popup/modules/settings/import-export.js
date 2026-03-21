@@ -27,7 +27,7 @@ function downloadJson(data, filename) {
  * @param {object} data
  * @returns {boolean}
  */
-function validateImportData(data) {
+export function validateImportData(data) {
   if (!data || typeof data !== 'object') return false;
   if (!Array.isArray(data.groups)) return false;
   for (const g of data.groups) {
@@ -37,6 +37,22 @@ function validateImportData(data) {
     }
   }
   return true;
+}
+
+/**
+ * Returns a copy of groups with all basicAuth credentials removed from environments.
+ * The original array is not mutated.
+ * @param {Array} groups
+ * @returns {Array}
+ */
+export function stripBasicAuth(groups) {
+  return groups.map((g) => ({
+    ...g,
+    environments: g.environments.map((env) => {
+      const { basicAuth, ...rest } = env;
+      return rest;
+    }),
+  }));
 }
 
 /**
@@ -75,16 +91,6 @@ export function initExportImport() {
   function includeBasicAuth() {
     const cb = el('export-basicauth-check');
     return cb ? cb.checked : false;
-  }
-
-  function stripBasicAuth(groups) {
-    return groups.map((g) => ({
-      ...g,
-      environments: g.environments.map((env) => {
-        const { basicAuth, ...rest } = env;
-        return rest;
-      }),
-    }));
   }
 
   // Export all (includes global settings)
