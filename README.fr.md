@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="envjumper/icons/logo-envjumper-small.png" alt="EnvJumper" width="200">
+  <img src="icons/logo-envjumper.png" alt="EnvJumper" width="200">
 </p>
 
 <p align="center">
@@ -19,7 +19,7 @@ EnvJumper est une extension Chrome qui permet de naviguer instantanément entre 
 ## Fonctionnalités
 
 - **Switch en un clic** — Passez de `prod.exemple.com/ma-page` à `staging.exemple.com/ma-page` sans retaper l'URL
-- **Bordure colorée** — Identifiez visuellement l'environnement actif grâce à une bordure autour de la page (12 couleurs au choix)
+- **Bordure colorée** — Identifiez visuellement l'environnement actif grâce à une bordure autour de la page (6 couleurs au choix)
 - **Multi-projets** — Gérez plusieurs projets, chacun avec ses propres environnements
 - **Multi-CMS** — Liens rapides prédéfinis pour WordPress, Joomla, Drupal, PrestaShop, Magento et Shopify
 - **WordPress Multisite** — Ouvrez un permalien sur tous les sites du réseau en un clic, accédez au Network Admin et aux plugins (modes sous-domaines et sous-dossiers)
@@ -28,7 +28,7 @@ EnvJumper est une extension Chrome qui permet de naviguer instantanément entre 
 - **Mode discret** — Masquez la bordure colorée et le badge quand nécessaire
 - **Export / Import** — Partagez votre configuration entre collègues via un fichier JSON
 - **Thème clair / sombre** — Détection automatique selon la préférence système
-- **Synchronisé** — La configuration se synchronise entre vos appareils Chrome via `chrome.storage.sync`
+- **Réglages synchronisés** — Les préférences d'affichage (bordure, badge, position) se synchronisent entre vos appareils Chrome via `chrome.storage.sync`
 
 ## Pour qui ?
 
@@ -59,7 +59,7 @@ L'icône EnvJumper apparaît dans votre barre d'extensions.
 
 1. Cliquez sur l'icône EnvJumper
 2. Allez dans l'onglet **Projets**
-3. Cliquez sur **+ Ajouter un projet** — EnvJumper détecte automatiquement l'URL de l'onglet actif et pré-remplit le nom du projet et le premier environnement
+3. Cliquez sur **+ Ajouter un projet** — crée un projet vierge prêt à remplir, ou utilisez **Jumper → Nouveau projet** pour auto-détecter l'URL de l'onglet actif
 4. Ajustez le nom, le domaine et la couleur, puis ajoutez d'autres environnements :
    - Production → `exemple.com` → 🔴 Rouge
    - Staging → `staging.exemple.com` → 🟠 Orange
@@ -96,8 +96,8 @@ Dans les paramètres d'un environnement, activez Basic Auth et renseignez vos id
 
 ### Partager sa configuration
 
-- **Exporter** : onglet Projets → exporter tout ou un seul groupe → fichier JSON téléchargé
-- **Importer** : onglet Projets → importer → sélectionnez un fichier JSON → choisissez de remplacer ou fusionner
+- **Exporter** : onglet Paramètres → exporter tout ou un seul groupe → fichier JSON téléchargé (avec option d'inclure les identifiants Basic Auth)
+- **Importer** : onglet Paramètres → importer → sélectionnez un fichier JSON → choisissez de remplacer ou fusionner
 
 ---
 
@@ -108,6 +108,27 @@ Dans les paramètres d'un environnement, activez Basic Auth et renseignez vos id
 - **CSS custom** — design sobre et professionnel, sans framework
 - **Lucide Icons** — jeu d'icônes SVG léger
 - **chrome.storage.sync** — configuration synchronisée entre appareils
+
+---
+
+## Développement
+
+### Installation
+
+```bash
+git clone https://github.com/drashka/EnvJumper.git
+cd EnvJumper
+npm install
+npx playwright install chromium
+```
+
+### Lancer les tests
+
+```bash
+npm test
+```
+
+La suite de tests utilise [Playwright](https://playwright.dev/) pour exécuter des tests end-to-end sur une instance Chrome réelle avec l'extension chargée. 29 tests couvrent le panneau Jumper, l'édition des environnements, la configuration CMS, les réglages et l'export/import.
 
 ---
 
@@ -133,4 +154,4 @@ Vous êtes libre d'utiliser, modifier et redistribuer ce logiciel, à condition 
 
 ## Auteur
 
-Créé avec ❤️ par [Drashka](https://github.com/drashka) pour simplifier le quotidien des équipes web.
+Vibe codé avec ❤️ par [Drashka](https://github.com/drashka) et Claude Code pour simplifier le quotidien des équipes web.

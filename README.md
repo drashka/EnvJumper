@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="envjumper/icons/logo-envjumper-small.png" alt="EnvJumper" width="200">
+  <img src="icons/logo-envjumper.png" alt="EnvJumper" width="200">
 </p>
 
 <p align="center">
@@ -19,7 +19,7 @@ EnvJumper is a Chrome extension that lets you instantly switch between environme
 ## Features
 
 - **One-click switch** — Go from `prod.example.com/my-page` to `staging.example.com/my-page` without retyping the URL
-- **Colored border** — Visually identify the active environment with a border around the page (12 colors available)
+- **Colored border** — Visually identify the active environment with a border around the page (6 colors available)
 - **Multi-project** — Manage multiple projects, each with its own environments
 - **Multi-CMS** — Built-in quick links for WordPress, Joomla, Drupal, PrestaShop, Magento and Shopify
 - **WordPress Multisite** — Open a permalink on all network sites at once, access Network Admin and plugins (subdomain and subdirectory modes)
@@ -28,7 +28,7 @@ EnvJumper is a Chrome extension that lets you instantly switch between environme
 - **Stealth mode** — Hide the colored border and badge when needed
 - **Export / Import** — Share your configuration with teammates via a JSON file
 - **Light / Dark theme** — Automatic detection via system preference
-- **Synced** — Configuration syncs across your Chrome devices via `chrome.storage.sync`
+- **Synced settings** — Display preferences (border, badge, position) sync across your Chrome devices via `chrome.storage.sync`
 
 ## Who is it for?
 
@@ -59,7 +59,7 @@ The EnvJumper icon will appear in your extensions bar.
 
 1. Click the EnvJumper icon
 2. Go to the **Projects** tab
-3. Click **+ Add a project** — EnvJumper auto-detects the current tab's URL and pre-fills the project name and first environment
+3. Click **+ Add a project** — creates a blank project ready to fill in, or click **Jumper → New project** to auto-detect the current tab's URL
 4. Adjust the name, domain and color, then add more environments as needed:
    - Production → `example.com` → 🔴 Red
    - Staging → `staging.example.com` → 🟠 Orange
@@ -96,8 +96,8 @@ In the environment settings, enable Basic Auth and enter your credentials. EnvJu
 
 ### Share your configuration
 
-- **Export**: Projects tab → export all or a single group → downloads a JSON file
-- **Import**: Projects tab → import → select a JSON file → choose to merge or replace
+- **Export**: Settings tab → export all or a single group → downloads a JSON file (optionally includes Basic Auth credentials)
+- **Import**: Settings tab → import → select a JSON file → choose to merge or replace
 
 ---
 
@@ -108,6 +108,27 @@ In the environment settings, enable Basic Auth and enter your credentials. EnvJu
 - **Custom CSS** — clean and professional design, no framework
 - **Lucide Icons** — lightweight SVG icon set
 - **chrome.storage.sync** — configuration synced across devices
+
+---
+
+## Development
+
+### Setup
+
+```bash
+git clone https://github.com/drashka/EnvJumper.git
+cd EnvJumper
+npm install
+npx playwright install chromium
+```
+
+### Run the test suite
+
+```bash
+npm test
+```
+
+The test suite uses [Playwright](https://playwright.dev/) to run end-to-end tests against a real Chrome instance with the extension loaded. 29 tests cover the Jumper panel, environment editing, CMS configuration, settings, and export/import.
 
 ---
 
@@ -133,4 +154,4 @@ You are free to use, modify and redistribute this software, provided that any de
 
 ## Author
 
-Created with ❤️ by [Drashka](https://github.com/drashka) to simplify the daily life of web teams.
+Vibe coded with ❤️ by [Drashka](https://github.com/drashka) and Claude Code to simplify the daily life of web teams.

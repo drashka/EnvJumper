@@ -19,6 +19,12 @@
 *.pem
 *.zip
 
+# ─── Tests ────────────────────────────────────────────────────
+node_modules/
+test-results/
+playwright-report/
+.playwright/
+
 # ─── Logs ─────────────────────────────────────────────────────
 *.log
 npm-debug.log*
