@@ -145,25 +145,33 @@ export function initExportImport() {
       await saveSettings({ ...currentSettings, ...data.settings });
     }
 
+    const { renderJumperPanel } = await import('../jumper/jumper.js');
+    const refreshAll = async () => { await renderEnvironmentsPanel(); await renderJumperPanel(); };
+
+    const groups = await getGroups();
+
     if (importedGroups.length === 1) {
-      const groups = await getGroups();
       groups.push({ ...importedGroups[0], id: generateId() });
       await saveGroups(groups);
-      await renderEnvironmentsPanel();
+      await refreshAll();
       showImportSuccess(t('importSuccessGroup', importedGroups[0].name));
+    } else if (groups.length === 0) {
+      const newGroups = importedGroups.map((g) => ({ ...g, id: generateId() }));
+      await saveGroups(newGroups);
+      await refreshAll();
+      showImportSuccess(t('importSuccessMerge', String(newGroups.length)));
     } else {
       const choice = await showImportModal();
 
       if (choice === 'merge') {
-        const groups = await getGroups();
         const merged = [...groups, ...importedGroups.map((g) => ({ ...g, id: generateId() }))];
         await saveGroups(merged);
-        await renderEnvironmentsPanel();
+        await refreshAll();
         showImportSuccess(t('importSuccessMerge', String(importedGroups.length)));
       } else {
         const newGroups = importedGroups.map((g) => ({ ...g, id: generateId() }));
         await saveGroups(newGroups);
-        await renderEnvironmentsPanel();
+        await refreshAll();
         showImportSuccess(t('importSuccessReplace', String(newGroups.length)));
       }
     }
