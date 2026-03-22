@@ -116,6 +116,8 @@ function buildProjectListItem(group) {
       const groups = await getGroups();
       await saveGroups(groups.filter((g) => g.id !== group.id));
       await renderEnvironmentsPanel();
+      const { renderJumperPanel } = await import('../jumper/jumper.js');
+      await renderJumperPanel();
     }
   });
   item.appendChild(trashBtn);
