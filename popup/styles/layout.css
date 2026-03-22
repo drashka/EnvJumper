@@ -113,6 +113,14 @@ html, body {
 /* ─── Panneaux ─────────────────────────────────────────────── */
 
 .panel {
+  overflow: hidden;
+}
+
+#panel-jumper {
+  height: 480px;
+}
+
+#panel-settings {
   padding: var(--space-md);
   overflow-y: auto;
   max-height: 480px;
@@ -145,10 +153,15 @@ html, body {
 .jumper-views-row {
   position: relative;
   overflow: hidden;
+  height: 100%;
 }
 
 /* Main view slides out to the left */
 .jumper-view--main {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-md);
+  box-sizing: border-box;
   transition: transform 0.25s ease-in-out;
 }
 
@@ -163,9 +176,11 @@ html, body {
   top: 0;
   left: 0;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   transform: translateX(110%);
   transition: transform 0.25s ease-in-out;
-  box-sizing: border-box;
 }
 
 .jumper-view--sites.slide-in,
@@ -177,9 +192,9 @@ html, body {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-sm) 0 var(--space-md);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
   border-bottom: 1px solid var(--color-border-light);
-  margin-bottom: var(--space-sm);
+  flex-shrink: 0;
 }
 
 .jumper-back-btn {
@@ -223,27 +238,34 @@ html, body {
   text-overflow: ellipsis;
 }
 
-#jumper-sites-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
+#jumper-sites-list,
+#jumper-projects-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
 }
 
-.jumper-site-sep,
-.jumper-site-btn--outline {
-  grid-column: 1 / -1;
+#jumper-sites-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+}
+
+.jumper-site-sep {
+  width: 100%;
 }
 
 .jumper-site-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  padding: var(--space-sm) var(--space-md);
+  width: calc(50% - 2px);
+  padding: 5px var(--space-sm);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   color: var(--color-text);
   cursor: pointer;
   text-align: left;
@@ -255,18 +277,6 @@ html, body {
   border-color: var(--color-border);
 }
 
-.jumper-site-btn--outline {
-  background: none;
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  padding: var(--space-sm) var(--space-md);
-}
-
-.jumper-site-btn--outline:hover {
-  background: var(--color-surface);
-  color: var(--color-text);
-}
 
 .jumper-site-prefix {
   color: var(--color-text-muted);

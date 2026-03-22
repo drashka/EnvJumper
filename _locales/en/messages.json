@@ -155,6 +155,10 @@
   "envSuggestionsSubtitle": { "message": "Detected from your open tabs" },
   "envSuggestionsAdd": { "message": "Add" },
 
+  "cmsDetectedBanner": { "message": "$CMS$ detected on this environment.", "placeholders": { "cms": { "content": "$1" } } },
+  "cmsDetectedEnable": { "message": "Enable" },
+  "wpNetworkSitesDetected": { "message": "Detected sites" },
+
   "keyboardShortcutSection": { "message": "Keyboard shortcut" },
   "keyboardShortcutChangeHint": { "message": "To change this shortcut, go to Chrome settings." },
   "keyboardShortcutOpenChrome": { "message": "Open Chrome shortcuts" },

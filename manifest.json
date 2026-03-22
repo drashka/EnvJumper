@@ -12,7 +12,7 @@
       "description": "Open EnvJumper popup"
     }
   },
-  "permissions": ["storage", "tabs", "activeTab", "contextMenus", "webRequest", "webRequestAuthProvider"],
+  "permissions": ["storage", "tabs", "activeTab", "scripting", "contextMenus", "webRequest", "webRequestAuthProvider"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {

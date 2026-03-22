@@ -30,8 +30,8 @@
 .wp-site-row .input-sm { flex: 1; }
 
 .wp-site-label-input {
-  width: 60px !important;
-  flex: 0 0 60px !important;
+  width: 130px !important;
+  flex: 0 0 130px !important;
 }
 
 .btn-remove-site {
@@ -200,6 +200,37 @@
   flex-shrink: 0;
 }
 
+
+/* ─── Bannière détection CMS automatique ───────────────────── */
+
+.cms-detection-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin: var(--space-sm) 0;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ─── Suggestions sites WordPress Multisite ─────────────────── */
+
+.wp-sites-detected-section { margin-top: var(--space-sm); }
+
+.wp-site-suggestion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 4px 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border-light);
+}
 
 /* ─── Section suggestions d'environnements ─────────────────── */
 

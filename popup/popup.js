@@ -19,6 +19,7 @@ import { detectRelatedTabs } from './modules/helpers/tab-detection.js';
  * Automatically detects related open tabs to pre-fill multiple environments.
  */
 async function addProjectFromActiveTab() {
+  let activeTabId = null;
   let hostname = '';
   let protocol = 'https';
   try {
@@ -28,6 +29,7 @@ async function addProjectFromActiveTab() {
       if (url.protocol === 'http:' || url.protocol === 'https:') {
         hostname = url.hostname;
         protocol = url.protocol.replace(':', '');
+        activeTabId = tab.id;
       }
     }
   } catch {}
@@ -72,7 +74,11 @@ async function addProjectFromActiveTab() {
   groups.push(newGroup);
   await saveGroups(groups);
   await renderEnvironmentsPanel();
+  await renderJumperPanel();
   openProjectEdit(newGroup);
+
+  // CMS detection runs in background — mutates newGroup (same ref as _editingGroup)
+  if (activeTabId) _detectAndApplyCmsInBackground(activeTabId, newGroup);
 }
 
 /**
@@ -151,6 +157,18 @@ async function addEmptyProject() {
 
   // Focus the project name input after the slide-in animation starts
   setTimeout(() => el('project-edit-name-input')?.focus(), 50);
+}
+
+/** Detects CMS on the given tab and applies the result to the group (fire-and-forget). */
+async function _detectAndApplyCmsInBackground(tabId, group) {
+  try {
+    const { detectCmsOnTab, applyDetectionToGroup } = await import('./modules/helpers/cms-detection.js');
+    const result = await detectCmsOnTab(tabId);
+    if (result) {
+      await applyDetectionToGroup(result, group);
+      await renderJumperPanel();
+    }
+  } catch {}
 }
 
 // Wire up tab renderer callbacks to avoid circular dependencies

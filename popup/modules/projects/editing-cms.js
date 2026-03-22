@@ -7,6 +7,7 @@ import { t } from '../i18n.js';
 import { confirm } from '../helpers/ui-helpers.js';
 import { buildMultisiteUrl } from './wordpress.js';
 import { CMS_IDS, CMS_DEFAULT_ADMIN_PATH, getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
+import { buildCmsDetectionBanner, buildMultisiteSiteSuggestions } from './editing-cms-detection.js';
 
 /** Returns true if a link is a predefined CMS link (not network). */
 function _isCmsLink(l) { return !!(l.cmsLinkId && !l.cmsLinkId.startsWith('network-')); }
@@ -38,6 +39,20 @@ export function buildCmsSubtab(container, group) {
   cmsConfigContainer.style.display = (group.cms && group.cms !== 'none') ? 'block' : 'none';
   buildCmsGroupConfig(group.id, group, cmsConfigContainer);
   container.appendChild(cmsConfigContainer);
+
+  // Async: suggest detected CMS if current env tab is active and CMS is unset
+  if (!group.cms || group.cms === 'none') {
+    buildCmsDetectionBanner(container, group, cmsConfigContainer, async (result) => {
+      const { applyDetectionToGroup } = await import('../helpers/cms-detection.js');
+      await applyDetectionToGroup(result, group);
+      cmsSelect.value = group.cms || 'none';
+      cmsConfigContainer.style.display = group.cms && group.cms !== 'none' ? 'block' : 'none';
+      cmsConfigContainer.innerHTML = '';
+      if (group.cms && group.cms !== 'none') buildCmsGroupConfig(group.id, group, cmsConfigContainer);
+      const { renderJumperPanel } = await import('../jumper/jumper.js');
+      await renderJumperPanel();
+    }).catch(() => {});
+  }
 
   cmsSelect.addEventListener('change', async () => {
     const newCms = cmsSelect.value;
@@ -245,6 +260,9 @@ function buildWpMultisiteFields(groupId, group, container) {
     }
   });
   container.appendChild(btnAddSite);
+
+  // Async: suggest detected network sites if active tab is a group env
+  buildMultisiteSiteSuggestions(groupId, group, container, sitesList, typeSelect, getPreviewDomain, _buildWpSiteRow).catch(() => {});
 }
 
 /** Builds a single WordPress Multisite site row. */

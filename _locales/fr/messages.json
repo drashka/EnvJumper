@@ -155,6 +155,10 @@
   "envSuggestionsSubtitle": { "message": "Détectés depuis vos onglets ouverts" },
   "envSuggestionsAdd": { "message": "Ajouter" },
 
+  "cmsDetectedBanner": { "message": "$CMS$ détecté sur cet environnement.", "placeholders": { "cms": { "content": "$1" } } },
+  "cmsDetectedEnable": { "message": "Activer" },
+  "wpNetworkSitesDetected": { "message": "Sites détectés" },
+
   "keyboardShortcutSection": { "message": "Raccourci clavier" },
   "keyboardShortcutChangeHint": { "message": "Pour modifier ce raccourci, rendez-vous dans les paramètres Chrome." },
   "keyboardShortcutOpenChrome": { "message": "Ouvrir les raccourcis Chrome" },
