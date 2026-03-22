@@ -120,24 +120,6 @@ async function _buildSuggestionsSection(container, group, envList) {
   container.appendChild(section);
 }
 
-/** Builds the "Paramètres" sub-tab content (delete project). */
-export function buildProjectSettingsSubtab(container, group, { onClose, onRefresh }) {
-  const btnDelete = document.createElement('button');
-  btnDelete.className = 'btn btn-sm btn-danger btn-full btn-delete-project';
-  btnDelete.style.marginTop = '20px';
-  btnDelete.textContent = t('deleteProject');
-  btnDelete.addEventListener('click', async () => {
-    const ok = await confirm(t('confirmDeleteGroup', group.name));
-    if (ok) {
-      const groups = await getGroups();
-      await saveGroups(groups.filter((g) => g.id !== group.id));
-      onClose();
-      await onRefresh();
-    }
-  });
-  container.appendChild(btnDelete);
-}
-
 /** Builds a collapsible environment card. */
 export function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   const card = document.createElement('div');

@@ -141,12 +141,16 @@ test('ajouter un second environnement à un projet existant', async ({ extContex
 test('supprimer un projet', async ({ extContext: context, extensionId }) => {
   const popup = await openPopup(context, extensionId);
 
+  // Créer un projet
   await popup.locator('#tab-environments').click();
   await clickCreateProject(popup);
 
-  // Aller dans le sous-onglet Paramètres
-  await popup.locator('.project-subtab[data-subtab="settings"]').click();
-  await popup.locator('.btn-delete-project').click();
+  // Revenir à la liste
+  await popup.locator('#project-back-btn').click();
+
+  // Utiliser le bouton corbeille sur l'item de la liste
+  const item = popup.locator('.project-list-item').first();
+  await item.locator('.project-list-trash').click();
 
   // Confirmer la suppression dans la modal
   await popup.locator('#confirm-ok').click();

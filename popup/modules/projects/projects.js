@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Drashka
 // Licence : GPL v3 — voir le fichier LICENSE
 
-import { getGroups } from '../helpers/storage.js';
+import { getGroups, saveGroups } from '../helpers/storage.js';
 import { t } from '../i18n.js';
-import { el } from '../helpers/ui-helpers.js';
+import { el, confirm } from '../helpers/ui-helpers.js';
 import { openProjectEdit, _fetchGroupFavicon } from './editing.js';
 import { updateExportGroupSelect } from '../settings/settings.js';
 
@@ -102,6 +102,23 @@ export function buildProjectListItem(group) {
   nameSpan.textContent = group.name || t('unnamed');
   info.appendChild(nameSpan);
   item.appendChild(info);
+
+  // Trash button: deletes the project directly from the list
+  const trashBtn = document.createElement('button');
+  trashBtn.type = 'button';
+  trashBtn.className = 'btn-icon-trash project-list-trash';
+  trashBtn.title = t('confirmDeleteGroup', group.name || t('unnamed'));
+  trashBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>`;
+  trashBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const ok = await confirm(t('confirmDeleteGroup', group.name || t('unnamed')));
+    if (ok) {
+      const groups = await getGroups();
+      await saveGroups(groups.filter((g) => g.id !== group.id));
+      await renderEnvironmentsPanel();
+    }
+  });
+  item.appendChild(trashBtn);
 
   const badge = document.createElement('span');
   badge.className = 'project-list-badge';

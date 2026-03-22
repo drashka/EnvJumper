@@ -6,8 +6,6 @@
   "tabSettings": { "message": "Settings" },
   "tabEnvironments": { "message": "Projects" },
   "subtabEnvironments": { "message": "Environments" },
-  "projectSettings": { "message": "Settings" },
-  "deleteProject": { "message": "Delete project" },
   "deleteEnvironment": { "message": "Delete environment" },
   "displaySection": { "message": "Display" },
   "markerSection": { "message": "Environment Marker" },

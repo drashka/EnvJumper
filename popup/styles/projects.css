@@ -93,6 +93,16 @@
   padding: 1px 7px;
 }
 
+.project-list-trash {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.project-list-item:hover .project-list-trash {
+  opacity: 1;
+}
+
 .project-list-chevron {
   flex-shrink: 0;
   color: var(--color-text-muted);
