@@ -4,6 +4,14 @@
   "version": "1.0.1",
   "manifest_version": 3,
   "default_locale": "fr",
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+J"
+      },
+      "description": "Open EnvJumper popup"
+    }
+  },
   "permissions": ["storage", "tabs", "activeTab", "contextMenus", "webRequest", "webRequestAuthProvider"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [

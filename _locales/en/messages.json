@@ -158,5 +158,10 @@
 
   "envSuggestionsTitle": { "message": "Environment suggestions" },
   "envSuggestionsSubtitle": { "message": "Detected from your open tabs" },
-  "envSuggestionsAdd": { "message": "Add" }
+  "envSuggestionsAdd": { "message": "Add" },
+
+  "keyboardShortcutSection": { "message": "Keyboard shortcut" },
+  "keyboardShortcutChangeHint": { "message": "To change this shortcut, go to Chrome settings." },
+  "keyboardShortcutOpenChrome": { "message": "Open Chrome shortcuts" },
+  "keyboardShortcutNotSet": { "message": "Not set" }
 }

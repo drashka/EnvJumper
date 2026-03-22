@@ -7,13 +7,14 @@ import { t } from '../i18n.js';
 import { el } from '../helpers/ui-helpers.js';
 
 /**
- * Renders the Settings panel: environment marker options.
+ * Renders the Settings panel: environment marker options + keyboard shortcut.
  */
 export async function renderSettingsPanel() {
   const settings = await getSettings();
   const generalContainer = el('general-settings-container');
   generalContainer.innerHTML = '';
   generalContainer.appendChild(_buildMarkerSettings(settings));
+  generalContainer.appendChild(await _buildKeyboardShortcutSection());
 }
 
 /**
@@ -32,6 +33,56 @@ export function updateExportGroupSelect(groups) {
     select.appendChild(opt);
   });
   if (groups.find((g) => g.id === current)) select.value = current;
+}
+
+/**
+ * Builds the "Keyboard shortcut" settings section.
+ * Reads the current shortcut via chrome.commands.getAll().
+ * @returns {Promise<HTMLElement>}
+ */
+async function _buildKeyboardShortcutSection() {
+  const section = document.createElement('div');
+  section.className = 'general-settings-section keyboard-shortcut-section';
+
+  const title = document.createElement('div');
+  title.className = 'section-title';
+  title.textContent = t('keyboardShortcutSection');
+  section.appendChild(title);
+
+  // Fetch active shortcut
+  let shortcut = '';
+  try {
+    const commands = await chrome.commands.getAll();
+    const cmd = commands.find((c) => c.name === '_execute_action');
+    shortcut = cmd?.shortcut || '';
+  } catch {}
+
+  const shortcutRow = document.createElement('div');
+  shortcutRow.className = 'keyboard-shortcut-row';
+
+  const kbdEl = document.createElement('kbd');
+  kbdEl.className = 'keyboard-shortcut-kbd';
+  kbdEl.textContent = shortcut || t('keyboardShortcutNotSet');
+  shortcutRow.appendChild(kbdEl);
+
+  section.appendChild(shortcutRow);
+
+  const hint = document.createElement('p');
+  hint.className = 'keyboard-shortcut-hint';
+  hint.textContent = t('keyboardShortcutChangeHint');
+  section.appendChild(hint);
+
+  const link = document.createElement('a');
+  link.className = 'keyboard-shortcut-link';
+  link.href = '#';
+  link.textContent = t('keyboardShortcutOpenChrome');
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+  });
+  section.appendChild(link);
+
+  return section;
 }
 
 /**
