@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures.js';
-import { openPopup } from './helpers/extension.js';
+import { openPopup, clickCreateProject } from './helpers/extension.js';
 
 /**
  * Creates a new empty project and navigates to the CMS sub-tab.
@@ -8,7 +8,7 @@ import { openPopup } from './helpers/extension.js';
 async function openNewProjectCmsTab(context, extensionId) {
   const popup = await openPopup(context, extensionId);
   await popup.locator('#tab-environments').click();
-  await popup.locator('#add-group-btn').click();
+  await clickCreateProject(popup);
   await popup.locator('.project-subtab[data-subtab="cms"]').click();
   return popup;
 }

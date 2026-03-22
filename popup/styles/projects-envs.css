@@ -231,3 +231,71 @@
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
+
+/* ─── Section suggestions d'environnements ─────────────────── */
+
+.env-suggestions-section {
+  margin-top: var(--space-md);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+}
+
+.env-suggestions-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.env-suggestions-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+}
+
+.env-suggestions-icon svg { width: 14px; height: 14px; }
+
+.env-suggestions-subtitle {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-sm);
+}
+
+.env-suggestion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 5px 0;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.env-suggestion-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.env-suggestion-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text);
+}
+
+.env-suggestion-domain {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.env-suggestion-add-btn {
+  flex-shrink: 0;
+}

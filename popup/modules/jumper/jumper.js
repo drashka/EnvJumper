@@ -35,12 +35,48 @@ export function initJumper() {
 }
 
 /**
+ * Renders the empty state in the Jumper panel when no projects are configured.
+ * @param {HTMLElement} container
+ */
+function _renderJumperEmptyState(container) {
+  container.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'jumper-empty-state';
+
+  const msg = document.createElement('p');
+  msg.className = 'jumper-empty-msg';
+  msg.textContent = t('jumperNoProjects');
+  wrap.appendChild(msg);
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-sm btn-outline';
+  btn.textContent = t('jumperSetupFirst');
+  btn.addEventListener('click', () => _noMatchActions?.onSwitchToProjects?.());
+  wrap.appendChild(btn);
+
+  container.appendChild(wrap);
+}
+
+/**
  * Renders the Jumper panel for the currently active browser tab.
  */
 export async function renderJumperPanel() {
   hide('jumper-match');
   hide('jumper-no-match');
   show('jumper-loading');
+
+  const groups = await getGroups();
+
+  // Empty state: no groups configured yet
+  if (groups.length === 0) {
+    hide('jumper-loading');
+    const noMatchEl = el('jumper-no-match');
+    _renderJumperEmptyState(noMatchEl);
+    show('jumper-no-match');
+    return;
+  }
 
   let tab;
   try {
@@ -50,8 +86,6 @@ export async function renderJumperPanel() {
     show('jumper-no-match');
     return;
   }
-
-  const groups = await getGroups();
 
   if (!tab || !tab.url || (!tab.url.startsWith('http://') && !tab.url.startsWith('https://'))) {
     hide('jumper-loading');

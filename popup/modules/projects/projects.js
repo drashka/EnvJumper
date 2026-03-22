@@ -8,16 +8,79 @@ import { el } from '../helpers/ui-helpers.js';
 import { openProjectEdit, _fetchGroupFavicon } from './editing.js';
 import { updateExportGroupSelect } from '../settings/settings.js';
 
+/** Callbacks set by popup.js for the onboarding screen actions. */
+let _projectsActions = null;
+
 /**
- * Renders the Projects panel: list view with project rows.
+ * Sets the action callbacks used by the onboarding screen.
+ * Must be called once at popup startup.
+ * @param {{ onCreateProject: Function, onDetectFromTabs: Function }} actions
+ */
+export function setProjectsActions(actions) {
+  _projectsActions = actions;
+}
+
+/**
+ * Renders the Projects panel: onboarding screen (empty) or list view.
  */
 export async function renderEnvironmentsPanel() {
   const groups = await getGroups();
   const container = el('groups-list');
   if (!container) return;
   container.innerHTML = '';
+
+  const addContainer = document.querySelector('.add-group-container');
+
+  if (groups.length === 0) {
+    container.appendChild(_buildOnboardingScreen());
+    if (addContainer) addContainer.style.display = 'none';
+    updateExportGroupSelect(groups);
+    return;
+  }
+
+  if (addContainer) addContainer.style.display = '';
   groups.forEach((group) => container.appendChild(buildProjectListItem(group)));
   updateExportGroupSelect(groups);
+}
+
+/**
+ * Builds the onboarding screen shown when no projects exist.
+ * @returns {HTMLElement}
+ */
+function _buildOnboardingScreen() {
+  const wrap = document.createElement('div');
+  wrap.className = 'onboarding-screen';
+
+  const title = document.createElement('h2');
+  title.className = 'onboarding-title';
+  title.textContent = t('onboardingTitle');
+  wrap.appendChild(title);
+
+  const desc = document.createElement('p');
+  desc.className = 'onboarding-desc';
+  desc.textContent = t('onboardingDesc');
+  wrap.appendChild(desc);
+
+  const btnCreate = document.createElement('button');
+  btnCreate.type = 'button';
+  btnCreate.className = 'btn btn-primary onboarding-btn';
+  btnCreate.textContent = t('onboardingCreateBtn');
+  btnCreate.addEventListener('click', () => _projectsActions?.onCreateProject());
+  wrap.appendChild(btnCreate);
+
+  const btnDetect = document.createElement('button');
+  btnDetect.type = 'button';
+  btnDetect.className = 'btn btn-outline onboarding-btn';
+  btnDetect.textContent = t('onboardingDetectBtn');
+  btnDetect.addEventListener('click', () => _projectsActions?.onDetectFromTabs());
+  wrap.appendChild(btnDetect);
+
+  const hint = document.createElement('p');
+  hint.className = 'onboarding-hint';
+  hint.textContent = t('onboardingDetectHint');
+  wrap.appendChild(hint);
+
+  return wrap;
 }
 
 /**

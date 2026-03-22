@@ -148,5 +148,17 @@
   "basicAuthHide": { "message": "Masquer" },
   "basicAuthSyncNotice": { "message": "Les identifiants sont synchronisés entre vos appareils." },
   "exportIncludeBasicAuth": { "message": "Inclure les identifiants Basic Auth" },
-  "exportBasicAuthWarning": { "message": "Attention : les identifiants seront visibles en clair dans le fichier exporté." }
+  "exportBasicAuthWarning": { "message": "Attention : les identifiants seront visibles en clair dans le fichier exporté." },
+
+  "onboardingTitle": { "message": "Bienvenue sur EnvJumper" },
+  "onboardingDesc": { "message": "Organisez vos sites web par projet et passez d'un environnement à l'autre en un clic." },
+  "onboardingCreateBtn": { "message": "Créer mon premier projet" },
+  "onboardingDetectBtn": { "message": "Détecter depuis mes onglets" },
+  "onboardingDetectHint": { "message": "Ouvrez les onglets de votre projet et on s'occupe du reste." },
+  "jumperNoProjects": { "message": "Aucun projet configuré." },
+  "jumperSetupFirst": { "message": "Configurer mon premier projet →" },
+
+  "envSuggestionsTitle": { "message": "Suggestions d'environnements" },
+  "envSuggestionsSubtitle": { "message": "Détectés depuis vos onglets ouverts" },
+  "envSuggestionsAdd": { "message": "Ajouter" }
 }

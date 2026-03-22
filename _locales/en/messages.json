@@ -148,5 +148,17 @@
   "basicAuthHide": { "message": "Hide" },
   "basicAuthSyncNotice": { "message": "Credentials are synced across your devices." },
   "exportIncludeBasicAuth": { "message": "Include Basic Auth credentials" },
-  "exportBasicAuthWarning": { "message": "Warning: credentials will be visible in plain text in the exported file." }
+  "exportBasicAuthWarning": { "message": "Warning: credentials will be visible in plain text in the exported file." },
+
+  "onboardingTitle": { "message": "Welcome to EnvJumper" },
+  "onboardingDesc": { "message": "Organize your websites by project and switch between environments in one click." },
+  "onboardingCreateBtn": { "message": "Create my first project" },
+  "onboardingDetectBtn": { "message": "Detect from my tabs" },
+  "onboardingDetectHint": { "message": "Open your project tabs and we'll take care of the rest." },
+  "jumperNoProjects": { "message": "No projects configured." },
+  "jumperSetupFirst": { "message": "Set up my first project →" },
+
+  "envSuggestionsTitle": { "message": "Environment suggestions" },
+  "envSuggestionsSubtitle": { "message": "Detected from your open tabs" },
+  "envSuggestionsAdd": { "message": "Add" }
 }

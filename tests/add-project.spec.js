@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures.js';
-import { openPopup, openPopupWithActiveTab } from './helpers/extension.js';
+import { openPopup, openPopupWithActiveTab, clickCreateProject } from './helpers/extension.js';
 
 // ── Test 1 : Ajouter un projet vide ────────────────────────────────────────
 
@@ -7,7 +7,7 @@ test('ajouter un projet vide depuis l\'onglet Projets', async ({ extContext: con
   const popup = await openPopup(context, extensionId);
 
   await popup.locator('#tab-environments').click();
-  await popup.locator('#add-group-btn').click();
+  await clickCreateProject(popup);
 
   // La vue d'édition s'ouvre (drill-down)
   await expect(popup.locator('.projects-view--edit')).toBeVisible();
@@ -21,6 +21,28 @@ test('ajouter un projet vide depuis l\'onglet Projets', async ({ extContext: con
 // ── Test 2 : Pré-remplissage depuis l'URL active — via Jumper "Nouveau projet"
 
 test('pré-remplissage depuis l\'URL active via le bouton "Nouveau projet" du Jumper', async ({ extContext: context, extensionId }) => {
+  // Seed an existing (unrelated) group so the Jumper shows the no-match panel
+  // instead of the empty-state screen (which appears when there are no groups at all).
+  const seedPopup = await openPopup(context, extensionId);
+  await seedPopup.evaluate(() => new Promise((resolve) => {
+    chrome.storage.local.set({
+      groups: [{
+        id: 'seed-group',
+        name: 'Autre Projet',
+        cms: 'none',
+        cmsAdminPath: '',
+        isWordPressMultisite: false,
+        wpMultisiteType: 'subdomain',
+        wpSites: [],
+        links: [],
+        environments: [
+          { id: 'env-seed', name: 'Production', domain: 'otherproject.com', protocol: 'https', color: '#EF4444' },
+        ],
+      }],
+    }, resolve);
+  }));
+  await seedPopup.close();
+
   // Mock the active tab so chrome.tabs.query returns example.com
   const popup = await openPopupWithActiveTab(
     context, extensionId, 'https://example.com/some-page',
@@ -102,7 +124,7 @@ test('ajouter un second environnement à un projet existant', async ({ extContex
   const popup = await openPopup(context, extensionId);
 
   await popup.locator('#tab-environments').click();
-  await popup.locator('#add-group-btn').click();
+  await clickCreateProject(popup);
 
   // Aller dans le sous-onglet Environnements
   await popup.locator('.project-subtab[data-subtab="envs"]').click();
@@ -120,7 +142,7 @@ test('supprimer un projet', async ({ extContext: context, extensionId }) => {
   const popup = await openPopup(context, extensionId);
 
   await popup.locator('#tab-environments').click();
-  await popup.locator('#add-group-btn').click();
+  await clickCreateProject(popup);
 
   // Aller dans le sous-onglet Paramètres
   await popup.locator('.project-subtab[data-subtab="settings"]').click();

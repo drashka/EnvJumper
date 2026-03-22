@@ -118,6 +118,35 @@ export async function openPopupWithActiveTab(context, extensionId, activeTabUrl)
 }
 
 /**
+ * Clicks the "add project" action regardless of whether the onboarding screen
+ * or the regular project list is shown. On the onboarding screen (no groups),
+ * the #add-group-btn is hidden and replaced by .onboarding-btn buttons; this
+ * helper clicks whichever one is currently visible.
+ *
+ * Must be called after opening the Environments tab (#tab-environments).
+ *
+ * @param {import('@playwright/test').Page} popup
+ */
+export async function clickCreateProject(popup) {
+  const addBtn = popup.locator('#add-group-btn');
+  const onboardingBtn = popup.locator('.onboarding-btn').first();
+
+  // Wait for either button to be available
+  await popup.waitForFunction(() => {
+    const btn = document.getElementById('add-group-btn');
+    const ob = document.querySelector('.onboarding-btn');
+    return (btn && btn.offsetParent !== null) || ob !== null;
+  });
+
+  const addBtnVisible = await addBtn.isVisible();
+  if (addBtnVisible) {
+    await addBtn.click();
+  } else {
+    await onboardingBtn.click();
+  }
+}
+
+/**
  * Clears all extension storage via the service worker (no popup needed).
  * Call between tests for isolation.
  * @param {import('@playwright/test').BrowserContext} context

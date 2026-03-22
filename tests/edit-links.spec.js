@@ -1,11 +1,11 @@
 import { test, expect } from './fixtures.js';
-import { openPopup } from './helpers/extension.js';
+import { openPopup, clickCreateProject } from './helpers/extension.js';
 
 /** Helper : crée un projet WordPress et ouvre l'onglet Liens rapides. */
 async function openWordPressLinksTab(context, extensionId) {
   const popup = await openPopup(context, extensionId);
   await popup.locator('#tab-environments').click();
-  await popup.locator('#add-group-btn').click();
+  await clickCreateProject(popup);
 
   await popup.locator('.project-subtab[data-subtab="cms"]').click();
   await popup.locator('#project-subtab-content select.select-sm').selectOption('wordpress');
@@ -58,7 +58,7 @@ test('réajouter un lien depuis "Liens CMS disponibles"', async ({ extContext: c
 test('ajouter un lien custom', async ({ extContext: context, extensionId }) => {
   const popup = await openPopup(context, extensionId);
   await popup.locator('#tab-environments').click();
-  await popup.locator('#add-group-btn').click();
+  await clickCreateProject(popup);
   await popup.locator('.project-subtab[data-subtab="links"]').click();
 
   const countBefore = await popup.locator('.link-settings-row').count();

@@ -102,6 +102,62 @@
 
 .add-group-container { padding: 4px 0 10px; }
 
+/* ─── Écran d'accueil (onboarding) ────────────────────────── */
+
+.onboarding-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg);
+  gap: var(--space-md);
+}
+
+.onboarding-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--color-text);
+  margin: 0 0 var(--space-sm);
+}
+
+.onboarding-desc {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.onboarding-btn {
+  width: 100%;
+  max-width: 240px;
+}
+
+.onboarding-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+  max-width: 240px;
+}
+
+/* ─── État vide du Jumper ──────────────────────────────────── */
+
+.jumper-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg);
+  gap: var(--space-md);
+}
+
+.jumper-empty-msg {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
 /* ─── Édition d'un projet ──────────────────────────────────── */
 
 .project-edit-header {

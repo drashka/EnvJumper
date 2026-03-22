@@ -8,13 +8,15 @@ import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } fro
 import { renderJumperPanel, initJumper, setNoMatchActions } from './modules/jumper/jumper.js';
 import { initExportImport } from './modules/settings/import-export.js';
 import { el } from './modules/helpers/ui-helpers.js';
-import { renderEnvironmentsPanel } from './modules/projects/projects.js';
+import { renderEnvironmentsPanel, setProjectsActions } from './modules/projects/projects.js';
 import { openProjectEdit, initEnvironmentsPanel } from './modules/projects/editing.js';
 import { renderSettingsPanel } from './modules/settings/settings.js';
 import { projectNameFromHostname, envNameFromHostname } from './modules/helpers/hostname.js';
+import { detectRelatedTabs } from './modules/helpers/tab-detection.js';
 
 /**
  * Creates a new project from the active tab URL and opens its edit view.
+ * Automatically detects related open tabs to pre-fill multiple environments.
  */
 async function addProjectFromActiveTab() {
   let hostname = '';
@@ -31,8 +33,29 @@ async function addProjectFromActiveTab() {
   } catch {}
 
   const groups = await getGroups();
-  const envName = hostname ? envNameFromHostname(hostname) : 'Production';
   const projectName = hostname ? projectNameFromHostname(hostname) : t('newGroupName');
+
+  // Detect related open tabs to pre-fill multiple environments
+  let detectedEnvs = [];
+  if (hostname) {
+    detectedEnvs = await detectRelatedTabs(hostname, protocol, groups);
+  }
+
+  const environments = detectedEnvs.length > 0
+    ? detectedEnvs.map((d, i) => ({
+        id: generateId(),
+        name: d.name,
+        domain: d.hostname,
+        protocol: d.protocol,
+        color: COLOR_PALETTE[i % COLOR_PALETTE.length].hex,
+      }))
+    : (hostname ? [{
+        id: generateId(),
+        name: envNameFromHostname(hostname),
+        domain: hostname,
+        protocol,
+        color: COLOR_PALETTE[0].hex,
+      }] : []);
 
   const newGroup = {
     id: generateId(),
@@ -43,13 +66,7 @@ async function addProjectFromActiveTab() {
     wpMultisiteType: 'subdomain',
     wpSites: [],
     links: [],
-    environments: hostname ? [{
-      id: generateId(),
-      name: envName,
-      domain: hostname,
-      protocol,
-      color: COLOR_PALETTE[0].hex,
-    }] : [],
+    environments,
   };
 
   groups.push(newGroup);
@@ -140,6 +157,12 @@ async function addEmptyProject() {
 setEnvironmentsRenderer(renderEnvironmentsPanel);
 setSettingsRenderer(renderSettingsPanel);
 
+// Wire up onboarding callbacks for the Projects panel
+setProjectsActions({
+  onCreateProject: () => addEmptyProject(),
+  onDetectFromTabs: () => addProjectFromActiveTab(),
+});
+
 // Wire up no-match action callbacks for the Jumper panel
 setNoMatchActions({
   onNewProject: async () => {
@@ -147,6 +170,7 @@ setNoMatchActions({
     await addProjectFromActiveTab();
   },
   onAddToProject: (group) => addEnvToProject(group),
+  onSwitchToProjects: () => switchTab('environments'),
 });
 
 document.addEventListener('DOMContentLoaded', async () => {

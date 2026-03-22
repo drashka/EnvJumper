@@ -5,6 +5,8 @@
 import { getGroups, saveGroups, generateId, COLOR_PALETTE } from '../helpers/storage.js';
 import { t } from '../i18n.js';
 import { confirm } from '../helpers/ui-helpers.js';
+import { detectSuggestionsForGroup } from '../helpers/tab-detection.js';
+import { ICONS } from '../icons.js';
 
 /** Builds the "Environnements" sub-tab content. */
 export function buildEnvsSubtab(container, group, { onClose, onRefresh }) {
@@ -36,6 +38,86 @@ export function buildEnvsSubtab(container, group, { onClose, onRefresh }) {
     }
   });
   container.appendChild(btnAddEnv);
+
+  // Async: detect related open tabs and suggest missing environments
+  _buildSuggestionsSection(container, group, envList);
+}
+
+/**
+ * Detects open tabs related to the group and appends a suggestions section.
+ * @param {HTMLElement} container
+ * @param {object} group
+ * @param {HTMLElement} envList - reference to the env list for re-rendering on add
+ */
+async function _buildSuggestionsSection(container, group, envList) {
+  const suggestions = await detectSuggestionsForGroup(group);
+  if (suggestions.length === 0) return;
+
+  const section = document.createElement('div');
+  section.className = 'env-suggestions-section';
+
+  const header = document.createElement('div');
+  header.className = 'env-suggestions-header';
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'env-suggestions-icon';
+  iconSpan.innerHTML = ICONS['lightbulb'] || '';
+  header.appendChild(iconSpan);
+  const titleSpan = document.createElement('span');
+  titleSpan.textContent = t('envSuggestionsTitle');
+  header.appendChild(titleSpan);
+  section.appendChild(header);
+
+  const subtitle = document.createElement('p');
+  subtitle.className = 'env-suggestions-subtitle';
+  subtitle.textContent = t('envSuggestionsSubtitle');
+  section.appendChild(subtitle);
+
+  suggestions.forEach((s) => {
+    const row = document.createElement('div');
+    row.className = 'env-suggestion-row';
+
+    const info = document.createElement('div');
+    info.className = 'env-suggestion-info';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'env-suggestion-name';
+    nameEl.textContent = s.name;
+    const domainEl = document.createElement('span');
+    domainEl.className = 'env-suggestion-domain';
+    domainEl.textContent = `${s.protocol}://${s.hostname}`;
+    info.appendChild(nameEl);
+    info.appendChild(domainEl);
+    row.appendChild(info);
+
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'btn btn-sm btn-outline env-suggestion-add-btn';
+    addBtn.textContent = t('envSuggestionsAdd');
+    addBtn.addEventListener('click', async () => {
+      const newEnv = {
+        id: generateId(),
+        name: s.name,
+        domain: s.hostname,
+        protocol: s.protocol,
+        color: COLOR_PALETTE[group.environments.length % COLOR_PALETTE.length].hex,
+      };
+      const groups = await getGroups();
+      const g = groups.find((x) => x.id === group.id);
+      if (g) {
+        g.environments.push(newEnv);
+        await saveGroups(groups);
+        group.environments = g.environments;
+        const newCard = buildEnvItem(group.id, newEnv, group, { expanded: true });
+        envList.appendChild(newCard);
+        newCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      row.remove();
+      if (section.querySelectorAll('.env-suggestion-row').length === 0) section.remove();
+    });
+    row.appendChild(addBtn);
+    section.appendChild(row);
+  });
+
+  container.appendChild(section);
 }
 
 /** Builds the "Paramètres" sub-tab content (delete project). */
