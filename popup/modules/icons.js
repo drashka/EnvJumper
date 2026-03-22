@@ -84,7 +84,7 @@ export const ICONS = {
  * Liste triée des noms d'icônes disponibles.
  * @type {string[]}
  */
-export const ICON_NAMES = Object.keys(ICONS).sort();
+const ICON_NAMES = Object.keys(ICONS).sort();
 
 /**
  * Construit un sélecteur d'icône (bouton + popover avec grille et recherche).

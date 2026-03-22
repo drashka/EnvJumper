@@ -175,17 +175,6 @@
   border-color: var(--color-danger-hover);
 }
 
-.btn-danger-outline {
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
-  background: none;
-  border-radius: var(--radius-sm);
-  padding: 4px var(--space-sm);
-  font-size: var(--text-xs);
-  cursor: pointer;
-}
-
-.btn-danger-outline:hover { background: var(--color-error-bg); }
 
 .btn-sm {
   padding: 5px var(--space-md);

@@ -80,7 +80,7 @@ export function initEnvironmentsPanel({ onBack }) {
 /**
  * Slides back to the list view (exported so popup.js can use it if needed).
  */
-export function closeProjectEdit() {
+function closeProjectEdit() {
   _editingGroup = null;
   const row = document.querySelector('.projects-views-row');
   if (row) row.classList.remove('show-edit');
@@ -99,7 +99,6 @@ function _switchProjectSubtab(subtab) {
 
   if (subtab === 'envs') {
     buildEnvsSubtab(content, _editingGroup, {
-      onClose: closeProjectEdit,
       onRefresh: async () => {
         // Dynamic import to avoid circular dependency with projects.js
         const { renderEnvironmentsPanel } = await import('./projects.js');

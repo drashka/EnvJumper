@@ -10,7 +10,7 @@ import { getDefaultCmsLinks, getDefaultNetworkLinks } from './cms.js';
 /**
  * Saves the value of a single field on a link belonging to a group.
  */
-export async function saveLinkField(groupId, linkId, field, value) {
+async function saveLinkField(groupId, linkId, field, value) {
   const groups = await getGroups();
   const g = groups.find((x) => x.id === groupId);
   const l = g && g.links && g.links.find((x) => x.id === linkId);
@@ -24,7 +24,7 @@ export async function saveLinkField(groupId, linkId, field, value) {
  * Updates the order property of every link in a group based on the
  * current DOM order of the rows inside linksList.
  */
-export async function reorderLinks(groupId, linksList) {
+async function reorderLinks(groupId, linksList) {
   const rows = linksList.querySelectorAll('.link-settings-row');
   const newOrder = Array.from(rows).map((r, i) => ({ id: r.dataset.linkId, order: i }));
 
@@ -48,7 +48,7 @@ export async function reorderLinks(groupId, linksList) {
  * @param {{ onRemove?: Function }} [callbacks]
  * @returns {HTMLElement}
  */
-export function buildLinkSettingsRow(groupId, group, link, linksList, callbacks = {}) {
+function buildLinkSettingsRow(groupId, group, link, linksList, callbacks = {}) {
   const row = document.createElement('div');
   row.className = 'link-settings-row';
   row.setAttribute('draggable', 'true');

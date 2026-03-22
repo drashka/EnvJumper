@@ -13,15 +13,8 @@ export const CMS_DEFAULT_ADMIN_PATH = {
   prestashop: '/admin-dev',
 };
 
-/** Default login paths per CMS (used when generating initial predefined links) */
-const DEFAULT_LOGIN_PATH = {
-  wordpress:  '/wp-login.php',
-  joomla:     '/administrator/index.php',
-  drupal:     '/user/login',
-  prestashop: '/admin-dev/index.php',
-  magento:    '/admin/',
-  shopify:    '/admin',
-};
+/** Default login path for WordPress */
+const WP_LOGIN_PATH = '/wp-login.php';
 
 /**
  * Returns the predefined links for a given CMS.
@@ -34,7 +27,7 @@ export function getDefaultCmsLinks(cms, adminPath) {
   switch (cms) {
     case 'wordpress':
       return [
-        { id: generateId(), cmsLinkId: 'login',       label: t('cmsLinkLogin'),       path: DEFAULT_LOGIN_PATH.wordpress,             icon: 'log-in',           order: 0 },
+        { id: generateId(), cmsLinkId: 'login',       label: t('cmsLinkLogin'),       path: WP_LOGIN_PATH,                            icon: 'log-in',           order: 0 },
         { id: generateId(), cmsLinkId: 'dashboard',   label: t('cmsLinkDashboard'),   path: '/wp-admin/',                             icon: 'layout-dashboard', order: 1 },
         { id: generateId(), cmsLinkId: 'posts',       label: t('wpLinkPosts'),        path: '/wp-admin/edit.php',                     icon: 'file-text',        order: 2 },
         { id: generateId(), cmsLinkId: 'pages',       label: t('wpLinkPages'),        path: '/wp-admin/edit.php?post_type=page',      icon: 'file',             order: 3 },

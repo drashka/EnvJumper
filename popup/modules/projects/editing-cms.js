@@ -78,7 +78,7 @@ export function buildCmsSubtab(container, group) {
 }
 
 /** Builds the CMS sub-form (admin path for PrestaShop, WP Multisite toggle). */
-export function buildCmsGroupConfig(groupId, group, container) {
+function buildCmsGroupConfig(groupId, group, container) {
   const section = document.createElement('div');
   section.className = 'wp-env-section';
 
@@ -174,7 +174,7 @@ export function buildCmsGroupConfig(groupId, group, container) {
 }
 
 /** Builds the WordPress Multisite configuration fields. */
-export function buildWpMultisiteFields(groupId, group, container) {
+function buildWpMultisiteFields(groupId, group, container) {
   container.innerHTML = '';
 
   const msTitle = document.createElement('div');

@@ -88,7 +88,7 @@ function _buildOnboardingScreen() {
  * @param {object} group
  * @returns {HTMLElement}
  */
-export function buildProjectListItem(group) {
+function buildProjectListItem(group) {
   const item = document.createElement('div');
   item.className = 'project-list-item';
   item.dataset.groupId = group.id;

@@ -7,15 +7,12 @@
   "tabEnvironments": { "message": "Projets" },
   "subtabEnvironments": { "message": "Environnements" },
   "deleteEnvironment": { "message": "Supprimer l'environnement" },
-  "displaySection": { "message": "Affichage" },
   "markerSection": { "message": "Marqueur d'environnement" },
   "showFrame": { "message": "Afficher le cadre de couleur" },
   "showLabel": { "message": "Afficher le label d'environnement" },
   "labelSizeLabel": { "message": "Taille" },
   "dataSection": { "message": "Données" },
 
-  "noMatchText": { "message": "Aucun projet reconnu pour cette URL." },
-  "noMatchBtn": { "message": "Ajouter un projet →" },
   "noMatchTitle": { "message": "Environnement non reconnu" },
   "noMatchNewProject": { "message": "Nouveau projet" },
   "noMatchAddToProject": { "message": "Ajouter à un projet" },
@@ -67,8 +64,6 @@
   "posTopRight": { "message": "Haut droite" },
   "posBottomLeft": { "message": "Bas gauche" },
   "posBottomRight": { "message": "Bas droite" },
-
-  "detectedHostname": { "message": "Hostname détecté : $HOST$", "placeholders": { "host": { "content": "$1" } } },
 
   "cancel": { "message": "Annuler" },
   "delete": { "message": "Supprimer" },

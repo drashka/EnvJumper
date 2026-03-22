@@ -9,7 +9,7 @@ import { detectSuggestionsForGroup } from '../helpers/tab-detection.js';
 import { ICONS } from '../icons.js';
 
 /** Builds the "Environnements" sub-tab content. */
-export function buildEnvsSubtab(container, group, { onClose, onRefresh }) {
+export function buildEnvsSubtab(container, group, { onRefresh }) {
   const envList = document.createElement('div');
   envList.className = 'env-manage-list';
   envList.dataset.groupId = group.id;
@@ -121,7 +121,7 @@ async function _buildSuggestionsSection(container, group, envList) {
 }
 
 /** Builds a collapsible environment card. */
-export function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
+function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   const card = document.createElement('div');
   card.className = 'env-card';
   card.dataset.envId = env.id;
@@ -356,7 +356,7 @@ function _buildBasicAuthSection(groupId, env) {
 }
 
 /** Saves the value of a single field on an environment. */
-export async function saveEnvField(groupId, envId, field, value) {
+async function saveEnvField(groupId, envId, field, value) {
   const groups = await getGroups();
   const g = groups.find((x) => x.id === groupId);
   if (!g) return;
