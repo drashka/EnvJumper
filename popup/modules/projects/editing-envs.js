@@ -58,19 +58,28 @@ async function _buildSuggestionsSection(container, group, envList) {
 
   const header = document.createElement('div');
   header.className = 'env-suggestions-header';
+
+  const iconWrap = document.createElement('div');
+  iconWrap.className = 'env-suggestions-icon-wrap';
   const iconSpan = document.createElement('span');
   iconSpan.className = 'env-suggestions-icon';
   iconSpan.innerHTML = ICONS['lightbulb'] || '';
-  header.appendChild(iconSpan);
-  const titleSpan = document.createElement('span');
-  titleSpan.textContent = t('envSuggestionsTitle');
-  header.appendChild(titleSpan);
-  section.appendChild(header);
+  iconWrap.appendChild(iconSpan);
+  header.appendChild(iconWrap);
 
-  const subtitle = document.createElement('p');
-  subtitle.className = 'env-suggestions-subtitle';
-  subtitle.textContent = t('envSuggestionsSubtitle');
-  section.appendChild(subtitle);
+  const texts = document.createElement('div');
+  texts.className = 'env-suggestions-texts';
+  const titleSpan = document.createElement('span');
+  titleSpan.className = 'env-suggestions-title';
+  titleSpan.textContent = t('envSuggestionsTitle');
+  const subtitleSpan = document.createElement('span');
+  subtitleSpan.className = 'env-suggestions-subtitle';
+  subtitleSpan.textContent = t('envSuggestionsSubtitle');
+  texts.appendChild(titleSpan);
+  texts.appendChild(subtitleSpan);
+  header.appendChild(texts);
+
+  section.appendChild(header);
 
   suggestions.forEach((s) => {
     const row = document.createElement('div');

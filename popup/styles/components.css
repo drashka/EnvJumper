@@ -216,13 +216,13 @@
 .alert-error {
   background: var(--color-error-bg);
   color: var(--color-error-text);
-  border: 1px solid #FECACA;
+  border: 1px solid var(--color-error-border);
 }
 
 .alert-success {
   background: var(--color-success-bg);
   color: var(--color-success-text);
-  border: 1px solid #BBF7D0;
+  border: 1px solid var(--color-success-border);
 }
 
 /* ─── Modal ────────────────────────────────────────────────── */

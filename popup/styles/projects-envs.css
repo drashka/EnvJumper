@@ -214,25 +214,45 @@
 .env-suggestions-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text);
-  margin-bottom: 2px;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.env-suggestions-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-suggestion-bg);
+  flex-shrink: 0;
 }
 
 .env-suggestions-icon {
   display: flex;
   align-items: center;
-  color: var(--color-text-muted);
+  color: var(--color-suggestion-icon);
 }
 
-.env-suggestions-icon svg { width: 14px; height: 14px; }
+.env-suggestions-icon svg { width: 15px; height: 15px; }
+
+.env-suggestions-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.env-suggestions-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+}
 
 .env-suggestions-subtitle {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
-  margin: 0 0 var(--space-sm);
+  margin: 0;
 }
 
 .env-suggestion-row {

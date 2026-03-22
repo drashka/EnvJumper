@@ -73,7 +73,7 @@ html, body {
 .btn-stealth.active {
   background: var(--accent-orange);
   border-color: var(--accent-orange);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .btn-stealth .stealth-icon-off { display: none; }

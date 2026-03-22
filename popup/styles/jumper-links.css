@@ -22,7 +22,7 @@
 
 .link-quick-row:hover {
   background: var(--accent-blue);
-  color: #ffffff;
+  color: var(--color-white);
   box-shadow: 0 2px 6px rgba(66, 153, 225, .35);
 }
 
@@ -33,7 +33,7 @@
 }
 
 .link-quick-row:hover .link-badge {
-  color: #ffffff;
+  color: var(--color-white);
   background: rgba(255, 255, 255, .2);
   border-color: transparent;
 }
@@ -100,7 +100,7 @@
 
 .link-badge-network {
   background: var(--accent-blue);
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .link-badge-custom {
@@ -124,7 +124,7 @@
   opacity: 1;
 }
 
-.link-quick-row.has-prefix:hover .link-globe-icon { color: #ffffff; }
+.link-quick-row.has-prefix:hover .link-globe-icon { color: var(--color-white); }
 
 /* Multisite prefix checkbox in settings link row */
 .link-prefix-checkbox-label {
