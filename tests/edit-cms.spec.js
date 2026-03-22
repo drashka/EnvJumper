@@ -75,6 +75,45 @@ test('activer WordPress Multisite — champs multisite et ajout de site', async 
   await popup.close();
 });
 
+// ── Test : CMS Drupal ─────────────────────────────────────────────────────────
+
+test('sélectionner Drupal génère 9 liens prédéfinis', async ({ extContext: context, extensionId }) => {
+  const popup = await openNewProjectCmsTab(context, extensionId);
+
+  await popup.locator('#project-subtab-content select.select-sm').first().selectOption('drupal');
+
+  await popup.locator('.project-subtab[data-subtab="links"]').click();
+  await expect(popup.locator('.link-settings-row')).toHaveCount(9);
+
+  await popup.close();
+});
+
+// ── Test : CMS Magento ────────────────────────────────────────────────────────
+
+test('sélectionner Magento génère 7 liens prédéfinis', async ({ extContext: context, extensionId }) => {
+  const popup = await openNewProjectCmsTab(context, extensionId);
+
+  await popup.locator('#project-subtab-content select.select-sm').first().selectOption('magento');
+
+  await popup.locator('.project-subtab[data-subtab="links"]').click();
+  await expect(popup.locator('.link-settings-row')).toHaveCount(7);
+
+  await popup.close();
+});
+
+// ── Test : CMS Shopify ────────────────────────────────────────────────────────
+
+test('sélectionner Shopify génère 7 liens prédéfinis', async ({ extContext: context, extensionId }) => {
+  const popup = await openNewProjectCmsTab(context, extensionId);
+
+  await popup.locator('#project-subtab-content select.select-sm').first().selectOption('shopify');
+
+  await popup.locator('.project-subtab[data-subtab="links"]').click();
+  await expect(popup.locator('.link-settings-row')).toHaveCount(7);
+
+  await popup.close();
+});
+
 // ── Test : Changer de CMS → confirmation si des liens existent ────────────────
 
 test('changer de CMS avec des liens existants demande confirmation', async ({ extContext: context, extensionId }) => {

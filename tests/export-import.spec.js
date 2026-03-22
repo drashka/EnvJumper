@@ -185,6 +185,95 @@ test('importer en mode "Fusionner"', async ({ extContext: context, extensionId }
   await popup.close();
 });
 
+// ── Test : Import JSON invalide → message d'erreur ───────────────────────────
+
+test('importer un fichier JSON invalide — affiche un message d\'erreur', async ({ extContext: context, extensionId }) => {
+  const popup = await openSettingsTab(context, extensionId);
+
+  await popup.locator('#import-file-input').setInputFiles({
+    name: 'bad.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{ this is not valid json }'),
+  });
+
+  await expect(popup.locator('#import-error')).toBeVisible();
+  await expect(popup.locator('#import-success')).not.toBeVisible();
+
+  await popup.close();
+});
+
+// ── Test : Import structure invalide → message d'erreur ──────────────────────
+
+test('importer un JSON avec structure invalide — affiche un message d\'erreur', async ({ extContext: context, extensionId }) => {
+  const popup = await openSettingsTab(context, extensionId);
+
+  await popup.locator('#import-file-input').setInputFiles({
+    name: 'invalid-structure.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ notGroups: [] })),
+  });
+
+  await expect(popup.locator('#import-error')).toBeVisible();
+  await expect(popup.locator('#import-success')).not.toBeVisible();
+
+  await popup.close();
+});
+
+// ── Test : Export avec Basic Auth inclus ─────────────────────────────────────
+
+test('exporter avec Basic Auth inclus — les credentials sont dans le JSON', async ({ extContext: context, extensionId }) => {
+  await seedGroups(context, extensionId, [GROUP_WITH_AUTH]);
+
+  const popup = await openSettingsTab(context, extensionId);
+
+  // Checkbox is checked by default
+  await expect(popup.locator('#export-basicauth-check')).toBeChecked();
+
+  const [download] = await Promise.all([
+    popup.waitForEvent('download'),
+    popup.locator('#export-all-btn').click(),
+  ]);
+
+  const stream = await download.createReadStream();
+  const chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  const json = JSON.parse(Buffer.concat(chunks).toString());
+
+  const env = json.groups[0].environments[0];
+  expect(env.basicAuth).toBeDefined();
+  expect(env.basicAuth.username).toBe('admin');
+  expect(env.basicAuth.password).toBe('secret');
+
+  await popup.close();
+});
+
+// ── Test : Export sans Basic Auth ─────────────────────────────────────────────
+
+test('exporter sans Basic Auth — les credentials sont absents du JSON', async ({ extContext: context, extensionId }) => {
+  await seedGroups(context, extensionId, [GROUP_WITH_AUTH]);
+
+  const popup = await openSettingsTab(context, extensionId);
+
+  // Uncheck the Basic Auth checkbox
+  await popup.locator('#export-basicauth-check').click();
+  await expect(popup.locator('#export-basicauth-check')).not.toBeChecked();
+
+  const [download] = await Promise.all([
+    popup.waitForEvent('download'),
+    popup.locator('#export-all-btn').click(),
+  ]);
+
+  const stream = await download.createReadStream();
+  const chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  const json = JSON.parse(Buffer.concat(chunks).toString());
+
+  const env = json.groups[0].environments[0];
+  expect(env.basicAuth).toBeUndefined();
+
+  await popup.close();
+});
+
 // ── Test 20 : Import d'un seul groupe — ajout silencieux ─────────────────────
 
 test('importer un seul groupe — ajout silencieux sans modal', async ({ extContext: context, extensionId }) => {

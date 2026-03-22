@@ -21,12 +21,14 @@ EnvJumper is a Chrome extension that lets you instantly switch between environme
 - **One-click switch** — Go from `prod.example.com/my-page` to `staging.example.com/my-page` without retyping the URL
 - **Colored border** — Visually identify the active environment with a border around the page (6 colors available)
 - **Multi-project** — Manage multiple projects, each with its own environments
-- **Multi-CMS** — Built-in quick links for WordPress, Joomla, Drupal, PrestaShop, Magento and Shopify
-- **WordPress Multisite** — Open a permalink on all network sites at once, access Network Admin and plugins (subdomain and subdirectory modes)
+- **Auto-detection** — Create a project from the active tab: EnvJumper detects the URL, the CMS, and any related open tabs to pre-fill your environments
+- **Multi-CMS** — Built-in quick links for WordPress, Joomla, Drupal, PrestaShop, Magento and Shopify, with automatic CMS detection on the current page
+- **WordPress Multisite** — Open a permalink on all network sites at once, access Network Admin and plugins (subdomain and subdirectory modes), with automatic detection of network sites
 - **Basic Auth** — Store HTTP Basic Auth credentials per environment, synced across your devices
 - **Right-click menu** — Jump to any environment directly from the browser context menu
-- **Stealth mode** — Hide the colored border and badge when needed
+- **Customizable display** — Independently toggle the colored border and the badge from the Settings tab
 - **Export / Import** — Share your configuration with teammates via a JSON file
+- **Keyboard shortcut** — Open the popup without leaving your keyboard (configurable in Chrome settings)
 - **Light / Dark theme** — Automatic detection via system preference
 - **Synced settings** — Display preferences (border, badge, position) sync across your Chrome devices via `chrome.storage.sync`
 
@@ -57,13 +59,15 @@ The EnvJumper icon will appear in your extensions bar.
 
 ### Add a project and its environments
 
-1. Click the EnvJumper icon
-2. Go to the **Projects** tab
-3. Click **+ Add a project** — creates a blank project ready to fill in, or click **Jumper → New project** to auto-detect the current tab's URL
-4. Adjust the name, domain and color, then add more environments as needed:
-   - Production → `example.com` → 🔴 Red
-   - Staging → `staging.example.com` → 🟠 Orange
-   - Dev → `dev.example.com` → 🟢 Green
+Two ways to create a project:
+
+- **Manually** — Projects tab → **+ Add a project**: creates a blank project ready to fill in
+- **From your tabs** — On a page of your project, open EnvJumper → **New project** (or use the **Detect from my tabs** button on first launch): EnvJumper automatically detects the domain, CMS, and other open tabs from the same project to pre-fill your environments
+
+Example configuration:
+- Production → `example.com` → 🔴 Red
+- Staging → `staging.example.com` → 🟠 Orange
+- Dev → `dev.example.com` → 🟢 Green
 
 ### Navigate between environments
 
@@ -82,6 +86,8 @@ Enable a CMS on a project to get predefined quick links (login, dashboard, media
 - **WordPress** — including Multisite support (subdomain & subdirectory)
 - **Joomla, Drupal, PrestaShop, Magento, Shopify**
 
+When editing a project with no CMS configured, EnvJumper automatically analyzes the active page and offers to enable the detected CMS in one click.
+
 ### Basic Auth
 
 In the environment settings, enable Basic Auth and enter your credentials. EnvJumper will automatically handle HTTP authentication challenges for that domain.
@@ -93,6 +99,8 @@ In the environment settings, enable Basic Auth and enter your credentials. EnvJu
 3. Quick actions appear in the popup:
    - Open the current permalink on all sites
    - Access Network Admin, Network Plugins, Themes, Sites, Users and Settings
+
+EnvJumper can also automatically detect network sites from the WordPress admin bar and offer to add them directly.
 
 ### Share your configuration
 
@@ -128,7 +136,7 @@ npx playwright install chromium
 npm test
 ```
 
-The test suite uses [Playwright](https://playwright.dev/) to run end-to-end tests against a real Chrome instance with the extension loaded. 29 tests cover the Jumper panel, environment editing, CMS configuration, settings, and export/import.
+The test suite uses [Playwright](https://playwright.dev/) to run end-to-end tests against a real Chrome instance with the extension loaded. 59 tests cover the Jumper panel, environment editing, CMS configuration, auto-detection, settings, and export/import.
 
 ---
 
