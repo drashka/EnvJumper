@@ -257,7 +257,7 @@ function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   nameInput.className = 'input-sm env-name-input';
   nameInput.placeholder = t('envNamePlaceholder');
   nameInput.value = env.name || '';
-  nameInput.addEventListener('change', () => {
+  nameInput.addEventListener('input', () => {
     saveEnvField(groupId, env.id, 'name', nameInput.value);
     nameSpan.textContent = nameInput.value || t('unnamed');
   });
@@ -284,6 +284,9 @@ function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   domainInput.className = 'input-sm env-domain-input';
   domainInput.placeholder = t('envDomainPlaceholder');
   domainInput.value = env.domain || '';
+  domainInput.addEventListener('input', () => {
+    saveEnvField(groupId, env.id, 'domain', domainInput.value.trim());
+  });
   domainInput.addEventListener('change', () => {
     let raw = domainInput.value.trim();
     try {
@@ -419,8 +422,8 @@ function _buildBasicAuthSection(groupId, env) {
     baFields.style.display = baToggleInput.checked ? 'flex' : 'none';
     await saveBasicAuth();
   });
-  baUserInput.addEventListener('change', saveBasicAuth);
-  baPassInput.addEventListener('change', saveBasicAuth);
+  baUserInput.addEventListener('input', saveBasicAuth);
+  baPassInput.addEventListener('input', saveBasicAuth);
   return baSection;
 }
 

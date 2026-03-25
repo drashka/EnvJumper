@@ -63,7 +63,7 @@ export function initEnvironmentsPanel({ onBack }) {
     btn.addEventListener('click', () => _switchProjectSubtab(btn.dataset.subtab));
   });
 
-  el('project-edit-name-input')?.addEventListener('change', async () => {
+  el('project-edit-name-input')?.addEventListener('input', async () => {
     if (!_editingGroup) return;
     const name = el('project-edit-name-input').value.trim();
     const groups = await getGroups();
