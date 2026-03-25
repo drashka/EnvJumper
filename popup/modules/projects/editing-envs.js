@@ -135,6 +135,61 @@ function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   card.className = 'env-card';
   card.dataset.envId = env.id;
 
+  // ── Drag & drop ───────────────────────────────────────────────────────────
+  card.setAttribute('draggable', 'true');
+
+  card.addEventListener('dragstart', (e) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', env.id);
+    card.classList.add('dragging');
+  });
+
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    const list = card.parentElement;
+    if (list) list.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach((el) => {
+      el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+  });
+
+  card.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const list = card.parentElement;
+    if (!list) return;
+    const dragging = list.querySelector('.env-card.dragging');
+    if (!dragging || dragging === card) return;
+    list.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach((el) => {
+      el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    const rect = card.getBoundingClientRect();
+    card.classList.add(e.clientY < rect.top + rect.height / 2 ? 'drag-over-top' : 'drag-over-bottom');
+  });
+
+  card.addEventListener('dragleave', (e) => {
+    if (!card.contains(e.relatedTarget)) {
+      card.classList.remove('drag-over-top', 'drag-over-bottom');
+    }
+  });
+
+  card.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    card.classList.remove('drag-over-top', 'drag-over-bottom');
+    const draggedId = e.dataTransfer.getData('text/plain');
+    if (!draggedId || draggedId === env.id) return;
+    const list = card.parentElement;
+    if (!list) return;
+    const draggedCard = list.querySelector(`.env-card[data-env-id="${draggedId}"]`);
+    if (!draggedCard) return;
+    const rect = card.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      list.insertBefore(draggedCard, card);
+    } else {
+      card.after(draggedCard);
+    }
+    await reorderEnvs(groupId, list);
+  });
+
   // ── Header ────────────────────────────────────────────────────────────────
   const header = document.createElement('div');
   header.className = 'env-card-header';
@@ -181,8 +236,13 @@ function buildEnvItem(groupId, env, editingGroup, { expanded = false } = {}) {
   chevron.className = 'env-chevron';
   chevron.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>`;
 
+  const dragHandle = document.createElement('span');
+  dragHandle.className = 'env-card-drag-handle';
+  dragHandle.textContent = '⠿';
+  dragHandle.addEventListener('click', (e) => e.stopPropagation());
+
   headerActions.append(trashBtn, chevron);
-  header.append(headerInfo, headerActions);
+  header.append(dragHandle, headerInfo, headerActions);
   card.appendChild(header);
 
   // ── Body ──────────────────────────────────────────────────────────────────
@@ -362,6 +422,17 @@ function _buildBasicAuthSection(groupId, env) {
   baUserInput.addEventListener('change', saveBasicAuth);
   baPassInput.addEventListener('change', saveBasicAuth);
   return baSection;
+}
+
+/** Saves the environments array order based on the current DOM order of cards. */
+async function reorderEnvs(groupId, envList) {
+  const ids = Array.from(envList.querySelectorAll('.env-card')).map((c) => c.dataset.envId);
+  const groups = await getGroups();
+  const g = groups.find((x) => x.id === groupId);
+  if (g) {
+    g.environments = ids.map((id) => g.environments.find((e) => e.id === id)).filter(Boolean);
+    await saveGroups(groups);
+  }
 }
 
 /** Saves the value of a single field on an environment. */

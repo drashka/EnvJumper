@@ -1,5 +1,24 @@
 /* EnvJumper — Projets : formulaires d'environnements, CMS, multisite, couleurs */
 
+/* ─── Drag & drop des env cards ───────────────────────────── */
+
+.env-card-drag-handle {
+  cursor: grab;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px 0 0;
+  user-select: none;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity .12s;
+}
+
+.env-card-header:hover .env-card-drag-handle { opacity: 1; }
+.env-card-drag-handle:active { cursor: grabbing; }
+
+.env-card.dragging { opacity: 0.4; }
+
 /* ─── Section CMS dans l'édition ──────────────────────────── */
 
 .wp-env-section {
@@ -33,6 +52,23 @@
   width: 130px !important;
   flex: 0 0 130px !important;
 }
+
+.wp-site-drag-handle {
+  cursor: grab;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  user-select: none;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity .12s;
+}
+
+.wp-site-row:hover .wp-site-drag-handle { opacity: 1; }
+.wp-site-drag-handle:active { cursor: grabbing; }
+
+.wp-site-row.dragging { opacity: 0.4; }
 
 .btn-remove-site {
   width: 24px;
@@ -219,7 +255,11 @@
 
 /* ─── Suggestions sites WordPress Multisite ─────────────────── */
 
-.wp-sites-detected-section { margin-top: var(--space-sm); }
+.wp-sites-detected-section {
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border-light);
+}
 
 .wp-site-suggestion-row {
   display: flex;
@@ -229,6 +269,9 @@
   padding: 4px 0;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+.wp-site-suggestion-row + .wp-site-suggestion-row {
   border-top: 1px solid var(--color-border-light);
 }
 

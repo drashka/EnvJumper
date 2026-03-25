@@ -29,6 +29,8 @@ playwright-report/
 *.log
 npm-debug.log*
 
+screenshots/output/
+
 /CLAUDE.md
 /INSTRUCTIONS.md
 /STORE.md

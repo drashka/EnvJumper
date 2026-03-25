@@ -80,7 +80,7 @@ export async function buildMultisiteSiteSuggestions(groupId, group, container, s
 
   const label = document.createElement('div');
   label.className = 'field-label';
-  label.style.marginTop = '10px';
+  label.style.marginBottom = '4px';
   label.textContent = t('wpNetworkSitesDetected');
   section.appendChild(label);
 
@@ -118,5 +118,5 @@ export async function buildMultisiteSiteSuggestions(groupId, group, container, s
     section.appendChild(row);
   });
 
-  container.appendChild(section);
+  container.insertBefore(section, sitesList);
 }

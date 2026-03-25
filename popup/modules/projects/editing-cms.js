@@ -265,11 +265,28 @@ function buildWpMultisiteFields(groupId, group, container) {
   buildMultisiteSiteSuggestions(groupId, group, container, sitesList, typeSelect, getPreviewDomain, _buildWpSiteRow).catch(() => {});
 }
 
+/** Saves the wpSites array order and values based on the current DOM order of rows. */
+async function reorderWpSites(groupId, sitesList) {
+  const rows = sitesList.querySelectorAll('.wp-site-row');
+  const newSites = Array.from(rows).map((r) => ({
+    label: r.querySelector('.wp-site-label-input').value.trim(),
+    prefix: r.querySelector('input:not(.wp-site-label-input)').value.trim(),
+  }));
+  const groups = await getGroups();
+  const g = groups.find((x) => x.id === groupId);
+  if (g) { g.wpSites = newSites; await saveGroups(groups); }
+}
+
 /** Builds a single WordPress Multisite site row. */
 function _buildWpSiteRow(groupId, group, site, idx, typeSelect, getPreviewDomain) {
   const row = document.createElement('div');
   row.className = 'wp-site-row';
   row.dataset.siteIdx = idx;
+  row.setAttribute('draggable', 'true');
+
+  const dragHandle = document.createElement('span');
+  dragHandle.className = 'wp-site-drag-handle';
+  dragHandle.textContent = '⠿';
 
   const labelInput = document.createElement('input');
   labelInput.type = 'text';
@@ -296,10 +313,11 @@ function _buildWpSiteRow(groupId, group, site, idx, typeSelect, getPreviewDomain
   async function saveSite() {
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
-    if (g && g.wpSites && g.wpSites[idx] !== undefined) {
-      g.wpSites[idx] = { label: labelInput.value.trim(), prefix: prefixInput.value.trim() };
-      await saveGroups(groups);
-    }
+    if (!g || !g.wpSites) return;
+    const currentIdx = Array.from(row.parentElement?.querySelectorAll('.wp-site-row') || []).indexOf(row);
+    if (currentIdx === -1) return;
+    g.wpSites[currentIdx] = { label: labelInput.value.trim(), prefix: prefixInput.value.trim() };
+    await saveGroups(groups);
   }
   labelInput.addEventListener('change', saveSite);
   prefixInput.addEventListener('change', saveSite);
@@ -311,9 +329,62 @@ function _buildWpSiteRow(groupId, group, site, idx, typeSelect, getPreviewDomain
   btnRemove.addEventListener('click', async () => {
     const groups = await getGroups();
     const g = groups.find((x) => x.id === groupId);
-    if (g && g.wpSites) { g.wpSites.splice(idx, 1); await saveGroups(groups); row.remove(); }
+    const currentIdx = Array.from(row.parentElement?.querySelectorAll('.wp-site-row') || []).indexOf(row);
+    if (g && g.wpSites && currentIdx !== -1) { g.wpSites.splice(currentIdx, 1); await saveGroups(groups); row.remove(); }
   });
 
+  // ── HTML5 drag-and-drop
+  row.addEventListener('dragstart', (e) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(idx));
+    row.classList.add('dragging');
+  });
+
+  row.addEventListener('dragend', () => {
+    row.classList.remove('dragging');
+    const list = row.parentElement;
+    if (list) list.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach((el) => {
+      el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+  });
+
+  row.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const list = row.parentElement;
+    if (!list) return;
+    const dragging = list.querySelector('.wp-site-row.dragging');
+    if (!dragging || dragging === row) return;
+    list.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach((el) => {
+      el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    const rect = row.getBoundingClientRect();
+    row.classList.add(e.clientY < rect.top + rect.height / 2 ? 'drag-over-top' : 'drag-over-bottom');
+  });
+
+  row.addEventListener('dragleave', (e) => {
+    if (!row.contains(e.relatedTarget)) {
+      row.classList.remove('drag-over-top', 'drag-over-bottom');
+    }
+  });
+
+  row.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    row.classList.remove('drag-over-top', 'drag-over-bottom');
+    const list = row.parentElement;
+    if (!list) return;
+    const draggedRow = list.querySelector('.wp-site-row.dragging');
+    if (!draggedRow || draggedRow === row) return;
+    const rect = row.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      list.insertBefore(draggedRow, row);
+    } else {
+      row.after(draggedRow);
+    }
+    await reorderWpSites(groupId, list);
+  });
+
+  row.appendChild(dragHandle);
   row.appendChild(labelInput);
   row.appendChild(prefixInput);
   row.appendChild(previewSpan);

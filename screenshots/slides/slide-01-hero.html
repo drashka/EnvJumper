@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280">
+  <title>EnvJumper — Hero</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    .env-card-mock__header--prod {
+      background: rgba(239,68,68,0.07);
+      border-left-color: #EF4444;
+    }
+    .env-card-mock__header--staging {
+      border-left-color: #F97316;
+    }
+    .env-card-mock__header--dev {
+      border-left-color: #10B981;
+    }
+    .popup-mockup--dark .env-card-mock__header--staging,
+    .popup-mockup--dark .env-card-mock__header--dev {
+      background: rgba(255,255,255,0.02);
+    }
+    .popup-mockup--dark .env-card-mock__header--prod {
+      background: rgba(239,68,68,0.1);
+    }
+    .badge-current {
+      background: rgba(239,68,68,0.15);
+      color: #EF4444;
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .popup-mockup--dark .badge-current {
+      background: rgba(239,68,68,0.2);
+      color: #fc8181;
+    }
+    .slide__arrow {
+      font-size: 28px;
+      font-weight: 300;
+      opacity: 0.5;
+      letter-spacing: 4px;
+    }
+    .step-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .step-pill {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .step-sep {
+      font-size: 18px;
+      opacity: 0.4;
+    }
+    .slide__subtitle--highlight {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .slide__subtitle-main {
+      font-size: 20px;
+      opacity: 0.75;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="slide slide--dark">
+
+  <!-- Content -->
+  <div class="slide__content">
+    <div class="slide__logo">
+      <img src="../../icons/logo-envjumper.png" alt="EnvJumper" height="32">
+      <span>EnvJumper</span>
+    </div>
+
+    <div>
+      <span class="slide__badge bg-accent-blue">
+        <span data-lang="fr">Open Source &amp; Gratuit</span>
+        <span data-lang="en">Open Source &amp; Free</span>
+      </span>
+    </div>
+
+    <h1 class="slide__title">
+      <span data-lang="fr">Sautez entre vos<br>environnements<br><span class="accent-blue">en un clic</span></span>
+      <span data-lang="en">Jump between your<br>environments<br><span class="accent-blue">in one click</span></span>
+    </h1>
+
+    <p class="slide__subtitle">
+      <span data-lang="fr">Gardez votre page courante en basculant<br>entre Production, Staging et Dev.</span>
+      <span data-lang="en">Keep your current page while switching<br>between Production, Staging and Dev.</span>
+    </p>
+
+    <div class="step-flow">
+      <span class="step-pill bg-accent-red">Production</span>
+      <span class="step-sep">→</span>
+      <span class="step-pill bg-accent-orange">Staging</span>
+      <span class="step-sep">→</span>
+      <span class="step-pill" style="background:rgba(16,185,129,0.8);color:white;">Dev</span>
+    </div>
+  </div>
+
+  <!-- Visual -->
+  <div class="slide__visual">
+    <div class="popup-mockup popup-mockup--dark">
+
+      <!-- Tabs -->
+      <div class="popup-header">
+        <div class="popup-tab active">Jumper</div>
+        <div class="popup-tab">
+          <span data-lang="fr">Projets</span>
+          <span data-lang="en">Projects</span>
+        </div>
+        <div class="popup-tab">
+          <span data-lang="fr">Paramètres</span>
+          <span data-lang="en">Settings</span>
+        </div>
+      </div>
+
+      <div class="popup-body">
+        <div class="popup-group-header">Mon Projet Client</div>
+
+        <!-- Production — open -->
+        <div class="env-card-mock">
+          <div class="env-card-mock__header env-card-mock__header--prod">
+            <div class="env-card-mock__dot" style="background:#EF4444;"></div>
+            <span class="env-card-mock__name">Production</span>
+            <span class="badge-current">
+              <span data-lang="fr">Actuel</span>
+              <span data-lang="en">Current</span>
+            </span>
+          </div>
+          <div class="env-card-mock__links">
+            <div class="env-link-mock">
+              <span class="env-link-mock__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </span>
+              <span class="env-link-mock__label">
+                <span data-lang="fr">Accueil</span>
+                <span data-lang="en">Home</span>
+              </span>
+              <span class="env-link-mock__path">/</span>
+            </div>
+            <div class="env-link-mock">
+              <span class="env-link-mock__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </span>
+              <span class="env-link-mock__label">Dashboard</span>
+              <span class="env-link-mock__path">/dashboard</span>
+            </div>
+            <div class="env-link-mock">
+              <span class="env-link-mock__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <span class="env-link-mock__label">
+                <span data-lang="fr">Mon compte</span>
+                <span data-lang="en">My account</span>
+              </span>
+              <span class="env-link-mock__path">/account</span>
+            </div>
+            <div class="env-link-mock">
+              <span class="env-link-mock__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+              <span class="env-link-mock__label">
+                <span data-lang="fr">Réglages</span>
+                <span data-lang="en">Settings</span>
+              </span>
+              <span class="env-link-mock__path">/settings</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staging — closed -->
+        <div class="env-card-mock">
+          <div class="env-card-mock__header env-card-mock__header--staging">
+            <div class="env-card-mock__dot" style="background:#F97316;"></div>
+            <span class="env-card-mock__name">Staging</span>
+            <span class="env-card-mock__domain">staging.monprojet.com</span>
+            <div class="env-card-mock__actions">
+              <div class="env-card-mock__btn" title="Same tab">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+              <div class="env-card-mock__btn" title="New tab">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dev — closed -->
+        <div class="env-card-mock">
+          <div class="env-card-mock__header env-card-mock__header--dev">
+            <div class="env-card-mock__dot" style="background:#10B981;"></div>
+            <span class="env-card-mock__name">Dev</span>
+            <span class="env-card-mock__domain">dev.monprojet.com</span>
+            <div class="env-card-mock__actions">
+              <div class="env-card-mock__btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+              <div class="env-card-mock__btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- popup-body -->
+    </div><!-- popup-mockup -->
+  </div><!-- visual -->
+
+
+</div><!-- slide -->
+<script>
+  const lang = new URLSearchParams(location.search).get('lang') || 'fr';
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = el.dataset.lang === lang ? '' : 'none';
+  });
+</script>
+</body>
+</html>

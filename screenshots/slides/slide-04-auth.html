@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280">
+  <title>EnvJumper — Basic Auth</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    .check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 17px;
+      line-height: 1.4;
+    }
+    .check-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(66,153,225,0.12);
+      color: #4299E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .check-text { color: #2d3748; }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #718096;
+    }
+    .flow-arrow__line {
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+    .slide__label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4299E1;
+      margin-bottom: -8px;
+    }
+    .before-after {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .ba-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ba-label {
+      font-size: 11px;
+      font-weight: 600;
+      width: 56px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .ba-content {
+      flex: 1;
+    }
+    .ba-popup-bad {
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ba-popup-good {
+      background: #f0fff4;
+      border: 1px solid #c6f6d5;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ba-popup-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ba-popup-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ba-popup-title {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .ba-popup-desc {
+      font-size: 10px;
+      color: #718096;
+    }
+    .ba-strike { text-decoration: line-through; color: #fc8181; }
+    .ba-check { color: #48BB78; }
+  </style>
+</head>
+<body>
+<div class="slide slide--light">
+
+  <!-- Content -->
+  <div class="slide__content">
+    <div class="slide__logo">
+      <img src="../../icons/logo-envjumper.png" alt="EnvJumper" height="32">
+      <span>EnvJumper</span>
+    </div>
+
+    <h1 class="slide__title">
+      <span data-lang="fr">Plus jamais de<br>popup de connexion<br><span style="color:#4299E1;">sur vos envs protégés</span></span>
+      <span data-lang="en">Never see a login<br>popup on your<br><span style="color:#4299E1;">protected environments</span></span>
+    </h1>
+
+    <p class="slide__subtitle">
+      <span data-lang="fr">Les credentials sont injectés automatiquement et de manière transparente.</span>
+      <span data-lang="en">Credentials are injected automatically and transparently.</span>
+    </p>
+
+    <div class="check-list">
+      <div class="check-item">
+        <div class="check-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="check-text">
+          <span data-lang="fr">Credentials stockés par domaine</span>
+          <span data-lang="en">Credentials stored per domain</span>
+        </span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="check-text">
+          <span data-lang="fr">Injection automatique et transparente</span>
+          <span data-lang="en">Automatic and transparent injection</span>
+        </span>
+      </div>
+      <div class="check-item">
+        <div class="check-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="check-text">
+          <span data-lang="fr">Exclu de l'export JSON par défaut</span>
+          <span data-lang="en">Excluded from JSON export by default</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual -->
+  <div class="slide__visual">
+    <div class="auth-illustration">
+
+      <!-- Lock icon -->
+      <div class="lock-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4299E1" stroke-width="1.5" width="44" height="44"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+
+      <!-- Env cards -->
+      <div class="auth-envs">
+        <!-- Production — no auth -->
+        <div class="auth-env-card">
+          <div class="auth-env-header" style="border-left-color:#EF4444;background:rgba(239,68,68,0.05);">
+            <div style="width:8px;height:8px;border-radius:50%;background:#EF4444;flex-shrink:0;"></div>
+            <span style="font-size:12px;font-weight:600;flex:1;">Production</span>
+            <span style="font-size:9px;color:#a0aec0;background:#f7fafc;padding:2px 8px;border-radius:10px;">
+              <span data-lang="fr">Public</span>
+              <span data-lang="en">Public</span>
+            </span>
+          </div>
+          <div class="auth-env-body">
+            <div style="font-size:10px;color:#a0aec0;font-style:italic;text-align:center;padding:4px 0;">
+              <span data-lang="fr">Pas de Basic Auth</span>
+              <span data-lang="en">No Basic Auth</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staging — auth enabled -->
+        <div class="auth-env-card" style="box-shadow:0 4px 20px rgba(66,153,225,0.2);">
+          <div class="auth-env-header" style="border-left-color:#F97316;background:rgba(249,115,22,0.05);">
+            <div style="width:8px;height:8px;border-radius:50%;background:#F97316;flex-shrink:0;"></div>
+            <span style="font-size:12px;font-weight:600;flex:1;">Staging</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4299E1" stroke-width="2" width="12" height="12"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <div class="auth-env-body">
+            <div class="auth-row">
+              <span style="font-size:10px;color:#718096;width:40px;">user</span>
+              <span style="font-size:10px;font-weight:500;color:#2d3748;">admin</span>
+            </div>
+            <div class="auth-row">
+              <span style="font-size:10px;color:#718096;width:40px;">pass</span>
+              <span style="font-size:13px;letter-spacing:2px;color:#2d3748;">●●●●●</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto label -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="width:30px;height:1px;background:#e2e8f0;"></span>
+        <span class="auto-label">
+          <span data-lang="fr">✓ Géré automatiquement</span>
+          <span data-lang="en">✓ Automatically handled</span>
+        </span>
+        <span style="width:30px;height:1px;background:#e2e8f0;"></span>
+      </div>
+
+    </div>
+  </div>
+
+
+</div>
+<script>
+  const lang = new URLSearchParams(location.search).get('lang') || 'fr';
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = el.dataset.lang === lang ? '' : 'none';
+  });
+</script>
+</body>
+</html>

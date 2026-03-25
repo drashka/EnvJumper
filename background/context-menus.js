@@ -112,9 +112,7 @@ export function initContextMenuListener() {
           url.host = targetEnv.domain;
         } else {
           url.hostname = targetEnv.domain;
-          if ((protocol === 'https' && url.port === '443') || (protocol === 'http' && url.port === '80')) {
-            url.port = '';
-          }
+          url.port = '';
         }
         chrome.tabs.create({ url: url.toString() });
       } catch {}

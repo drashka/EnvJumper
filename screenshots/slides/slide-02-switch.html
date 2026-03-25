@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280">
+  <title>EnvJumper — Bordure colorée</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    .color-demo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .color-demo-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .color-demo-label { color: #2d3748; }
+    .browser-nav-btns {
+      display: flex;
+      gap: 5px;
+    }
+    .browser-nav-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #718096;
+    }
+    .slide__label {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4299E1;
+      margin-bottom: -8px;
+    }
+    .ext-icon-area {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+    .ext-icon-btn {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ext-icon-btn img {
+      width: 16px;
+      height: 16px;
+    }
+    .ext-badge {
+      position: absolute;
+      bottom: -3px;
+      right: -4px;
+      min-width: 16px;
+      height: 14px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 800;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      letter-spacing: 0.03em;
+      border: 1.5px solid #f1f3f4;
+    }
+  </style>
+</head>
+<body>
+<div class="slide slide--light">
+
+  <!-- Content -->
+  <div class="slide__content">
+    <div class="slide__logo">
+      <img src="../../icons/logo-envjumper.png" alt="EnvJumper" height="32">
+      <span>EnvJumper</span>
+    </div>
+
+    <h1 class="slide__title">
+      <span data-lang="fr">Bordure colorée<br>&amp; badge<br><span style="color:#4299E1;">toujours visible</span></span>
+      <span data-lang="en">Colored border<br>&amp; badge,<br><span style="color:#4299E1;">always visible</span></span>
+    </h1>
+
+    <p class="slide__subtitle">
+      <span data-lang="fr">Identifiez instantanément votre<br>environnement actif.</span>
+      <span data-lang="en">Instantly identify your<br>active environment.</span>
+    </p>
+
+    <div class="color-demo-list">
+      <div class="color-demo-item">
+        <div class="color-dot" style="background:#EF4444;box-shadow:0 2px 8px rgba(239,68,68,0.4);"></div>
+        <span class="color-demo-label">
+          <span data-lang="fr">Production — rouge</span>
+          <span data-lang="en">Production — red</span>
+        </span>
+      </div>
+      <div class="color-demo-item">
+        <div class="color-dot" style="background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,0.4);"></div>
+        <span class="color-demo-label">
+          <span data-lang="fr">Staging — orange</span>
+          <span data-lang="en">Staging — orange</span>
+        </span>
+      </div>
+      <div class="color-demo-item">
+        <div class="color-dot" style="background:#10B981;box-shadow:0 2px 8px rgba(16,185,129,0.4);"></div>
+        <span class="color-demo-label">
+          <span data-lang="fr">Dev — vert</span>
+          <span data-lang="en">Dev — green</span>
+        </span>
+      </div>
+      <div class="color-demo-item">
+        <div class="color-dot" style="background:#3B82F6;box-shadow:0 2px 8px rgba(59,130,246,0.4);"></div>
+        <span class="color-demo-label">
+          <span data-lang="fr">Local — bleu</span>
+          <span data-lang="en">Local — blue</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual -->
+  <div class="slide__visual">
+    <div class="browser-frame">
+      <!-- Browser chrome -->
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="browser-dot" style="background:#ff5f57;"></div>
+          <div class="browser-dot" style="background:#ffbd2e;"></div>
+          <div class="browser-dot" style="background:#28c840;"></div>
+        </div>
+        <div class="browser-nav-btns">
+          <div class="browser-nav-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+          <div class="browser-nav-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+        <div class="browser-addressbar">monprojet.com/dashboard</div>
+        <!-- Extension icon with badge -->
+        <div class="ext-icon-area">
+          <div class="ext-icon-btn">
+            <img src="../../icons/icon-16.png" alt="">
+            <span class="ext-badge" style="background:#EF4444;">PR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page content with border -->
+      <div class="browser-content">
+        <!-- Colored border -->
+        <div class="browser-border-indicator" style="border-color:#EF4444;"></div>
+
+        <!-- Env badge — collé à la bordure -->
+        <div class="env-badge-indicator" style="background:#EF4444;color:white;top:4px;left:4px;border-radius:0 0 4px 0;">Production</div>
+
+        <!-- Page skeleton -->
+        <div class="page-skeleton" style="padding-top:36px;">
+          <div class="skel skel-h1"></div>
+          <div class="skel skel-h2"></div>
+          <div class="skel skel-p"></div>
+          <div class="skel skel-p2"></div>
+          <div class="skel-grid">
+            <div class="skel-card"></div>
+            <div class="skel-card"></div>
+            <div class="skel-card"></div>
+          </div>
+          <div class="skel skel-p" style="width:55%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+<script>
+  const lang = new URLSearchParams(location.search).get('lang') || 'fr';
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = el.dataset.lang === lang ? '' : 'none';
+  });
+</script>
+</body>
+</html>
