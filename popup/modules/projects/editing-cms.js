@@ -319,8 +319,8 @@ function _buildWpSiteRow(groupId, group, site, idx, typeSelect, getPreviewDomain
     g.wpSites[currentIdx] = { label: labelInput.value.trim(), prefix: prefixInput.value.trim() };
     await saveGroups(groups);
   }
-  labelInput.addEventListener('change', saveSite);
-  prefixInput.addEventListener('change', saveSite);
+  labelInput.addEventListener('input', saveSite);
+  prefixInput.addEventListener('input', saveSite);
 
   const btnRemove = document.createElement('button');
   btnRemove.className = 'btn-remove-site';

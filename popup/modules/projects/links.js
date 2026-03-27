@@ -74,7 +74,7 @@ function buildLinkSettingsRow(groupId, group, link, linksList, callbacks = {}) {
   labelInput.style.flex = '1';
   labelInput.placeholder = t('linkLabelPlaceholder');
   labelInput.value = link.label || '';
-  labelInput.addEventListener('change', () => saveLinkField(groupId, link.id, 'label', labelInput.value));
+  labelInput.addEventListener('input', () => saveLinkField(groupId, link.id, 'label', labelInput.value));
   row.appendChild(labelInput);
 
   // Path input
@@ -84,6 +84,9 @@ function buildLinkSettingsRow(groupId, group, link, linksList, callbacks = {}) {
   pathInput.style.flex = '1.5';
   pathInput.placeholder = t('linkPathPlaceholder');
   pathInput.value = link.path || '/';
+  pathInput.addEventListener('input', () => {
+    saveLinkField(groupId, link.id, 'path', pathInput.value.trim());
+  });
   pathInput.addEventListener('change', () => {
     let path = pathInput.value.trim();
     if (path && !path.startsWith('/')) path = '/' + path;

@@ -150,6 +150,8 @@
   "onboardingDetectHint": { "message": "Open your project tabs and we'll take care of the rest." },
   "jumperNoProjects": { "message": "No projects configured." },
   "jumperSetupFirst": { "message": "Set up my first project →" },
+  "addCurrentPageAsLink": { "message": "Add this page to quick links" },
+  "addCurrentPageAsLinkPrefix": { "message": "Add" },
 
   "envSuggestionsTitle": { "message": "Environment suggestions" },
   "envSuggestionsSubtitle": { "message": "Detected from your open tabs" },

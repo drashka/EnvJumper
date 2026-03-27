@@ -14,6 +14,12 @@ const SLIDES = [
   'slide-05-team',
 ];
 
+// Promo tiles are language-agnostic (EN only) with fixed viewport sizes
+const PROMO_TILES = [
+  { name: 'promo-small', width: 440, height: 280 },
+  { name: 'promo-large', width: 1400, height: 560 },
+];
+
 async function generateScreenshots() {
   const browser = await chromium.launch();
 
@@ -36,6 +42,23 @@ async function generateScreenshots() {
 
       await page.close();
     }
+  }
+
+  // Generate promo tiles (EN only, no lang param)
+  const promoDir = join(__dirname, 'output', 'promo');
+  mkdirSync(promoDir, { recursive: true });
+
+  for (const { name, width, height } of PROMO_TILES) {
+    const page = await browser.newPage({ viewport: { width, height } });
+    const tilePath = resolve(__dirname, 'slides', `${name}.html`);
+    await page.goto(`file://${tilePath}`);
+    await page.waitForLoadState('networkidle');
+
+    const outputPath = join(promoDir, `${name}.png`);
+    await page.screenshot({ path: outputPath, type: 'png' });
+    console.log(`✓ promo/${name}.png`);
+
+    await page.close();
   }
 
   await browser.close();

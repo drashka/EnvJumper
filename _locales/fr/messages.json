@@ -150,6 +150,8 @@
   "onboardingDetectHint": { "message": "Ouvrez les onglets de votre projet et on s'occupe du reste." },
   "jumperNoProjects": { "message": "Aucun projet configuré." },
   "jumperSetupFirst": { "message": "Configurer mon premier projet →" },
+  "addCurrentPageAsLink": { "message": "Ajouter cette page aux liens rapides" },
+  "addCurrentPageAsLinkPrefix": { "message": "Ajouter" },
 
   "envSuggestionsTitle": { "message": "Suggestions d'environnements" },
   "envSuggestionsSubtitle": { "message": "Détectés depuis vos onglets ouverts" },

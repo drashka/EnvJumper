@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1400">
+  <title>EnvJumper — Promo 1400x560</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1400px;
+      height: 560px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f1623 0%, #1a2540 55%, #1b2d3e 100%);
+      color: #f7fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 100px;
+      position: relative;
+    }
+
+    /* Background glows */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 300px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(66,153,225,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      right: 400px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Left content ── */
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 520px;
+      z-index: 1;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo img { height: 40px; }
+
+    .logo-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.02em;
+    }
+
+    .tagline {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline .accent { color: #63b3ed; }
+
+    .sub {
+      font-size: 19px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.55;
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .feature-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ── Right: popup mockup ── */
+    .visual {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 1;
+    }
+
+    .popup {
+      width: 310px;
+      background: #1e2433;
+      border-radius: 10px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .popup-tabs {
+      display: flex;
+      background: #161b27;
+      padding: 0 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .popup-tab {
+      padding: 10px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #4a5568;
+      white-space: nowrap;
+    }
+
+    .popup-tab.active {
+      color: #63b3ed;
+      border-bottom: 2px solid #63b3ed;
+    }
+
+    .popup-body {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .group-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 2px 5px;
+    }
+
+    .env-card {
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+
+    .env-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 9px;
+      border-left: 3px solid;
+    }
+
+    .env-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .env-name {
+      font-size: 11px;
+      font-weight: 600;
+      flex: 1;
+      color: #e2e8f0;
+    }
+
+    .env-domain {
+      font-size: 9px;
+      color: #4a5568;
+    }
+
+    .current-badge {
+      font-size: 8px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 600;
+      background: rgba(239,68,68,0.15);
+      color: #fc8181;
+    }
+
+    .env-links {
+      padding: 5px 9px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .env-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: #718096;
+      padding: 3px 2px;
+    }
+
+    .env-link svg { flex-shrink: 0; opacity: 0.6; }
+    .env-link-path { font-size: 8.5px; color: #4a5568; margin-left: auto; }
+
+    .env-nav-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .env-nav-btn {
+      width: 22px;
+      height: 22px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Browser frame beside popup */
+    .browser-mini {
+      width: 260px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .browser-bar {
+      background: #f1f3f4;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .browser-dots { display: flex; gap: 4px; }
+    .browser-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .browser-addr {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 3px 8px;
+      font-size: 9px;
+      color: #718096;
+      border: 1px solid #e2e8f0;
+    }
+
+    .ext-icon-btn {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ext-icon-btn img { width: 14px; height: 14px; }
+
+    .ext-badge-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -3px;
+      min-width: 14px;
+      height: 12px;
+      border-radius: 3px;
+      font-size: 7px;
+      font-weight: 800;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 2px;
+      background: #EF4444;
+      border: 1.5px solid #f1f3f4;
+      letter-spacing: 0.02em;
+    }
+
+    .browser-page {
+      position: relative;
+      height: 200px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .page-border {
+      position: absolute;
+      inset: 0;
+      border: 4px solid #EF4444;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .page-env-label {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: #EF4444;
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 0 0 4px 0;
+      z-index: 20;
+      letter-spacing: 0.03em;
+    }
+
+    .page-skeleton {
+      padding: 36px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .skel {
+      background: #e2e8f0;
+      border-radius: 3px;
+    }
+
+    .skel-h { height: 20px; width: 60%; }
+    .skel-p { height: 10px; }
+    .skel-p2 { height: 10px; width: 75%; }
+    .skel-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .skel-card { height: 50px; background: #e2e8f0; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+  <!-- Left content -->
+  <div class="content">
+    <div class="logo">
+      <img src="../../icons/logo-envjumper.png" alt="EnvJumper">
+      <span class="logo-name">EnvJumper</span>
+    </div>
+
+    <div class="tagline">
+      Switch environments<br><span class="accent">in one click.</span>
+    </div>
+
+    <div class="sub">
+      Path preserved. Always know where you are.<br>Built for devs, designers, QA and PMs.
+    </div>
+
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-dot" style="background:#EF4444;"></div>
+        Colored border &amp; icon badge per environment
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot" style="background:#F97316;"></div>
+        CMS admin links — auto-detected
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot" style="background:#10B981;"></div>
+        Basic Auth handled automatically
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot" style="background:#3B82F6;"></div>
+        Export / import config with your team
+      </div>
+    </div>
+
+    <div class="badge-row">
+      <div class="badge" style="background:rgba(72,187,120,0.12);border:1px solid rgba(72,187,120,0.25);color:#68d391;">
+        ✓ Free &amp; open source
+      </div>
+      <div class="badge" style="background:rgba(66,153,225,0.12);border:1px solid rgba(66,153,225,0.25);color:#63b3ed;">
+        ✓ GPL v3 — no account
+      </div>
+    </div>
+  </div>
+
+  <!-- Right visuals -->
+  <div class="visual">
+
+    <!-- Browser window -->
+    <div class="browser-mini">
+      <div class="browser-bar">
+        <div class="browser-dots">
+          <div class="browser-dot" style="background:#ff5f57;"></div>
+          <div class="browser-dot" style="background:#ffbd2e;"></div>
+          <div class="browser-dot" style="background:#28c840;"></div>
+        </div>
+        <div class="browser-addr">myproject.com/dashboard</div>
+        <div class="ext-icon-btn">
+          <img src="../../icons/icon-16.png" alt="">
+          <span class="ext-badge-dot">PR</span>
+        </div>
+      </div>
+      <div class="browser-page">
+        <div class="page-border"></div>
+        <div class="page-env-label">Production</div>
+        <div class="page-skeleton">
+          <div class="skel skel-h"></div>
+          <div class="skel skel-p"></div>
+          <div class="skel skel-p2"></div>
+          <div class="skel-cards">
+            <div class="skel-card"></div>
+            <div class="skel-card"></div>
+            <div class="skel-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup">
+      <div class="popup-tabs">
+        <div class="popup-tab active">Jumper</div>
+        <div class="popup-tab">Projects</div>
+        <div class="popup-tab">Settings</div>
+      </div>
+      <div class="popup-body">
+        <div class="group-label">My Project</div>
+
+        <!-- Production — open -->
+        <div class="env-card">
+          <div class="env-header" style="border-left-color:#EF4444;background:rgba(239,68,68,0.08);">
+            <div class="env-dot" style="background:#EF4444;"></div>
+            <span class="env-name">Production</span>
+            <span class="current-badge">Current</span>
+          </div>
+          <div class="env-links">
+            <div class="env-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              Home
+              <span class="env-link-path">/</span>
+            </div>
+            <div class="env-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Dashboard
+              <span class="env-link-path">/dashboard</span>
+            </div>
+            <div class="env-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Account
+              <span class="env-link-path">/account</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staging -->
+        <div class="env-card">
+          <div class="env-header" style="border-left-color:#F97316;">
+            <div class="env-dot" style="background:#F97316;"></div>
+            <span class="env-name">Staging</span>
+            <span class="env-domain">staging.myproject.com</span>
+            <div class="env-nav-btns">
+              <div class="env-nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2.5" width="10" height="10"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              <div class="env-nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2.5" width="10" height="10"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dev -->
+        <div class="env-card">
+          <div class="env-header" style="border-left-color:#10B981;">
+            <div class="env-dot" style="background:#10B981;"></div>
+            <span class="env-name">Dev</span>
+            <span class="env-domain">dev.myproject.com</span>
+            <div class="env-nav-btns">
+              <div class="env-nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2.5" width="10" height="10"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              <div class="env-nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2.5" width="10" height="10"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local -->
+        <div class="env-card">
+          <div class="env-header" style="border-left-color:#3B82F6;">
+            <div class="env-dot" style="background:#3B82F6;"></div>
+            <span class="env-name">Local</span>
+            <span class="env-domain">localhost:3000</span>
+            <div class="env-nav-btns">
+              <div class="env-nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2.5" width="10" height="10"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              <div class="env-nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2.5" width="10" height="10"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -2,6 +2,46 @@
 
 /* ─── Label de groupe ──────────────────────────────────────── */
 
+.jumper-group-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.jumper-group-header .section-title {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+#jumper-add-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 2px 8px 2px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+  max-width: 140px;
+}
+
+#jumper-add-link-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#jumper-add-link-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border-strong, var(--color-text-muted));
+}
 
 /* ─── Cards d'environnements ───────────────────────────────── */
 

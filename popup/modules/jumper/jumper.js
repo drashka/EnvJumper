@@ -119,6 +119,26 @@ export async function renderJumperPanel() {
   const { group, env: currentEnv } = match;
   el('jumper-group-name').textContent = group.name;
 
+  // "Add current page as quick link" button — hidden if path already exists
+  const addLinkBtn = el('jumper-add-link-btn');
+  if (addLinkBtn) {
+    const currentPath = new URL(tab.url).pathname;
+    const alreadyExists = (group.links || []).some((l) => l.path === currentPath);
+    if (alreadyExists || !_noMatchActions?.onAddLinkToProject) {
+      addLinkBtn.classList.add('hidden');
+    } else {
+      const segment = currentPath.split('/').filter(Boolean).pop() || '';
+      const pageLabel = segment
+        ? segment.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').trim().replace(/^./, (c) => c.toUpperCase())
+        : '';
+      const linkSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/><line x1="19" x2="19" y1="3" y2="7"/><line x1="17" x2="21" y1="5" y2="5"/></svg>`;
+      addLinkBtn.innerHTML = `${linkSvg}<span>${t('addCurrentPageAsLinkPrefix')}${pageLabel ? ' ' + pageLabel : ''}</span>`;
+      addLinkBtn.title = t('addCurrentPageAsLink');
+      addLinkBtn.classList.remove('hidden');
+      addLinkBtn.onclick = () => _noMatchActions.onAddLinkToProject(group, currentPath);
+    }
+  }
+
   let wpIsLoggedIn = null;
   if (group.cms === 'wordpress') {
     wpIsLoggedIn = await getWpLoginStatus(tab.id);

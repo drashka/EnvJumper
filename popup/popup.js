@@ -189,6 +189,36 @@ setNoMatchActions({
   },
   onAddToProject: (group) => addEnvToProject(group),
   onSwitchToProjects: () => switchTab('environments'),
+  onAddLinkToProject: async (group, path) => {
+    const groups = await getGroups();
+    const g = groups.find((x) => x.id === group.id);
+    if (!g) return;
+    if (!g.links) g.links = [];
+    const maxOrder = g.links.length > 0 ? Math.max(...g.links.map((l) => l.order || 0)) + 1 : 0;
+    const segment = path.split('/').filter(Boolean).pop() || '';
+    const label = segment
+      ? (segment.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').trim().replace(/^./, (c) => c.toUpperCase()))
+      : '';
+    const newLink = { id: generateId(), label, path, icon: 'link', order: maxOrder };
+    g.links.push(newLink);
+    await saveGroups(groups);
+    group.links = g.links;
+
+    await renderEnvironmentsPanel();
+    switchTab('environments');
+    openProjectEdit(group);
+
+    setTimeout(() => {
+      document.querySelector('.project-subtab[data-subtab="links"]')?.click();
+      setTimeout(() => {
+        const rows = document.querySelectorAll('#project-subtab-content .link-settings-row');
+        const lastRow = rows[rows.length - 1];
+        if (!lastRow) return;
+        const labelInput = lastRow.querySelector('input[type="text"]');
+        if (labelInput) { labelInput.focus(); labelInput.select(); }
+      }, 80);
+    }, 80);
+  },
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
