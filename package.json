@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "screenshots": "node screenshots/generate.js",
+    "screenshots:extension": "node screenshots/capture-extension.js",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",

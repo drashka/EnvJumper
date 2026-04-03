@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Drashka
 // Licence : GPL v3 — voir le fichier LICENSE
 
-import { getSettings, saveSettings } from '../helpers/storage.js';
+import { getSettings, saveSettings, getGroups } from '../helpers/storage.js';
 import { t } from '../i18n.js';
 import { el } from '../helpers/ui-helpers.js';
 
@@ -10,11 +10,12 @@ import { el } from '../helpers/ui-helpers.js';
  * Renders the Settings panel: environment marker options + keyboard shortcut.
  */
 export async function renderSettingsPanel() {
-  const settings = await getSettings();
+  const [settings, groups] = await Promise.all([getSettings(), getGroups()]);
   const generalContainer = el('general-settings-container');
   generalContainer.innerHTML = '';
   generalContainer.appendChild(_buildMarkerSettings(settings));
   generalContainer.appendChild(await _buildKeyboardShortcutSection());
+  updateExportGroupSelect(groups);
 }
 
 /**

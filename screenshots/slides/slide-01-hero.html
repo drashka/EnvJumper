@@ -16,24 +16,13 @@
     .env-card-mock__header--dev {
       border-left-color: #10B981;
     }
-    .popup-mockup--dark .env-card-mock__header--staging,
-    .popup-mockup--dark .env-card-mock__header--dev {
-      background: rgba(255,255,255,0.02);
-    }
-    .popup-mockup--dark .env-card-mock__header--prod {
-      background: rgba(239,68,68,0.1);
-    }
     .badge-current {
-      background: rgba(239,68,68,0.15);
+      background: rgba(239,68,68,0.12);
       color: #EF4444;
-      font-size: 9px;
-      padding: 2px 7px;
+      font-size: 11px;
+      padding: 2px 8px;
       border-radius: 10px;
       font-weight: 600;
-    }
-    .popup-mockup--dark .badge-current {
-      background: rgba(239,68,68,0.2);
-      color: #fc8181;
     }
     .slide__arrow {
       font-size: 28px;
@@ -48,13 +37,13 @@
       flex-wrap: wrap;
     }
     .step-pill {
-      padding: 5px 14px;
+      padding: 7px 18px;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 17px;
       font-weight: 600;
     }
     .step-sep {
-      font-size: 18px;
+      font-size: 22px;
       opacity: 0.4;
     }
     .slide__subtitle--highlight {
@@ -63,14 +52,14 @@
       gap: 8px;
     }
     .slide__subtitle-main {
-      font-size: 20px;
+      font-size: 24px;
       opacity: 0.75;
       line-height: 1.5;
     }
   </style>
 </head>
 <body>
-<div class="slide slide--dark">
+<div class="slide slide--light">
 
   <!-- Content -->
   <div class="slide__content">
@@ -79,16 +68,20 @@
       <span>EnvJumper</span>
     </div>
 
-    <div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <span class="slide__badge bg-accent-blue">
         <span data-lang="fr">Open Source &amp; Gratuit</span>
         <span data-lang="en">Open Source &amp; Free</span>
       </span>
+      <span class="slide__badge" style="background:rgba(107,114,128,0.12);color:#4a5568;">
+        <span data-lang="fr">Aucune donnée collectée</span>
+        <span data-lang="en">No data collected</span>
+      </span>
     </div>
 
     <h1 class="slide__title">
-      <span data-lang="fr">Sautez entre vos<br>environnements<br><span class="accent-blue">en un clic</span></span>
-      <span data-lang="en">Jump between your<br>environments<br><span class="accent-blue">in one click</span></span>
+      <span data-lang="fr">Sautez entre vos environnements<br><span class="accent-blue">en un clic</span></span>
+      <span data-lang="en">Jump between<br>your environments<br><span class="accent-blue">in one click</span></span>
     </h1>
 
     <p class="slide__subtitle">
@@ -107,7 +100,7 @@
 
   <!-- Visual -->
   <div class="slide__visual">
-    <div class="popup-mockup popup-mockup--dark">
+    <div class="popup-mockup">
 
       <!-- Tabs -->
       <div class="popup-header">
