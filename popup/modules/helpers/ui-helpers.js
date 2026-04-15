@@ -80,6 +80,47 @@ export function confirm(message) {
 }
 
 /**
+ * Opens a URL in a new tab positioned right after the current tab.
+ * @param {string} url
+ */
+export function openTab(url) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const opts = { url };
+    if (tabs[0]?.index !== undefined) opts.index = tabs[0].index + 1;
+    chrome.tabs.create(opts);
+  });
+}
+
+/** MediaQueryList for detecting system dark mode. */
+const _darkMq = typeof window !== 'undefined' && window.matchMedia
+  ? window.matchMedia('(prefers-color-scheme: dark)')
+  : null;
+
+/** Active listener reference for system theme changes. */
+let _mqListener = null;
+
+/**
+ * Applies the theme to the document based on the user's preference.
+ * @param {'system'|'light'|'dark'} theme
+ */
+export function applyTheme(theme) {
+  if (!_darkMq) return;
+  // Remove previous system listener if any
+  if (_mqListener) { _darkMq.removeEventListener('change', _mqListener); _mqListener = null; }
+
+  if (theme === 'dark') {
+    document.documentElement.dataset.theme = 'dark';
+  } else if (theme === 'light') {
+    document.documentElement.dataset.theme = 'light';
+  } else {
+    // system: apply current OS preference and listen for changes
+    document.documentElement.dataset.theme = _darkMq.matches ? 'dark' : 'light';
+    _mqListener = (e) => { document.documentElement.dataset.theme = e.matches ? 'dark' : 'light'; };
+    _darkMq.addEventListener('change', _mqListener);
+  }
+}
+
+/**
  * Displays an import error message.
  * @param {string} msg
  */

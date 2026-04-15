@@ -7,6 +7,10 @@
   "tabEnvironments": { "message": "Projects" },
   "subtabEnvironments": { "message": "Environments" },
   "deleteEnvironment": { "message": "Delete environment" },
+  "themeSection": { "message": "Theme" },
+  "themeSystem": { "message": "System" },
+  "themeLight": { "message": "Light" },
+  "themeDark": { "message": "Dark" },
   "markerSection": { "message": "Environment Marker" },
   "showFrame": { "message": "Show color frame" },
   "showLabel": { "message": "Show environment label" },
@@ -164,5 +168,6 @@
   "keyboardShortcutSection": { "message": "Keyboard shortcut" },
   "keyboardShortcutChangeHint": { "message": "To change this shortcut, go to Chrome settings." },
   "keyboardShortcutOpenChrome": { "message": "Open Chrome shortcuts" },
-  "keyboardShortcutNotSet": { "message": "Not set" }
+  "keyboardShortcutNotSet": { "message": "Not set" },
+  "switchSite": { "message": "Switch site" }
 }

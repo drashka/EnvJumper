@@ -4,9 +4,9 @@
 
 import { getGroups } from '../helpers/storage.js';
 import { t } from '../i18n.js';
-import { el, show, hide, buildTargetUrl } from '../helpers/ui-helpers.js';
+import { el, show, hide, buildTargetUrl, openTab } from '../helpers/ui-helpers.js';
 import { getWpLoginStatus } from '../projects/wordpress.js';
-import { hideSiteSelector } from './jumper-multisite.js';
+import { showSiteSelector, hideSiteSelector } from './jumper-multisite.js';
 import { buildJumperCardBody } from './jumper-links.js';
 import { renderNoMatchPanel, hideProjectChooser } from './jumper-no-match.js';
 import { findMatch } from '../../../background/utils.js';
@@ -237,11 +237,38 @@ function _buildJumperCard(env, isCurrent, currentUrl, wpIsLoggedIn, group) {
   btnNewTab.addEventListener('click', (e) => {
     e.stopPropagation();
     const url = buildTargetUrl(currentUrl, env.domain, env.protocol || 'https');
-    if (url) chrome.tabs.create({ url });
+    if (url) openTab(url);
   });
 
   actions.appendChild(btnSameTab);
   actions.appendChild(btnNewTab);
+
+  if (group.isWordPressMultisite && group.wpSites && group.wpSites.length > 0) {
+    const btnSites = document.createElement('button');
+    btnSites.className = 'btn-icon';
+    btnSites.title = t('switchSite');
+    btnSites.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+    btnSites.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const parsed = new URL(currentUrl);
+      let path = parsed.pathname;
+
+      // Strip the current site prefix from the path for subdirectory multisite
+      if (group.wpMultisiteType === 'subdirectory') {
+        for (const site of group.wpSites) {
+          if (site.prefix && path.startsWith(`/${site.prefix}/`)) {
+            path = path.slice(site.prefix.length + 1);
+            break;
+          }
+        }
+      }
+
+      const syntheticLink = { label: path, path: path + parsed.search + parsed.hash };
+      showSiteSelector(env, syntheticLink, group);
+    });
+    actions.appendChild(btnSites);
+  }
+
   header.appendChild(actions);
 
   const chevron = document.createElement('span');

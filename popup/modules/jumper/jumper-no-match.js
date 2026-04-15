@@ -4,6 +4,7 @@
 
 import { t } from '../i18n.js';
 import { ICONS } from '../icons.js';
+import { openTab } from '../helpers/ui-helpers.js';
 import { _fetchGroupFavicon } from '../projects/editing.js';
 
 /** Normalizes a string for case/accent-insensitive search. */
@@ -226,7 +227,7 @@ function _buildEnvRow(env) {
   btnNew.className = 'btn-icon';
   btnNew.title = t('openNewTab');
   btnNew.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M11 3h6v6M17 3l-8 8M8 5H4a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-4"/></svg>`;
-  btnNew.addEventListener('click', (e) => { e.stopPropagation(); chrome.tabs.create({ url: rootUrl }); });
+  btnNew.addEventListener('click', (e) => { e.stopPropagation(); openTab(rootUrl); });
 
   actions.appendChild(btnSame);
   actions.appendChild(btnNew);

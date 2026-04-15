@@ -3,7 +3,7 @@
 // Licence : GPL v3 — voir le fichier LICENSE
 
 import { t } from '../i18n.js';
-import { el } from '../helpers/ui-helpers.js';
+import { el, openTab } from '../helpers/ui-helpers.js';
 import { buildMultisiteUrl } from '../projects/wordpress.js';
 
 /**
@@ -13,6 +13,9 @@ import { buildMultisiteUrl } from '../projects/wordpress.js';
  * @param {object} group
  */
 export function showSiteSelector(env, link, group) {
+  const msType = group.wpMultisiteType || 'subdomain';
+  const proto = env.protocol || 'https';
+
   const subtitle = el('jumper-site-subtitle');
   if (subtitle) subtitle.textContent = link.label || link.path;
 
@@ -38,8 +41,8 @@ export function showSiteSelector(env, link, group) {
     }
 
     btn.addEventListener('click', () => {
-      const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
-      chrome.tabs.create({ url });
+      const url = buildMultisiteUrl(env.domain, site.prefix || '', msType, link.path, proto);
+      openTab(url);
       hideSiteSelector();
     });
     sitesList.appendChild(btn);
@@ -57,8 +60,8 @@ export function showSiteSelector(env, link, group) {
   allBtn.textContent = t('allSites');
   allBtn.addEventListener('click', () => {
     (group.wpSites || []).forEach((site) => {
-      const url = buildMultisiteUrl(env.domain, site.prefix || '', 'subdirectory', link.path);
-      chrome.tabs.create({ url });
+      const url = buildMultisiteUrl(env.domain, site.prefix || '', msType, link.path, proto);
+      openTab(url);
     });
     hideSiteSelector();
   });
@@ -70,8 +73,7 @@ export function showSiteSelector(env, link, group) {
   noBtn.className = 'jumper-site-btn jumper-site-btn--outline';
   noBtn.textContent = t('withoutPrefix');
   noBtn.addEventListener('click', () => {
-    const proto = env.protocol || 'https';
-    chrome.tabs.create({ url: `${proto}://${env.domain}${link.path}` });
+    openTab(`${proto}://${env.domain}${link.path}`);
     hideSiteSelector();
   });
   sitesList.appendChild(noBtn);

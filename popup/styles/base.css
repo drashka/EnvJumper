@@ -85,40 +85,39 @@
   --radius: var(--radius-md);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary:     #1A202C;
-    --bg-card:        #2D3748;
-    --text-primary:   #F7FAFC;
-    --text-secondary: #A0AEC0;
-    --border:         #4A5568;
-    --border-light:   #4A5568;
-    --text-muted:     #718096;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
-    --shadow:    0 2px 8px rgba(0,0,0,.4);
+/* ── Dark theme — applied via data-theme attribute set by JS ── */
+html[data-theme="dark"] {
+  --bg-primary:     #1A202C;
+  --bg-card:        #2D3748;
+  --text-primary:   #F7FAFC;
+  --text-secondary: #A0AEC0;
+  --border:         #4A5568;
+  --border-light:   #4A5568;
+  --text-muted:     #718096;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow:    0 2px 8px rgba(0,0,0,.4);
 
-    --color-primary-hover: #63B3ED;
-    --color-danger-hover:  #FC8181;
-    --color-success-bg:     #1C4532;
-    --color-success-text:   #9AE6B4;
-    --color-success-border: #276749;
-    --color-error-bg:       #742A2A;
-    --color-error-border:   #9B2C2C;
-    --color-error-text:     #FC8181;
-    --color-suggestion-bg:   #78350F;
-    --color-suggestion-icon: #FCD34D;
+  --color-primary-hover: #63B3ED;
+  --color-danger-hover:  #FC8181;
+  --color-success-bg:     #1C4532;
+  --color-success-text:   #9AE6B4;
+  --color-success-border: #276749;
+  --color-error-bg:       #742A2A;
+  --color-error-border:   #9B2C2C;
+  --color-error-text:     #FC8181;
+  --color-suggestion-bg:   #78350F;
+  --color-suggestion-icon: #FCD34D;
 
-    --wp-bg:     #1A365D;
-    --wp-border: #2C5282;
-    --wp-title:  #90CDF4;
-  }
-
-  /* Scrollbar discrète en dark mode */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: #4A5568;
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover { background: #718096; }
+  --wp-bg:     #1A365D;
+  --wp-border: #2C5282;
+  --wp-title:  #90CDF4;
 }
+
+/* Scrollbar discrète en dark mode */
+html[data-theme="dark"] ::-webkit-scrollbar { width: 6px; height: 6px; }
+html[data-theme="dark"] ::-webkit-scrollbar-track { background: transparent; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #4A5568;
+  border-radius: 3px;
+}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #718096; }

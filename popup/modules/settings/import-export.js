@@ -4,7 +4,7 @@
 
 import { getGroups, saveGroups, getSettings, saveSettings, generateId } from '../helpers/storage.js';
 import { t } from '../i18n.js';
-import { el, hide, showImportError, showImportSuccess, showImportModal } from '../helpers/ui-helpers.js';
+import { el, hide, showImportError, showImportSuccess, showImportModal, applyTheme } from '../helpers/ui-helpers.js';
 import { renderEnvironmentsPanel } from '../projects/projects.js';
 
 /**
@@ -142,7 +142,9 @@ export function initExportImport() {
     // Import global settings if present
     if (data.settings) {
       const currentSettings = await getSettings();
-      await saveSettings({ ...currentSettings, ...data.settings });
+      const merged = { ...currentSettings, ...data.settings };
+      await saveSettings(merged);
+      applyTheme(merged.theme || 'system');
     }
 
     const { renderJumperPanel } = await import('../jumper/jumper.js');

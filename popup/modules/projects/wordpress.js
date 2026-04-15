@@ -8,16 +8,18 @@
  * @param {string} prefix - e.g. "fr" or "" for the main site
  * @param {string} type - "subdomain" or "subdirectory"
  * @param {string} path - e.g. "/wp-admin/"
+ * @param {string} [protocol='https'] - "https" or "http"
  * @returns {string}
  */
-export function buildMultisiteUrl(envDomain, prefix, type, path) {
+export function buildMultisiteUrl(envDomain, prefix, type, path, protocol) {
+  const proto = protocol || 'https';
   if (type === 'subdirectory') {
     const base = prefix ? `${envDomain}/${prefix}` : envDomain;
-    return `https://${base}${path}`;
+    return `${proto}://${base}${path}`;
   }
   // default: subdomain
   const host = prefix ? `${prefix}.${envDomain}` : envDomain;
-  return `https://${host}${path}`;
+  return `${proto}://${host}${path}`;
 }
 
 /**

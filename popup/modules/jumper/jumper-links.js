@@ -4,6 +4,7 @@
 
 import { t } from '../i18n.js';
 import { ICONS } from '../icons.js';
+import { openTab } from '../helpers/ui-helpers.js';
 import { showSiteSelector } from './jumper-multisite.js';
 
 /**
@@ -80,7 +81,7 @@ export function buildJumperCardBody(env, group, wpIsLoggedIn) {
         } else {
           row.addEventListener('click', () => {
             const proto = env.protocol || 'https';
-            chrome.tabs.create({ url: `${proto}://${env.domain}${link.path}` });
+            openTab(`${proto}://${env.domain}${link.path}`);
           });
         }
       }

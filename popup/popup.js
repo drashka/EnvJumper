@@ -3,11 +3,11 @@
 // Licence : GPL v3 — voir le fichier LICENSE
 
 import { applyI18n, t } from './modules/i18n.js';
-import { generateId, getGroups, saveGroups, COLOR_PALETTE } from './modules/helpers/storage.js';
+import { generateId, getGroups, getSettings, saveGroups, COLOR_PALETTE } from './modules/helpers/storage.js';
 import { initTabs, switchTab, setSettingsRenderer, setEnvironmentsRenderer } from './modules/tabs.js';
 import { renderJumperPanel, initJumper, setNoMatchActions } from './modules/jumper/jumper.js';
 import { initExportImport } from './modules/settings/import-export.js';
-import { el } from './modules/helpers/ui-helpers.js';
+import { el, applyTheme } from './modules/helpers/ui-helpers.js';
 import { renderEnvironmentsPanel, setProjectsActions } from './modules/projects/projects.js';
 import { openProjectEdit, initEnvironmentsPanel } from './modules/projects/editing.js';
 import { renderSettingsPanel } from './modules/settings/settings.js';
@@ -222,6 +222,9 @@ setNoMatchActions({
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const settings = await getSettings();
+  applyTheme(settings.theme || 'system');
+
   applyI18n();
   initTabs();
   initJumper();

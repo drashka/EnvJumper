@@ -4,7 +4,7 @@
 
 import { getSettings, saveSettings, getGroups } from '../helpers/storage.js';
 import { t } from '../i18n.js';
-import { el } from '../helpers/ui-helpers.js';
+import { el, applyTheme } from '../helpers/ui-helpers.js';
 
 /**
  * Renders the Settings panel: environment marker options + keyboard shortcut.
@@ -13,6 +13,7 @@ export async function renderSettingsPanel() {
   const [settings, groups] = await Promise.all([getSettings(), getGroups()]);
   const generalContainer = el('general-settings-container');
   generalContainer.innerHTML = '';
+  generalContainer.appendChild(_buildThemeSettings(settings));
   generalContainer.appendChild(_buildMarkerSettings(settings));
   generalContainer.appendChild(await _buildKeyboardShortcutSection());
   updateExportGroupSelect(groups);
@@ -83,6 +84,49 @@ async function _buildKeyboardShortcutSection() {
   });
   section.appendChild(link);
 
+  return section;
+}
+
+/**
+ * Builds the "Theme" settings section with system / light / dark buttons.
+ * @param {object} settings
+ * @returns {HTMLElement}
+ */
+function _buildThemeSettings(settings) {
+  const section = document.createElement('div');
+  section.className = 'general-settings-section';
+
+  const title = document.createElement('div');
+  title.className = 'section-title';
+  title.textContent = t('themeSection');
+  section.appendChild(title);
+
+  const THEMES = [
+    { id: 'system', label: t('themeSystem') },
+    { id: 'light',  label: t('themeLight') },
+    { id: 'dark',   label: t('themeDark') },
+  ];
+
+  const row = document.createElement('div');
+  row.className = 'theme-row';
+
+  THEMES.forEach(({ id, label }) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'theme-btn' + ((settings.theme || 'system') === id ? ' active' : '');
+    btn.dataset.theme = id;
+    btn.textContent = label;
+    btn.addEventListener('click', async () => {
+      row.querySelectorAll('.theme-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyTheme(id);
+      const current = await getSettings();
+      await saveSettings({ ...current, theme: id });
+    });
+    row.appendChild(btn);
+  });
+
+  section.appendChild(row);
   return section;
 }
 
