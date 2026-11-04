@@ -1,8 +1,8 @@
 # Politique de confidentialité — EnvJumper
 
-🇬🇧 [English version](PRIVACY.md)
+🇬🇧 [English version](PRIVACY.md) · 🇪🇸 [Versión en español](PRIVACY.es.md)
 
-**Dernière mise à jour :** mars 2026
+**Dernière mise à jour :** novembre 2026
 
 ---
 
@@ -12,14 +12,14 @@ EnvJumper est une extension Chrome open source développée de façon indépenda
 
 ## Données stockées
 
-EnvJumper stocke les données suivantes **localement sur votre appareil**, via les APIs de stockage intégrées à Chrome :
+EnvJumper stocke les données suivantes via les APIs de stockage intégrées à Chrome :
 
 - **Noms de projets et d'environnements** — les noms que vous donnez à vos projets et environnements
 - **Domaines des environnements** — les domaines que vous configurez (ex : `staging.exemple.com`)
-- **Configuration CMS** — type de CMS, chemin de connexion, chemin admin
+- **Configuration CMS et liens rapides** — type de CMS, chemin admin, sites WordPress Multisite, liens personnalisés
 - **Identifiants Basic Auth** — nom d'utilisateur et mot de passe pour les environnements où vous activez l'authentification HTTP Basic Auth
-- **Préférences utilisateur** — position du badge, état du mode discret
-- **Cache des favicons** — favicons des sites configurés, stockés localement
+- **Préférences d'affichage** — affichage de la bordure et du badge, position et taille du badge, thème
+- **Cache des favicons** — adresse du favicon de chaque projet, conservée 24 heures
 
 ---
 
@@ -27,20 +27,35 @@ EnvJumper stocke les données suivantes **localement sur votre appareil**, via l
 
 | Stockage | Quoi | Portée |
 |---|---|---|
-| `chrome.storage.sync` | Projets, environnements, config CMS, identifiants Basic Auth, préférences | Synchronisé entre vos appareils Chrome sur le même compte Google |
-| `chrome.storage.local` | État du mode discret, cache des favicons | Appareil local uniquement |
+| `chrome.storage.local` | Projets, environnements, config CMS, liens, identifiants Basic Auth, cache des favicons | Appareil local uniquement |
+| `chrome.storage.sync` | Préférences d'affichage | Synchronisé entre vos appareils Chrome si vous êtes connecté à Chrome |
 
-**Aucune donnée n'est jamais envoyée à un serveur externe.** EnvJumper fonctionne entièrement en local. Il n'y a pas de backend, pas d'appel API, pas d'analytics, pas de télémétrie.
+Vos projets et vos identifiants **ne sont pas synchronisés** : ils restent sur l'appareil où vous les avez saisis. Pour les transférer, utilisez l'export JSON.
+
+---
+
+## Requêtes réseau
+
+EnvJumper n'a pas de backend, pas d'analytics et pas de télémétrie. Les seules requêtes effectuées par l'extension elle-même servent à afficher l'icône de vos projets :
+
+- **Vos domaines configurés** — EnvJumper tente de récupérer `/favicon.ico` sur les domaines de vos environnements.
+- **Service de favicons de Google** — si aucun favicon n'est trouvé, EnvJumper charge l'icône depuis `https://www.google.com/s2/favicons`. Le **nom de domaine** du premier environnement du projet est alors transmis à Google. Aucune autre donnée (chemin, identifiants, nom du projet) n'est envoyée.
+
+---
+
+## Contenu des pages
+
+Lorsque vous créez un projet depuis un site, EnvJumper analyse la page courante **localement** pour détecter le CMS utilisé (WordPress, Joomla, Drupal…). Sur les sites WordPress configurés, il vérifie aussi si vous êtes connecté, pour adapter les liens d'administration. Ces informations ne sont ni stockées en dehors de la configuration du projet, ni transmises à qui que ce soit.
 
 ---
 
 ## Identifiants Basic Auth
 
-Les noms d'utilisateur et mots de passe Basic Auth sont stockés dans `chrome.storage.sync`. Cela signifie qu'ils peuvent être synchronisés entre vos appareils Chrome si vous êtes connecté à Chrome. Ils sont :
+Les noms d'utilisateur et mots de passe Basic Auth sont stockés dans `chrome.storage.local`, sur votre appareil uniquement. Ils sont :
 
+- **Envoyés uniquement au domaine pour lequel vous les avez configurés**, en réponse à une demande d'authentification de ce domaine
 - **Jamais transmis à un tiers**
-- **Jamais envoyés en dehors de l'infrastructure de synchronisation de Chrome** (synchronisation chiffrée de Google)
-- **Non inclus dans les exports JSON par défaut** — vous devez explicitement l'activer lors de l'export
+- **Inclus dans les exports JSON par défaut** — une case à cocher permet de les exclure avant l'export. Si vous les incluez, le fichier exporté contient les mots de passe en clair : partagez-le avec précaution.
 
 ---
 
@@ -60,12 +75,13 @@ EnvJumper ne collecte **aucune donnée d'usage** de quelque nature que ce soit :
 
 | Permission | Pourquoi elle est nécessaire |
 |---|---|
-| `storage` | Stocker la configuration de vos projets et environnements |
-| `tabs` | Lire l'URL de l'onglet actif pour la comparer aux environnements configurés |
-| `activeTab` | Détecter le type de CMS sur la page courante et injecter la bordure colorée |
-| `webRequest` | Répondre automatiquement aux challenges HTTP Basic Auth sur les domaines configurés |
-| `contextMenus` | Ajouter un menu clic droit pour switcher d'environnement rapidement |
-| `<all_urls>` (host permissions) | Injecter la bordure colorée et le badge sur toutes les pages correspondant aux environnements configurés, et répondre aux challenges Basic Auth sur tous les domaines |
+| `storage` | Stocker la configuration de vos projets, environnements et préférences |
+| `tabs` | Lire l'URL de l'onglet actif pour la comparer aux environnements configurés et ouvrir un environnement dans un nouvel onglet |
+| `activeTab` | Accéder à l'onglet courant lorsque vous utilisez l'extension |
+| `scripting` | Détecter le CMS de la page courante lors de la création d'un projet |
+| `webRequest`, `webRequestAuthProvider` | Répondre automatiquement aux demandes HTTP Basic Auth sur les domaines configurés |
+| `contextMenus` | Ajouter un menu clic droit pour ouvrir un lien dans un autre environnement |
+| `<all_urls>` (host permissions) | Afficher la bordure colorée et le badge sur les pages correspondant à vos environnements, quel que soit leur domaine, et y gérer le Basic Auth |
 
 ---
 
@@ -75,7 +91,7 @@ Vous pouvez supprimer toutes les données stockées par EnvJumper à tout moment
 
 - En supprimant des projets individuels dans l'onglet **Projets**
 - En désinstallant l'extension (efface tout le stockage local)
-- En supprimant les données de synchronisation de l'extension depuis les paramètres de votre compte Google
+- En supprimant les données de synchronisation de Chrome depuis les paramètres de votre compte Google (préférences d'affichage uniquement)
 
 ---
 

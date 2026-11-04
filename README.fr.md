@@ -24,7 +24,7 @@ EnvJumper est une extension Chrome qui permet de naviguer instantanément entre 
 - **Détection automatique** — Créez un projet depuis l'onglet actif : EnvJumper détecte l'URL, le CMS et les onglets connexes ouverts pour pré-remplir vos environnements
 - **Multi-CMS** — Liens rapides prédéfinis pour WordPress, Joomla, Drupal, PrestaShop, Magento et Shopify, avec détection automatique du CMS sur la page
 - **WordPress Multisite** — Ouvrez un permalien sur tous les sites du réseau en un clic, accédez au Network Admin et aux plugins (modes sous-domaines et sous-dossiers), avec détection automatique des sites du réseau
-- **Basic Auth** — Stockez les identifiants HTTP Basic Auth par environnement, synchronisés entre vos appareils
+- **Basic Auth** — Stockez les identifiants HTTP Basic Auth par environnement, conservés localement sur votre appareil
 - **Menu clic droit** — Accédez à n'importe quel environnement directement depuis le menu contextuel du navigateur
 - **Affichage personnalisable** — Activez ou désactivez indépendamment la bordure colorée et le badge depuis les Paramètres
 - **Export / Import** — Partagez votre configuration entre collègues via un fichier JSON
@@ -115,7 +115,7 @@ EnvJumper peut également détecter automatiquement les sites du réseau depuis 
 - **Vanilla JS** — pas de framework, ES Modules natifs
 - **CSS custom** — design sobre et professionnel, sans framework
 - **Lucide Icons** — jeu d'icônes SVG léger
-- **chrome.storage.sync** — configuration synchronisée entre appareils
+- **chrome.storage.local / sync** — projets stockés localement, préférences d'affichage synchronisées entre appareils
 
 ---
 

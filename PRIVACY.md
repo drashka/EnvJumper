@@ -1,8 +1,8 @@
 # Privacy Policy — EnvJumper
 
-🇫🇷 [Version française](PRIVACY.fr.md)
+🇫🇷 [Version française](PRIVACY.fr.md) · 🇪🇸 [Versión en español](PRIVACY.es.md)
 
-**Last updated:** March 2026
+**Last updated:** November 2026
 
 ---
 
@@ -12,14 +12,14 @@ EnvJumper is an open-source Chrome extension developed independently. This polic
 
 ## What data is stored
 
-EnvJumper stores the following data **locally on your device**, using Chrome's built-in storage APIs:
+EnvJumper stores the following data using Chrome's built-in storage APIs:
 
 - **Project and environment names** — the names you give to your projects and environments
 - **Environment domains** — the domains you configure (e.g. `staging.example.com`)
-- **CMS configuration** — CMS type, login path, admin path
+- **CMS configuration and quick links** — CMS type, admin path, WordPress Multisite sites, custom links
 - **Basic Auth credentials** — username and password for environments where you enable HTTP Basic Auth
-- **User preferences** — badge position, stealth mode state
-- **Favicon cache** — cached favicons of configured sites, stored locally
+- **Display preferences** — border and badge visibility, badge position and size, theme
+- **Favicon cache** — the favicon address of each project, kept for 24 hours
 
 ---
 
@@ -27,20 +27,35 @@ EnvJumper stores the following data **locally on your device**, using Chrome's b
 
 | Storage | What | Scope |
 |---|---|---|
-| `chrome.storage.sync` | Projects, environments, CMS config, Basic Auth credentials, preferences | Synced across Chrome devices on the same Google account |
-| `chrome.storage.local` | Stealth mode state, favicon cache | Local device only |
+| `chrome.storage.local` | Projects, environments, CMS config, links, Basic Auth credentials, favicon cache | Local device only |
+| `chrome.storage.sync` | Display preferences | Synced across your Chrome devices if you are signed into Chrome |
 
-**No data is ever sent to an external server.** EnvJumper operates entirely locally. There is no backend, no API call, no analytics, no telemetry.
+Your projects and credentials **are not synced**: they stay on the device where you entered them. Use the JSON export to move them.
+
+---
+
+## Network requests
+
+EnvJumper has no backend, no analytics and no telemetry. The only requests made by the extension itself are used to display your project icons:
+
+- **Your configured domains** — EnvJumper tries to fetch `/favicon.ico` from your environments' domains.
+- **Google's favicon service** — if no favicon is found, EnvJumper loads the icon from `https://www.google.com/s2/favicons`. The **domain name** of the project's first environment is sent to Google. No other data (path, credentials, project name) is sent.
+
+---
+
+## Page content
+
+When you create a project from a website, EnvJumper analyzes the current page **locally** to detect its CMS (WordPress, Joomla, Drupal…). On configured WordPress sites, it also checks whether you are logged in, to adapt the admin links. This information is not stored outside the project configuration and is never sent to anyone.
 
 ---
 
 ## Basic Auth credentials
 
-Basic Auth usernames and passwords are stored in `chrome.storage.sync`. This means they may be synced across your Chrome devices if you are signed into Chrome. They are:
+Basic Auth usernames and passwords are stored in `chrome.storage.local`, on your device only. They are:
 
+- **Sent only to the domain you configured them for**, in response to an authentication challenge from that domain
 - **Never transmitted to any third party**
-- **Never sent outside of Chrome's own sync infrastructure** (Google's encrypted sync)
-- **Not included in JSON exports by default** — you must explicitly opt in when exporting
+- **Included in JSON exports by default** — a checkbox lets you exclude them before exporting. If you include them, the exported file contains the passwords in plain text: share it with care.
 
 ---
 
@@ -60,12 +75,13 @@ EnvJumper collects **no usage data** of any kind:
 
 | Permission | Why it is needed |
 |---|---|
-| `storage` | Store your project and environment configuration |
-| `tabs` | Read the current tab URL to match it against configured environments |
-| `activeTab` | Detect the CMS type on the current page and inject the colored border |
-| `webRequest` | Automatically respond to HTTP Basic Auth challenges on configured domains |
-| `contextMenus` | Add a right-click menu for quick environment switching |
-| `<all_urls>` (host permissions) | Inject the colored border and badge on all pages matching configured environments, and respond to Basic Auth challenges across all domains |
+| `storage` | Store your project, environment and preference configuration |
+| `tabs` | Read the current tab URL to match it against configured environments, and open an environment in a new tab |
+| `activeTab` | Access the current tab when you use the extension |
+| `scripting` | Detect the CMS of the current page when creating a project |
+| `webRequest`, `webRequestAuthProvider` | Automatically respond to HTTP Basic Auth challenges on configured domains |
+| `contextMenus` | Add a right-click menu to open a link in another environment |
+| `<all_urls>` (host permissions) | Display the colored border and badge on pages matching your environments, whatever their domain, and handle Basic Auth there |
 
 ---
 
@@ -75,7 +91,7 @@ You can delete all data stored by EnvJumper at any time by:
 
 - Removing individual projects in the **Projects** tab
 - Uninstalling the extension (this clears all local storage)
-- Clearing Chrome's synced extension data from your Google account settings
+- Clearing Chrome's synced data from your Google account settings (display preferences only)
 
 ---
 
