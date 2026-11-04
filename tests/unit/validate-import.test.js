@@ -48,6 +48,38 @@ describe('validateImportData', () => {
     };
     expect(validateImportData(data)).toBe(false);
   });
+
+  const withEnv = (env) => ({ groups: [{ name: 'Projet', environments: [{ name: 'Prod', domain: 'x.com', color: '#EF4444', ...env }] }] });
+
+  it('rejects a color that is not #RRGGBB', () => {
+    expect(validateImportData(withEnv({ color: 'red' }))).toBe(false);
+    expect(validateImportData(withEnv({ color: '#EF4444; background:url(https://evil.com)' }))).toBe(false);
+  });
+
+  it('rejects a protocol other than http or https', () => {
+    expect(validateImportData(withEnv({ protocol: 'javascript' }))).toBe(false);
+    expect(validateImportData(withEnv({ protocol: 'http' }))).toBe(true);
+  });
+
+  it('rejects a domain containing credentials, a path or whitespace', () => {
+    expect(validateImportData(withEnv({ domain: 'x.com@evil.com' }))).toBe(false);
+    expect(validateImportData(withEnv({ domain: 'x.com/path' }))).toBe(false);
+    expect(validateImportData(withEnv({ domain: 'x .com' }))).toBe(false);
+  });
+
+  it('accepts a domain with a port, an underscore or unicode characters', () => {
+    expect(validateImportData(withEnv({ domain: 'localhost:8080' }))).toBe(true);
+    expect(validateImportData(withEnv({ domain: 'my_app.local' }))).toBe(true);
+    expect(validateImportData(withEnv({ domain: 'café.fr' }))).toBe(true);
+  });
+
+  it('rejects a link path that does not start with a slash', () => {
+    const data = withEnv({});
+    data.groups[0].links = [{ label: 'Evil', path: '@evil.com' }];
+    expect(validateImportData(data)).toBe(false);
+    data.groups[0].links = [{ label: 'Admin', path: '/wp-admin/' }, { label: 'Vide', path: '' }];
+    expect(validateImportData(data)).toBe(true);
+  });
 });
 
 // ── stripBasicAuth ────────────────────────────────────────────────────────────

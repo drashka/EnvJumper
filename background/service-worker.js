@@ -70,12 +70,23 @@ async function loadAuthCache() {
 
 loadAuthCache();
 
+/**
+ * Request IDs for which credentials were already supplied.
+ * A second challenge on the same request means the credentials were rejected:
+ * we then let Chrome show its native prompt instead of looping forever.
+ */
+const answeredRequests = new Set();
+
 chrome.webRequest.onAuthRequired.addListener(
   (details) => {
+    // Never hand site credentials to a proxy asking for authentication
+    if (details.isProxy) return {};
+    if (answeredRequests.has(details.requestId)) return {};
     try {
       const url = new URL(details.url);
       const credentials = authCache.get(url.hostname) || authCache.get(url.host);
       if (credentials) {
+        answeredRequests.add(details.requestId);
         return { authCredentials: { username: credentials.username, password: credentials.password } };
       }
     } catch {}
@@ -84,6 +95,38 @@ chrome.webRequest.onAuthRequired.addListener(
   { urls: ['<all_urls>'] },
   ['blocking']
 );
+
+const forgetRequest = (details) => answeredRequests.delete(details.requestId);
+chrome.webRequest.onCompleted.addListener(forgetRequest, { urls: ['<all_urls>'] });
+chrome.webRequest.onErrorOccurred.addListener(forgetRequest, { urls: ['<all_urls>'] });
+
+// ── Content script queries ───────────────────────────────────────────────────
+
+/**
+ * Answers GET_ENV_MATCH from the content script with only the color and name
+ * of the matching environment, so that credentials never reach web page processes.
+ * The host is taken from the sender, not from the message.
+ */
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type !== 'GET_ENV_MATCH' || sender.id !== chrome.runtime.id || !sender.url) return false;
+  let host;
+  try { host = new URL(sender.url).host; } catch { sendResponse(null); return false; }
+  chrome.storage.local.get('groups').then(({ groups = [] }) => {
+    const match = findMatch(groups, host);
+    sendResponse(match ? { color: match.env.color, name: match.env.name } : null);
+  });
+  return true;
+});
+
+/**
+ * Asks every tab's content script to refresh its border (after a config change).
+ */
+async function refreshAllTabs() {
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    chrome.tabs.sendMessage(tab.id, { type: 'URL_CHANGED' }).catch(() => {});
+  }
+}
 
 // ── Event listeners ──────────────────────────────────────────────────────────
 
@@ -112,6 +155,7 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area === 'local' && changes.groups) {
     rebuildContextMenus();
     loadAuthCache();
+    refreshAllTabs();
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab) updateBadge(tab.id, tab.url);
   }

@@ -5,6 +5,7 @@
 /**
  * Content script EnvJumper.
  * Injects a colored border + environment name badge around the page.
+ * The matching environment is provided by the service worker (GET_ENV_MATCH).
  * Badge position and visibility are controlled via chrome.storage.sync (settings).
  * Responds to GET_WP_STATUS messages to detect WordPress login status.
  */
@@ -91,59 +92,30 @@
   }
 
   /**
-   * Checks the current hostname against stored groups and applies the border/badge.
-   * Reads settings.showFrame, settings.showLabel, settings.labelPosition.
+   * Asks the service worker which environment matches this page, then applies the border/badge.
+   * The content script never reads the project configuration itself, so Basic Auth
+   * credentials never reach the web page process.
+   * Reads settings.showFrame, settings.showLabel, settings.labelPosition, settings.labelSize.
    */
   function checkAndApplyBorder() {
-    const host = window.location.host;
+    chrome.runtime.sendMessage({ type: 'GET_ENV_MATCH' }, (match) => {
+      if (chrome.runtime.lastError) return;
+      chrome.storage.sync.get(['settings'], (syncResult) => {
+        const s = syncResult.settings || {};
+        const showFrame = s.showFrame !== false;
+        const showLabel = s.showLabel !== false;
+        const position = s.labelPosition || 'top-left';
+        const SIZE_MAP = { s: 11, m: 13, l: 15, xl: 18 };
+        const fontSize = SIZE_MAP[s.labelSize] || 13;
 
-    chrome.storage.local.get(['groups'], (localResult) => {
-    chrome.storage.sync.get(['settings'], (syncResult) => {
-      const groups = localResult.groups || [];
-      const s = syncResult.settings || {};
-      const showFrame = s.showFrame !== false;
-      const showLabel = s.showLabel !== false;
-      const position = s.labelPosition || 'top-left';
-      const SIZE_MAP = { s: 11, m: 13, l: 15, xl: 18 };
-      const fontSize = SIZE_MAP[s.labelSize] || 13;
-
-      let matchColor = null;
-      let matchLabel = null;
-
-      outer: for (const group of groups) {
-        for (const env of group.environments) {
-          if (env.domain === host) {
-            matchColor = env.color;
-            matchLabel = env.name;
-            break outer;
-          }
-        }
-        // WP Multisite: wpSites with prefix at group level
-        if (group.isWordPressMultisite && group.wpSites) {
-          const type = group.wpMultisiteType || 'subdomain';
-          for (const env of group.environments) {
-            for (const site of group.wpSites) {
-              const siteHost = type === 'subdirectory'
-                ? env.domain
-                : (site.prefix ? `${site.prefix}.${env.domain}` : env.domain);
-              if (siteHost === host) {
-                matchColor = env.color;
-                matchLabel = env.name;
-                break outer;
-              }
-            }
-          }
-        }
-      }
-
-      applyBorder(
-        matchColor,
-        showFrame,
-        showLabel ? matchLabel : null,
-        position,
-        fontSize
-      );
-    });
+        applyBorder(
+          match?.color || null,
+          showFrame,
+          showLabel ? match?.name || null : null,
+          position,
+          fontSize
+        );
+      });
     });
   }
 
@@ -153,7 +125,7 @@
    */
   function detectWpLoginStatus() {
     return (
-      document.body.classList.contains('logged-in') ||
+      !!document.body?.classList.contains('logged-in') ||
       !!document.getElementById('wpadminbar')
     );
   }
@@ -161,10 +133,8 @@
   // Apply on initial load
   checkAndApplyBorder();
 
-  // React to storage changes (config or settings modified)
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' || area === 'local') checkAndApplyBorder();
-  });
+  // React to display settings changes (config changes are pushed by the service worker)
+  chrome.storage.sync.onChanged.addListener(() => checkAndApplyBorder());
 
   // Listen for messages from the service worker or popup
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -173,6 +143,6 @@
     } else if (message.type === 'GET_WP_STATUS') {
       sendResponse({ isLoggedIn: detectWpLoginStatus() });
     }
-    return true;
+    return false;
   });
 })();

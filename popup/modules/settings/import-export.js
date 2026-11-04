@@ -31,13 +31,31 @@ export function validateImportData(data) {
   if (!data || typeof data !== 'object') return false;
   if (!Array.isArray(data.groups)) return false;
   for (const g of data.groups) {
-    if (!g.name || !Array.isArray(g.environments)) return false;
+    if (!g || !g.name || !Array.isArray(g.environments)) return false;
     for (const e of g.environments) {
-      if (!e.name || !e.domain || !e.color) return false;
+      if (!e || !e.name || !e.domain || !e.color) return false;
+      // Color is injected into page styles by the content script
+      if (typeof e.color !== 'string' || !HEX_COLOR_RE.test(e.color)) return false;
+      // Domain is used to build URLs: forbid anything that could change the target host
+      if (typeof e.domain !== 'string' || !DOMAIN_RE.test(e.domain)) return false;
+      if (e.protocol !== undefined && e.protocol !== 'https' && e.protocol !== 'http') return false;
+    }
+    if (g.links !== undefined) {
+      if (!Array.isArray(g.links)) return false;
+      for (const l of g.links) {
+        // Paths are appended to the domain: they must stay relative to the root
+        if (!l || (l.path && (typeof l.path !== 'string' || !l.path.startsWith('/')))) return false;
+      }
     }
   }
   return true;
 }
+
+/** Strict #RRGGBB color. */
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
+
+/** Hostname with optional port: no scheme, path, credentials or whitespace. */
+const DOMAIN_RE = /^[\p{L}\p{N}._-]+(:\d{1,5})?$/u;
 
 /**
  * Returns a copy of groups with all basicAuth credentials removed from environments.
