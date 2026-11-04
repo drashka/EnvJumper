@@ -114,7 +114,13 @@ export function initContextMenuListener() {
           url.hostname = targetEnv.domain;
           url.port = '';
         }
-        chrome.tabs.create({ url: url.toString() });
+        // Open right after the source tab, like a native "open link in new tab"
+        chrome.tabs.create({
+          url: url.toString(),
+          index: tab.index + 1,
+          windowId: tab.windowId,
+          openerTabId: tab.id,
+        });
       } catch {}
     });
   });
