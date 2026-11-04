@@ -5,7 +5,7 @@ import { mkdirSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const LANGUAGES = ['fr', 'en'];
+const LANGUAGES = ['fr', 'en', 'es'];
 const SLIDES = [
   'slide-01-hero',
   'slide-02-switch',
