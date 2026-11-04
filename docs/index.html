@@ -1,0 +1,226 @@
+<!doctype html>
+<!-- Generated from site/template.html by site/build.js — do not edit -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EnvJumper — Jump between your web environments in one click</title>
+  <meta name="description" content="Chrome extension to switch between Production, Staging and Dev while keeping the current page. Colored border, CMS admin links, Basic Auth. Free and open source.">
+  <meta property="og:title" content="EnvJumper">
+  <meta property="og:description" content="One click, same page, different environment. Free and open source Chrome extension.">
+  <meta property="og:image" content="https://drashka.github.io/EnvJumper/assets/og-image.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <link rel="canonical" href="https://drashka.github.io/EnvJumper/">
+  <link rel="alternate" hreflang="en" href="https://drashka.github.io/EnvJumper/">
+  <link rel="alternate" hreflang="fr" href="https://drashka.github.io/EnvJumper/fr/">
+  <link rel="alternate" hreflang="es" href="https://drashka.github.io/EnvJumper/es/">
+  <link rel="alternate" hreflang="x-default" href="https://drashka.github.io/EnvJumper/">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    (function () {
+      var routes = { fr: 'fr/', es: 'es/' };
+      var stored = null;
+      try { stored = localStorage.getItem('ej-lang'); } catch (e) {}
+      var lang = (navigator.language || '').slice(0, 2).toLowerCase();
+      if (!stored && routes[lang]) location.replace(routes[lang] + location.hash);
+    })();
+  </script>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Page-wide frame that mirrors the demo's active environment -->
+  <div class="page-frame" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top">
+      <img src="assets/logo.png" alt="" width="32" height="32">
+      <span>EnvJumper</span>
+    </a>
+    <nav class="nav__links">
+      <a href="#features">Features</a>
+      <a href="#tour">Tour</a>
+      <a href="#install">Install</a>
+    </nav>
+    <div class="nav__right">
+      <nav class="lang" aria-label="Language">
+        <a href="./" hreflang="en" lang="en" data-lang="en" aria-current="page">EN</a>
+        <a href="./fr/" hreflang="fr" lang="fr" data-lang="fr">FR</a>
+        <a href="./es/" hreflang="es" lang="es" data-lang="es">ES</a>
+      </nav>
+      <a class="gh" href="https://github.com/drashka/EnvJumper" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero__text">
+        <p class="chips">
+          <span class="chip chip--solid">Free &amp; open source</span>
+          <span class="chip">No account · No tracking</span>
+        </p>
+        <h1>
+          <span>Same page.</span><br>
+          <span class="hero__accent">Different environment.</span>
+        </h1>
+        <p class="hero__lead">Stop retyping URLs. EnvJumper switches between Production, Staging and Dev in one click, keeps the path, and paints a colored border so you always know where you are.</p>
+        <div class="cta">
+          <a class="btn btn--primary" href="#install">Add to Chrome</a>
+          <a class="btn btn--ghost" href="https://github.com/drashka/EnvJumper">View on GitHub</a>
+        </div>
+      </div>
+
+      <!-- Interactive demo: fake browser + mini popup -->
+      <div class="demo" id="demo">
+        <div class="browser">
+          <div class="browser__bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <div class="url" aria-live="polite">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              <span class="url__scheme">https://</span><span class="url__domain" id="demo-domain">myproject.com</span><span class="url__path">/blog/release-notes?ref=nav#comments</span>
+            </div>
+          </div>
+          <div class="browser__view">
+            <div class="env-frame" id="demo-frame"></div>
+            <span class="env-badge" id="demo-badge">Production</span>
+            <div class="skeleton">
+              <div class="sk sk--title"></div>
+              <div class="sk"></div><div class="sk"></div><div class="sk sk--short"></div>
+              <div class="sk-row"><div class="sk sk--card"></div><div class="sk sk--card"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="popup" role="group" aria-label="Environments">
+          <div class="popup__head">
+            <img src="assets/logo.png" alt="" width="18" height="18">
+            <strong>Acme Shop</strong>
+          </div>
+          <button type="button" class="env" data-env="0" style="--c:#EF4444"><i></i><span>Production</span><small>myproject.com</small></button>
+          <button type="button" class="env" data-env="1" style="--c:#F97316"><i></i><span>Staging</span><small>staging.myproject.com</small></button>
+          <button type="button" class="env" data-env="2" style="--c:#10B981"><i></i><span>Dev</span><small>dev.myproject.com</small></button>
+          <p class="popup__hint">Click an environment ↑</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem strip -->
+    <section class="story">
+      <p>You spot a bug on production. You want to check on staging. New tab, retype the URL, swap the subdomain, hit Enter…</p>
+      <p class="story__punch">EnvJumper does that in one click.</p>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+      <h2>Everything a multi-environment workflow needs</h2>
+      <div class="grid">
+        <article class="feat" style="--c:#3B82F6">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></span>
+          <h3>One-click switching</h3>
+          <p>Path, query string and hash preserved. Open in the current tab or a new one.</p>
+        </article>
+        <article class="feat" style="--c:#EF4444">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></span>
+          <h3>Always know where you are</h3>
+          <p>Colored border on the page, a label badge, and the environment initials on the toolbar icon.</p>
+        </article>
+        <article class="feat" style="--c:#8B5CF6">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
+          <h3>CMS admin shortcuts</h3>
+          <p>WordPress (incl. Multisite), Joomla, Drupal, PrestaShop, Magento and Shopify — detected automatically.</p>
+        </article>
+        <article class="feat" style="--c:#10B981">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+          <h3>Your own quick links</h3>
+          <p>A staging API, a metrics dashboard, a back office: one click away, on every environment.</p>
+        </article>
+        <article class="feat" style="--c:#F97316">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <h3>Basic Auth handled</h3>
+          <p>Password-protected staging? Enter the credentials once, EnvJumper answers the prompt for you.</p>
+        </article>
+        <article class="feat" style="--c:#6B7280">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-2 6z"/></svg></span>
+          <h3>Right-click to switch</h3>
+          <p>Right-click any link on a recognized page and open it in another environment.</p>
+        </article>
+        <article class="feat" style="--c:#3B82F6">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v13"/></svg></span>
+          <h3>Share with your team</h3>
+          <p>Export to JSON, send it to a colleague, import. Merge or replace — everyone gets the same setup.</p>
+        </article>
+        <article class="feat" style="--c:#10B981">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <h3>Demo mode</h3>
+          <p>Presenting to a client? Hide the border and badge from the settings in one toggle.</p>
+        </article>
+      </div>
+      <ul class="cms">
+        <li>WordPress</li><li>WP Multisite</li><li>Joomla</li><li>Drupal</li><li>PrestaShop</li><li>Magento</li><li>Shopify</li>
+      </ul>
+    </section>
+
+    <!-- Tour -->
+    <section class="tour" id="tour">
+      <h2>Take the tour</h2>
+      <div class="tour__tabs" role="tablist">
+        <button type="button" role="tab" data-slide="02-switch">Switch</button>
+        <button type="button" role="tab" data-slide="03-cms">CMS</button>
+        <button type="button" role="tab" data-slide="04-auth">Basic Auth</button>
+        <button type="button" role="tab" data-slide="05-team">Team</button>
+      </div>
+      <figure class="tour__frame">
+        <img id="tour-img" src="assets/slides/en/02-switch.png" alt="EnvJumper screenshot" width="1280" height="800" loading="lazy">
+      </figure>
+    </section>
+
+    <!-- Privacy -->
+    <section class="privacy">
+      <div>
+        <h2>Your data stays on your device</h2>
+        <p>Projects and credentials are stored locally in Chrome. No account, no server, no analytics. The only outside request is Google's favicon service, used when a project's icon can't be loaded directly.</p>
+        <a href="https://github.com/drashka/EnvJumper/blob/main/PRIVACY.md">Read the privacy policy →</a>
+      </div>
+      <ul class="privacy__facts">
+        <li><strong>0</strong><span>trackers</span></li>
+        <li><strong>GPL v3</strong><span>open source license</span></li>
+        <li><strong>3</strong><span>languages: EN · FR · ES</span></li>
+      </ul>
+    </section>
+
+    <!-- Install -->
+    <section class="install" id="install">
+      <h2>Get started in a minute</h2>
+      <div class="install__cols">
+        <div class="card">
+          <h3>Chrome Web Store</h3>
+          <p>The easiest way: install it from the store and get automatic updates.</p>
+          <a class="btn btn--primary" id="store-link" href="https://github.com/drashka/EnvJumper/releases/latest">Add to Chrome</a>
+        </div>
+        <div class="card">
+          <h3>From source</h3>
+          <ol>
+            <li><code>git clone https://github.com/drashka/EnvJumper.git</code></li>
+            <li>Open chrome://extensions and enable Developer mode</li>
+            <li>Click “Load unpacked” and select the folder</li>
+          </ol>
+        </div>
+      </div>
+      <p class="install__tip"><kbd>Alt</kbd> + <kbd>J</kbd> <span>opens the popup from anywhere.</span></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><span>Vibe coded with ❤️ by</span> <a href="https://github.com/drashka">Drashka</a> <span>and</span> <a href="https://claude.com/claude-code">Claude Code</a> · <a href="https://github.com/drashka/EnvJumper/blob/main/LICENSE">GPL v3</a> · <a href="https://github.com/drashka/EnvJumper">GitHub</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

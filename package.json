@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "build:site": "node site/build.js",
     "screenshots": "node screenshots/generate.js",
     "screenshots:extension": "node screenshots/capture-extension.js",
     "test": "npm run test:unit && npm run test:e2e",
