@@ -49,26 +49,34 @@ async function updateBadge(tabId, url) {
 /**
  * In-memory cache of basic auth credentials.
  * Structure: Map<domain, { username, password }>
- * Enables synchronous ("blocking") response to auth challenges.
+ * Keys are lowercased hosts, including WP Multisite subdomains of the env.
  */
 let authCache = new Map();
 
+/**
+ * Resolves once the cache reflects the stored groups.
+ * An auth challenge can be the very event that wakes the service worker up,
+ * so the listener must wait for it instead of reading a still-empty cache.
+ */
+let authCacheReady = loadAuthCache();
+
 async function loadAuthCache() {
   const { groups = [] } = await chrome.storage.local.get('groups');
-  authCache.clear();
+  const cache = new Map();
   for (const group of groups) {
+    const prefixes = group.isWordPressMultisite && (group.wpMultisiteType || 'subdomain') === 'subdomain'
+      ? (group.wpSites || []).map((site) => site.prefix).filter(Boolean)
+      : [];
     for (const env of group.environments || []) {
-      if (env.basicAuth?.enabled && env.basicAuth.username) {
-        authCache.set(env.domain, {
-          username: env.basicAuth.username,
-          password: env.basicAuth.password || '',
-        });
-      }
+      if (!env.domain || !env.basicAuth?.enabled || !env.basicAuth.username) continue;
+      const credentials = { username: env.basicAuth.username, password: env.basicAuth.password || '' };
+      const domain = env.domain.trim().toLowerCase();
+      cache.set(domain, credentials);
+      for (const prefix of prefixes) cache.set(`${prefix}.${domain}`.toLowerCase(), credentials);
     }
   }
+  authCache = cache;
 }
-
-loadAuthCache();
 
 /**
  * Request IDs for which credentials were already supplied.
@@ -78,22 +86,22 @@ loadAuthCache();
 const answeredRequests = new Set();
 
 chrome.webRequest.onAuthRequired.addListener(
-  (details) => {
+  (details, respond) => {
     // Never hand site credentials to a proxy asking for authentication
-    if (details.isProxy) return {};
-    if (answeredRequests.has(details.requestId)) return {};
-    try {
-      const url = new URL(details.url);
-      const credentials = authCache.get(url.hostname) || authCache.get(url.host);
-      if (credentials) {
-        answeredRequests.add(details.requestId);
-        return { authCredentials: { username: credentials.username, password: credentials.password } };
-      }
-    } catch {}
-    return {};
+    if (details.isProxy || answeredRequests.has(details.requestId)) { respond({}); return; }
+    authCacheReady.catch(() => {}).then(() => {
+      let credentials;
+      try {
+        const url = new URL(details.url);
+        credentials = authCache.get(url.hostname) || authCache.get(url.host);
+      } catch {}
+      if (!credentials) { respond({}); return; }
+      answeredRequests.add(details.requestId);
+      respond({ authCredentials: { username: credentials.username, password: credentials.password } });
+    });
   },
   { urls: ['<all_urls>'] },
-  ['blocking']
+  ['asyncBlocking']
 );
 
 const forgetRequest = (details) => answeredRequests.delete(details.requestId);
@@ -154,7 +162,7 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area === 'local' && changes.groups) {
     rebuildContextMenus();
-    loadAuthCache();
+    authCacheReady = loadAuthCache();
     refreshAllTabs();
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab) updateBadge(tab.id, tab.url);

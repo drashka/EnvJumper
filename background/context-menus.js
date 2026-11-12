@@ -22,6 +22,20 @@ export function rebuildContextMenus() {
   rebuildMenusTimer = setTimeout(_doRebuildContextMenus, 100);
 }
 
+/**
+ * Creates a menu item, or updates it when an item with the same id already exists.
+ * removeAll() does not guarantee an empty menu: when the service worker has just
+ * started, Chrome may still be restoring the items persisted by a previous run.
+ * @param {object} props - chrome.contextMenus.create properties (with an id)
+ */
+function upsertMenuItem(props) {
+  chrome.contextMenus.create(props, () => {
+    if (!chrome.runtime.lastError) return;
+    const { id, ...changes } = props;
+    chrome.contextMenus.update(id, changes, () => void chrome.runtime.lastError);
+  });
+}
+
 async function _doRebuildContextMenus() {
   isRebuilding = true;
   rebuildPending = false;
@@ -42,7 +56,7 @@ async function _doRebuildContextMenus() {
 
         const documentUrlPatterns = [...allDomains].flatMap((d) => [`http://${d}/*`, `https://${d}/*`]);
 
-        chrome.contextMenus.create({ id: 'envjump-root', title: 'EnvJumper', contexts: ['link'], documentUrlPatterns });
+        upsertMenuItem({ id: 'envjump-root', title: 'EnvJumper', contexts: ['link'], documentUrlPatterns });
 
         groups.forEach((group) => {
           // Build patterns restricted to this group's domains only
@@ -58,7 +72,7 @@ async function _doRebuildContextMenus() {
 
           (group.environments || []).forEach((env) => {
             if (!env.domain) return;
-            chrome.contextMenus.create({
+            upsertMenuItem({
               id: `envjump-env-${env.id}`,
               parentId: 'envjump-root',
               title: `${group.name} → ${env.name}`,
