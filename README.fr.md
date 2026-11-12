@@ -7,6 +7,7 @@
 </p>
 
 <p align="center">
+  🌐 <a href="https://drashka.github.io/EnvJumper/fr/">Site web</a> ·
   🇬🇧 <a href="README.md">English version</a>
 </p>
 
